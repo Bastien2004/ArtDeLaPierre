@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+    --stone-dark: #2c3e50;
+    --stone-medium: #95a5a6;
+    --stone-light: #f4f7f6;
+    --stone-accent: #a89f91;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #eef2f3;
+    margin: 0;
+}
+
+.container-fluid { padding: 30px; }
+
+.header-section {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 3px solid var(--stone-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--stone-dark);
+}
+
+.btn-add {
+    background-color: var(--stone-dark);
+    color: white !important;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.table-container {
+    background: white;
+    padding: 15px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Style du tableau type "Plan Technique" */
+table.dataTable {
+    border: 1px solid #dee2e6 !important;
+}
+
+table.dataTable thead th {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid var(--stone-accent) !important;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-align: center !important;
+}
+
+table.dataTable tbody td {
+    border: 1px solid #f1f1f1 !important;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+/* Mise en valeur du client et du total */
+.col-client { text-align: left !important; font-weight: 600; }
+.col-total { font-weight: 800; color: #2c3e50; background-color: #fcfcfc; }
+
+.btn-action {
+    text-decoration: none;
+    font-size: 1.1rem;
+    margin: 0 5px;
+}
