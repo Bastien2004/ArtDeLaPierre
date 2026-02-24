@@ -1,139 +1,290 @@
-/* --- BASE & THÈME MINÉRAL --- */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Inter:wght@300;400;600&display=swap');
+/* --- CONFIGURATION & POLICES --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-    --stone-dark: #2c3e50;    /* Ardoise */
-    --stone-medium: #7f8c8d;  /* Gris pierre */
-    --stone-light: #f4f7f6;   /* Pierre calcaire claire */
-    --stone-accent: #a89f91;  /* Teinte sable/mortier */
-    --bg-app: #eef2f3;
+    --stone-dark: #1a252f;    /* Bleu ardoise profond */
+    --stone-medium: #95a5a6;  /* Gris satiné */
+    --stone-light: #f8fafb;   /* Off-white minéral */
+    --stone-accent: #c5b9a5;  /* Sable doré / Pierre de taille */
+    --bg-app: #f0f2f5;
+    --danger: #ff4757;        /* Rouge corail moderne */
+    --success: #2ed573;       /* Vert émeraude */
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-app);
+    background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
     color: var(--stone-dark);
     margin: 0;
-    padding: 0;
+    line-height: 1.6;
 }
 
 .container {
-    padding: 40px;
-    max-width: 1200px;
+    padding: 60px 20px;
+    max-width: 950px;
     margin: auto;
 }
 
-/* --- EN-TÊTE --- */
-.header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 3px solid var(--stone-accent);
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+/* --- LE FORMULAIRE (CARTE PRINCIPALE) --- */
+form {
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: visible;
+}
+
+form::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-accent));
+    border-radius: 20px 20px 0 0;
 }
 
 h1 {
     font-family: 'Cinzel', serif;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1.8rem;
+    text-align: center;
+    font-size: 2.2rem;
+    color: var(--stone-dark);
+    margin-bottom: 50px;
+    letter-spacing: 3px;
 }
 
-/* --- CARTE DU FORMULAIRE --- */
-.form-card {
-    background: white;
-    max-width: 800px;
-    margin: 30px auto;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border-top: 5px solid var(--stone-dark); /* Rappel de la solidité de la pierre */
-}
-
+/* --- SECTIONS --- */
 .section-title {
     font-family: 'Cinzel', serif;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin: 30px 0 20px 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     color: var(--stone-accent);
-    font-size: 1.1rem;
-    letter-spacing: 1px;
+    margin: 40px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-/* --- GRILLE & CHAMPS --- */
+.section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+/* --- BLOCS DE PIERRES (LIGNES DYNAMIQUES) --- */
+.ligne-pierre {
+    background: var(--stone-light);
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid rgba(0,0,0,0.03);
+    margin-bottom: 35px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ligne-pierre:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    border-color: var(--stone-accent);
+}
+
+/* Grille des Mesures Principales */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
     gap: 20px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group.full {
-    grid-column: span 2;
-}
-
-label {
+/* --- CHAMPS DE SAISIE --- */
+.form-group label {
     display: block;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
     margin-bottom: 8px;
-    color: var(--stone-dark);
-    font-size: 0.9rem;
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+.sub-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+input[type="text"],
+input[type="number"] {
+    background: white;
+    border: 1.5px solid #e1e8ed;
+    padding: 12px 15px;
+    border-radius: 10px;
     font-size: 1rem;
+    color: var(--stone-dark);
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 input:focus {
-    border-color: var(--stone-accent);
     outline: none;
-    box-shadow: 0 0 8px rgba(168, 159, 145, 0.3);
-    background-color: #fff;
+    border-color: var(--stone-dark);
+    box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.05);
 }
 
-/* --- BOUTON D'ACTION --- */
-.btn-submit {
-    background-color: var(--stone-dark);
-    color: white;
-    border: none;
-    padding: 16px 30px;
-    border-radius: 6px;
-    font-weight: 600;
+/* --- SECTION SPÉCIFICITÉS (DANS LA PIERRE) --- */
+.specs-wrapper {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px dashed var(--stone-accent);
+}
+
+.form-grid-specs {
+    display: grid;
+    grid-template-columns: 2fr 1fr 40px;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.btn-add-spec {
+    background: white;
+    border: 1px solid var(--stone-accent);
+    color: var(--stone-dark);
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
-    width: 100%;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: 0.3s;
-    margin-top: 20px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    margin-top: 5px;
 }
 
-.btn-submit:hover {
-    background-color: var(--stone-accent);
+.btn-add-spec:hover {
+    background: var(--stone-dark);
+    color: white;
+    border-color: var(--stone-dark);
+}
+
+/* --- BOUTONS DE SUPPRESSION --- */
+.remove-line {
+    position: absolute;
+    right: -12px;
+    top: -12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    background: white !important;
+    color: var(--danger) !important;
+    border: 2px solid #fceaea !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 10;
+}
+
+.remove-line:hover {
+    background: var(--danger) !important;
+    color: white !important;
+    transform: rotate(90deg) scale(1.1);
+}
+
+.remove-spec {
+    background: white;
+    color: var(--danger);
+    border: 1px solid #ffeaea;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.remove-spec:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* --- BOUTON AJOUTER PIERRE --- */
+#add-line {
+    background: white;
+    border: 2px solid var(--stone-accent);
+    color: var(--stone-dark);
+    padding: 14px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin: 30px auto;
+}
+
+#add-line:hover {
+    background: var(--stone-dark);
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* --- LIEN RETOUR --- */
-.back-link {
-    text-decoration: none;
-    color: var(--stone-medium);
-    font-size: 0.9rem;
-    transition: 0.3s;
+/* --- BOUTON PRINCIPAL (VALIDER) --- */
+.btn-submit {
+    background: linear-gradient(145deg, var(--stone-dark), #34495e);
+    color: white;
+    border: none;
+    padding: 22px;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 50px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.back-link:hover {
-    color: var(--stone-dark);
+.btn-submit:hover {
+    background: var(--success);
+    transform: scale(1.01);
+    box-shadow: 0 15px 30px rgba(46, 213, 115, 0.3);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 800px) {
+    .form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .form-grid-specs {
+        grid-template-columns: 1fr;
+    }
+    form {
+        padding: 30px 20px;
+    }
 }

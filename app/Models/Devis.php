@@ -7,12 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class Devis extends Model
 {
     protected $fillable = [
-        'client', 'adresse', 'typePierre', 'longueurCM', 'largeurCM',
-        'epaisseurCM', 'matiere', 'prixM2', 'rejingotML', 'oreilles'
+        'client',
+        'adresse',
+        'typePierre',
+        'nombrePierre',
+        'longueurM',
+        'largeurM',
+        'matiere',
+        'prixM2',
+        'rejingotML',
+        'oreilles',
+        'prixHT',
+        'prixUnitairePierre'
     ];
 
-    public function supplements()
+    public function specificites()
     {
-        return $this->belongsToMany(Supplement::class)->withPivot('quantite');
+        return $this->hasMany(Specificite::class);
     }
 }

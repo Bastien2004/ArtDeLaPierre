@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --stone-dark: #1a252f;
+    --stone-accent: #c5b9a5;
+    --stone-light: #f8fafb;
+    --bg-body: #f4f7f9;
+    --border-subtle: #e2e8f0;
+    --text-muted: #64748b;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-body);
+    margin: 0; padding: 20px;
+}
+
+.container-fluid {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    max-width: 1400px; /* Limite la largeur max pour la lisibilité */
+    margin: 0 auto;
+}
+
+.table-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--stone-dark);
+}
+
+.btn-new {
+    background: var(--stone-dark);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-new:hover { background: var(--stone-accent); color: var(--stone-dark); }
+
+/* --- DATA TABLES FIXES --- */
+.dataTables_wrapper { width: 100%; margin: 0 auto; }
+
+table.dataTable {
+    width: 100% !important;
+    margin: 0 auto !important;
+    border-collapse: collapse !important;
+    border: none !important;
+}
+
+table.dataTable thead th {
+    background: #f8fafc !important;
+    color: var(--text-muted) !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase;
+    padding: 15px 10px !important;
+    border-bottom: 2px solid var(--stone-dark) !important;
+    text-align: left !important; /* Alignement forcé avec les données */
+}
+
+/* --- GROUPES --- */
+.group-header td {
+    background-color: var(--stone-dark) !important;
+    padding: 15px 20px !important;
+}
+
+.group-title {
+    color: white !important;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+}
+
+.col-total-groupe {
+    color: var(--stone-accent) !important;
+    font-weight: 800 !important;
+    text-align: right !important;
+}
+
+/* --- DETAILS --- */
+.row-detail td {
+    padding: 15px 10px !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    vertical-align: top;
+}
+
+.col-pierre { min-width: 250px; }
+.stone-name { font-weight: 700; color: var(--stone-dark); margin-bottom: 5px; }
+
+.specs-mini-list {
+    background: var(--stone-light);
+    border-left: 3px solid var(--stone-accent);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+}
+
+.spec-item {
+    font-size: 0.75rem;
+    color: #475569;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.spec-price { font-weight: 600; color: var(--stone-dark); }
+
+.col-total-ligne { font-weight: 700; text-align: right !important; }
+
+/* UTILS */
+.txt-right { text-align: right !important; }
+.txt-center { text-align: center !important; }
+
+.edit-link { font-size: 1.2rem; text-decoration: none; transition: 0.2s; display: inline-block; }
+.edit-link:hover { transform: scale(1.2); }
