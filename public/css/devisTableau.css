@@ -7,12 +7,17 @@
     --bg-body: #f4f7f9;
     --border-subtle: #e2e8f0;
     --text-muted: #64748b;
+    --danger: #ef4444;
+    --blue-edit: #2563eb;
 }
 
+/* --- BASE --- */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-body);
-    margin: 0; padding: 20px;
+    margin: 0;
+    padding: 20px;
+    color: var(--stone-dark);
 }
 
 .container-fluid {
@@ -20,7 +25,7 @@ body {
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    max-width: 1400px; /* Limite la largeur max pour la lisibilité */
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -35,22 +40,31 @@ h1 {
     font-family: 'Cinzel', serif;
     font-size: 1.6rem;
     color: var(--stone-dark);
+    margin: 0;
 }
 
+/* --- BOUTONS PRINCIPAUX --- */
 .btn-new {
     background: var(--stone-dark);
-    color: white;
+    color: white !important;
     padding: 10px 22px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     transition: 0.3s;
+    display: inline-block;
 }
 
-.btn-new:hover { background: var(--stone-accent); color: var(--stone-dark); }
+.btn-new:hover {
+    background: var(--stone-accent);
+    color: var(--stone-dark) !important;
+}
 
 /* --- DATA TABLES FIXES --- */
-.dataTables_wrapper { width: 100%; margin: 0 auto; }
+.dataTables_wrapper {
+    width: 100%;
+    margin: 0 auto;
+}
 
 table.dataTable {
     width: 100% !important;
@@ -66,42 +80,115 @@ table.dataTable thead th {
     text-transform: uppercase;
     padding: 15px 10px !important;
     border-bottom: 2px solid var(--stone-dark) !important;
-    text-align: left !important; /* Alignement forcé avec les données */
 }
 
-/* --- GROUPES --- */
+/* --- GROUPES (En-têtes de devis) --- */
 .group-header td {
     background-color: var(--stone-dark) !important;
-    padding: 15px 20px !important;
+    padding: 0 !important; /* On laisse le group-content gérer le padding interne */
 }
 
-.group-title {
-    color: white !important;
+.group-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    width: 100%;
+}
+
+.group-left {
+    display: flex;
+    align-items: center;
+}
+
+.group-right {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Espace entre le bouton et le total */
+}
+
+.group-left .btn-icon {
+    margin-right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.group-left .btn-icon:hover {
+    background: var(--stone-accent);
+    color: var(--stone-dark);
+}
+
+.client-name {
+    color: white;
     font-family: 'Cinzel', serif;
-    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.group-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-left: 10px;
 }
 
 .col-total-groupe {
     color: var(--stone-accent) !important;
     font-weight: 800 !important;
-    text-align: right !important;
+    font-size: 1.1rem;
+    white-space: nowrap;
 }
 
-/* --- DETAILS --- */
+/* Bouton Ajouter ligne dans le bandeau */
+.btn-add-line {
+    background: rgba(197, 185, 165, 0.15);
+    color: var(--stone-accent) !important;
+    border: 1px solid var(--stone-accent);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.btn-add-line:hover {
+    background: var(--stone-accent);
+    color: var(--stone-dark) !important;
+}
+
+/* --- LIGNES DE DÉTAIL --- */
 .row-detail td {
-    padding: 15px 10px !important;
+    padding: 12px 10px !important;
     border-bottom: 1px solid var(--border-subtle) !important;
-    vertical-align: top;
+    vertical-align: middle !important;
+    background: white;
 }
 
-.col-pierre { min-width: 250px; }
+.col-ref { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+.col-pierre {
+    min-width: 0px;
+}
 .stone-name { font-weight: 700; color: var(--stone-dark); margin-bottom: 5px; }
 
 .specs-mini-list {
     background: var(--stone-light);
     border-left: 3px solid var(--stone-accent);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 0 6px 6px 0;
+    margin-top: 5px;
+    display: inline-block;
+    min-width: 180px;
+    max-width: 280px;
 }
 
 .spec-item {
@@ -109,16 +196,141 @@ table.dataTable thead th {
     color: #475569;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 15px;
     margin-bottom: 2px;
 }
 
-.spec-price { font-weight: 600; color: var(--stone-dark); }
+/* Le prix spécifique */
+.spec-price {
+    font-weight: 600;
+    color: var(--stone-dark);
+    white-space: nowrap;
+}
 
 .col-total-ligne { font-weight: 700; text-align: right !important; }
 
-/* UTILS */
+/* --- ACTIONS --- */
+.col-actions {
+    text-align: center;
+}
+
+.btn-edit-modal, .btn-delete-trigger {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 0 2px;
+}
+
+.btn-edit-modal { color: var(--blue-edit); }
+.btn-edit-modal:hover {
+    background: #eff6ff;
+    border-color: var(--blue-edit);
+    transform: translateY(-2px);
+}
+
+.btn-delete-trigger { color: var(--danger); }
+.btn-delete-trigger:hover {
+    background: #fef2f2;
+    border-color: var(--danger);
+    transform: translateY(-2px);
+}
+
+/* --- MODAL DESIGN --- */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    background: var(--stone-dark);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.2rem 1.5rem;
+}
+
+.modal-title {
+    font-family: 'Cinzel', serif;
+}
+
+.btn-close { filter: invert(1) brightness(200%); }
+
+.modal-body h6 {
+    font-family: 'Cinzel', serif;
+    color: var(--stone-dark);
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--stone-accent);
+    display: inline-block;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.spec-row-edit {
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px !important;
+}
+
+#add-spec-edit {
+    width: 100%;
+    border: 2px dashed var(--border-subtle);
+    background: transparent;
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: 0.2s;
+}
+
+#add-spec-edit:hover {
+    background: var(--stone-light);
+    border-color: var(--stone-accent);
+    color: var(--stone-dark);
+}
+
+/* --- RECHERCHE DATATABLES --- */
+.dataTables_wrapper .top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+.dataTables_filter label {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.dataTables_filter input {
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    margin-left: 10px !important;
+    outline: none;
+    width: 250px;
+}
+
+.dataTables_filter input:focus {
+    border-color: var(--stone-accent) !important;
+    box-shadow: 0 0 0 3px rgba(197, 185, 165, 0.15);
+}
+
+/* --- UTILS --- */
 .txt-right { text-align: right !important; }
 .txt-center { text-align: center !important; }
-
-.edit-link { font-size: 1.2rem; text-decoration: none; transition: 0.2s; display: inline-block; }
-.edit-link:hover { transform: scale(1.2); }

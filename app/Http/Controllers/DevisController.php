@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class DevisController extends Controller
 {
     public function index() {
-        // Groupe par Client + Heure minute pour séparer les devis faits à des moments différents
+        // Groupe par Client + Date et Heure (Y-m-d H:i)
         $devisGroupes = Devis::with('specificites')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -20,19 +20,24 @@ class DevisController extends Controller
         return view('devis.devis', compact('devisGroupes'));
     }
 
-    public function create()
-    {
-        return view('devis.create');
+    public function create(Request $request) {
+        $clientPrefill = $request->query('client_prefill');
+        $adressePrefill = $request->query('adresse_prefill'); // Récupération
+        $timePrefill = $request->query('time_prefill');
+
+        return view('devis.create', compact('clientPrefill', 'adressePrefill', 'timePrefill'));
     }
 
     public function store(Request $request)
     {
-        foreach ($request->lignes as $ligneData) {
+        // On vérifie si une date est envoyée via le bouton "Ajouter une ligne"
+        // Sinon, on utilise l'heure actuelle (now()) pour un vrai nouveau devis.
+        $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
 
+        foreach ($request->lignes as $ligneData) {
             $matiere = $ligneData['longueurM'] * $ligneData['largeurM'];
             $prixPierreSeule = $matiere * $ligneData['prixM2'];
 
-            //Calcul de la somme des spécificités pour UNE unité
             $totalSpecsUnitaire = 0;
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
@@ -44,20 +49,24 @@ class DevisController extends Controller
 
             $prixHTFinal = ($prixPierreSeule + $totalSpecsUnitaire) * $ligneData['nombrePierre'];
 
-            //Création de la ligne en BDD
-            $devis = Devis::create([
+            // On utilise "make" au lieu de "create" pour pouvoir manipuler les dates avant save
+            $devis = new Devis([
                 'client'       => $request->client,
-                'adresse'      => $request->adresse,
+                'adresse'      => $request->adresse ?? '', // Sécurité pour ton erreur SQLite
                 'typePierre'   => $ligneData['typePierre'],
                 'nombrePierre' => $ligneData['nombrePierre'],
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
                 'matiere'      => $matiere,
                 'prixM2'       => $ligneData['prixM2'],
-                'prixHT'       => $prixHTFinal, // Le total inclut déjà tout
+                'prixHT'       => $prixHTFinal,
             ]);
 
-            //Enregistrement du détail des spécificités pour l'affichage
+            // FORCE l'heure pour correspondre au groupe existant
+            $devis->created_at = $dateCreation;
+            $devis->updated_at = $dateCreation;
+            $devis->save();
+
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
@@ -70,7 +79,7 @@ class DevisController extends Controller
             }
         }
 
-        return redirect()->route('devis.index')->with('success', 'Devis enregistré !');
+        return redirect()->route('devis.index')->with('success', 'Ligne ajoutée au devis !');
     }
 
     public function edit(string $id)
@@ -82,7 +91,47 @@ class DevisController extends Controller
     public function update(Request $request, string $id)
     {
         $devis = Devis::findOrFail($id);
-        $devis->update($request->all());
-        return redirect()->route('devis.index')->with('success', 'Devis mis à jour !');
+
+        // 1. Gérer les spécificités (On supprime tout et on recrée pour simplifier la synchro)
+        $devis->specificites()->delete();
+
+        $totalSpecsUnitaire = 0;
+        if ($request->has('specs')) {
+            foreach ($request->specs as $specData) {
+                if (!empty($specData['nom'])) {
+                    $devis->specificites()->create([
+                        'nom' => $specData['nom'],
+                        'prix' => $specData['prix'] ?? 0
+                    ]);
+                    $totalSpecsUnitaire += (float) ($specData['prix'] ?? 0);
+                }
+            }
+        }
+
+        // 2. Calculs
+        $matiere = $request->longueurM * $request->largeurM;
+        $prixPierreSeule = $matiere * $request->prixM2;
+        $prixHTFinal = ($prixPierreSeule + $totalSpecsUnitaire) * $request->nombrePierre;
+
+        // 3. Update final
+        $devis->update([
+            'typePierre'   => $request->typePierre,
+            'nombrePierre' => $request->nombrePierre,
+            'longueurM'    => $request->longueurM,
+            'largeurM'     => $request->largeurM,
+            'prixM2'       => $request->prixM2,
+            'matiere'      => $matiere,
+            'prixHT'       => $prixHTFinal,
+        ]);
+
+        return redirect()->route('devis.index')->with('success', 'Ligne et options mises à jour !');
+    }
+
+    public function destroy($id)
+    {
+        $devis = Devis::findOrFail($id);
+        $devis->specificites()->delete();
+        $devis->delete();
+        return redirect()->route('devis.index')->with('success', 'La ligne a été supprimée avec succès.');
     }
 }

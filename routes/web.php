@@ -8,3 +8,5 @@ Route::get('/', function () {
 });
 
 Route::resource('devis', DevisController::class);
+
+Route::delete('/devis/{id}', [DevisController::class, 'destroy'])->name('devis.destroy');

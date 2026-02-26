@@ -13,15 +13,17 @@
 
         <h1>Création de Devis</h1>
 
+        <input type="hidden" name="force_time" value="{{ $timePrefill ?? '' }}">
+
         <h3 class="section-title">Informations Client</h3>
         <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Particulier / Entreprise</label>
-                <input type="text" name="client" placeholder="Nom du client" required>
+                <input type="text" name="client" placeholder="Nom du client" value="{{ $clientPrefill ?? '' }}" required>
             </div>
             <div class="form-group">
                 <label>Adresse du client</label>
-                <input type="text" name="adresse" placeholder="Adresse de l'entreprise (optionnel)">
+                <input type="text" name="adresse" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
             </div>
         </div>
 
