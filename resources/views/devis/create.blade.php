@@ -34,8 +34,8 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Type de Pierre</label>
-                        <input type="text" name="lignes[0][typePierre]" placeholder="Ex: Pierre Bleue" required>
+                        <label>Désignation</label>
+                        <input type="text" name="lignes[0][typePierre]" placeholder="Ex: Pierre Bleues de Soignies en 5cm finition...">
                     </div>
                     <div class="form-group">
                         <label>Quantité</label>
@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="specs-wrapper">
-                    <label class="sub-title">Options & Travaux sur cette pierre</label>
+                    <label class="sub-title">Spécificité & Travaux sur cette pierre</label>
                     <div class="specs-container">
                     </div>
                     <button type="button" class="btn-add-spec" onclick="addSpec(this)">

@@ -175,9 +175,7 @@ table.dataTable thead th {
 }
 
 .col-ref { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
-.col-pierre {
-    min-width: 0px;
-}
+
 .stone-name { font-weight: 700; color: var(--stone-dark); margin-bottom: 5px; }
 
 .specs-mini-list {

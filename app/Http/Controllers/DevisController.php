@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Devis;
 use App\Models\Specificite;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use Illuminate\Support\Facades\Http;
 
 class DevisController extends Controller
 {
@@ -133,5 +136,70 @@ class DevisController extends Controller
         $devis->specificites()->delete();
         $devis->delete();
         return redirect()->route('devis.index')->with('success', 'La ligne a été supprimée avec succès.');
+    }
+    private function extrairePays($adresseBrute)
+    {
+        try {
+            // Utilisation de l'API OpenStreetMap (Nominatim)
+            // Elle est excellente pour détecter les pays dans n'importe quel texte
+            $response = Http::withHeaders([
+                'User-Agent' => 'ArtDeLaPierreApp' // Requis par leur politique d'utilisation
+            ])->get("https://nominatim.openstreetmap.org/search", [
+                'q' => $adresseBrute,
+                'format' => 'json',
+                'addressdetails' => 1,
+                'limit' => 1
+            ]);
+
+            if ($response->successful() && !empty($response->json())) {
+                $data = $response->json()[0];
+                // On récupère le nom du pays
+                return $data['address']['country'] ?? 'FRANCE';
+            }
+        } catch (\Exception $e) {
+            // En cas d'erreur réseau
+        }
+
+        return '';
+    }
+
+
+    public function downloadPDF($client, $date)
+    {
+        // On reformate la date reçue de l'URL pour la requête SQL
+        // L'URL aura un format 2026-02-26-13-30-00
+        $dateSql = Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
+
+        $lignes = Devis::where('client', $client)
+            ->where('created_at', $dateSql)
+            ->with('specificites')
+            ->get();
+
+        if($lignes->isEmpty()) return "Aucune donnée trouvée.";
+
+        $adresse = $lignes->first()->adresse;
+        $pays = $this->extrairePays($adresse);
+        $totalHT = $lignes->sum('prixHT');
+
+        // On charge la vue qu'on va créer après
+        $pdf = PDF::loadView('pdfs.devis_template', [
+            'lignes' => $lignes,
+            'client' => $client,
+            'adresse' => $adresse,
+            'pays' => $pays,
+            'date'   => $lignes->first()->created_at,
+            'totalHT'=> $totalHT,
+            'id'=> $lignes->first()->id
+        ]);
+
+        // Configuration millimétrée
+        return $pdf
+            ->setOption('page-size', 'A4')
+            ->setOption('margin-top', '0mm')
+            ->setOption('margin-bottom', '0mm')
+            ->setOption('margin-left', '0mm')
+            ->setOption('margin-right', '0mm')
+            ->setOption('disable-smart-shrinking', true)
+            ->download("Devis_{$client}.pdf");
     }
 }

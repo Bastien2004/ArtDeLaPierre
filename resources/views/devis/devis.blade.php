@@ -18,19 +18,16 @@
         <a href="{{ route('devis.create') }}" class="btn-new">+ Nouveau Devis</a>
     </div>
 
-    <table id="tableDevis" class="display nowrap" style="width:100%">
+    <table id="tableDevis" class="display" style="width:100%">
         <thead>
         <tr>
-            <th>Réf.</th>
-            <th>Client</th>
-            <th>Pierre / Options</th>
-            <th>Nb</th>
-            <th>Long</th>
-            <th>Larg</th>
-            <th>Prix M²</th>
-            <th>Matière</th>
-            <th class="txt-right">Total HT</th>
-            <th class="txt-center">Actions</th>
+            <th style="width: 50px;">Réf.</th>
+            <th style="display:none;">Client Hidden</th> <th>Désignation / Spécificité</th>
+            <th style="width: 40px;">Nb</th>
+            <th style="width: 100px;">Dimensions / m²</th>
+            <th style="width: 80px;">Prix M²</th>
+            <th class="txt-right" style="width: 100px;">Total HT</th>
+            <th class="txt-center" style="width: 80px;">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -41,10 +38,12 @@
             @endphp
 
             <tr class="group-header">
-                <td colspan="10">
+                <td colspan="8">
                     <div class="group-content">
                         <div class="group-left">
-                            <a href="#" class="btn-icon" title="Télécharger">
+                            <a href="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
+                               class="btn-icon"
+                               title="Télécharger">
                                 <i class="fa-solid fa-download"></i>
                             </a>
                             <span class="client-name">{{ $p->client }}</span>
@@ -53,27 +52,22 @@
 
                         <div class="group-right">
                             <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s')]) }}" class="btn-add-line">
-                                <i class="fa-solid fa-plus"></i> Ajouter une ligne
+                                <i class="fa-solid fa-plus"></i> Ligne
                             </a>
                             <span class="col-total-groupe">
-                    {{ number_format($totalGroupe, 2, ',', ' ') }} €
-                </span>
+                                {{ number_format($totalGroupe, 2, ',', ' ') }} €
+                            </span>
                         </div>
                     </div>
                 </td>
-                <td style="display:none;"></td><td style="display:none;"></td>
-                <td style="display:none;"></td><td style="display:none;"></td>
-                <td style="display:none;"></td><td style="display:none;"></td>
-                <td style="display:none;"></td><td style="display:none;"></td>
-                <td style="display:none;"></td>
+                @for($i=0; $i<7; $i++) <td style="display:none;"></td> @endfor
             </tr>
 
             @foreach($lignes as $d)
                 <tr class="row-detail">
                     <td class="col-ref">#{{ $d->id }}</td>
-                    <td><span style="display:none;">{{ $d->client }}</span></td>
-                    <td class="col-pierre">
-                        <div class="stone-name">{{ $d->typePierre }}</div>
+                    <td style="display:none;">{{ $d->client }}</td> <td class="col-pierre">
+                        <div class="stone-name">{{ $d->typePierre ?? '' }}</div>
                         @if($d->specificites->count() > 0)
                             <div class="specs-mini-list">
                                 @foreach($d->specificites as $spec)
@@ -85,11 +79,12 @@
                             </div>
                         @endif
                     </td>
-                    <td>{{ $d->nombrePierre }}</td>
-                    <td class="col-mesure">{{ $d->longueurM }}m</td>
-                    <td class="col-mesure">{{ $d->largeurM }}m</td>
+                    <td class="txt-center">{{ $d->nombrePierre }}</td>
+                    <td class="col-mesure">
+                        <small class="text-muted">{{ $d->longueurM }}x{{ $d->largeurM }}m</small><br>
+                        <strong>{{ number_format($d->matiere, 2, ',', ' ') }} m²</strong>
+                    </td>
                     <td class="col-prix">{{ number_format($d->prixM2, 2, ',', ' ') }}€</td>
-                    <td class="col-mesure">{{ number_format($d->matiere, 2, ',', ' ') }}m²</td>
                     <td class="col-total-ligne">{{ number_format($d->prixHT, 2, ',', ' ') }}€</td>
                     <td class="col-actions">
                         <button class="btn-edit-modal" data-bs-toggle="modal" data-bs-target="#modificationModal"
@@ -117,19 +112,13 @@
             ordering: false,
             pageLength: 50,
             dom: '<"top"f>rt<"bottom"lp><"clear">',
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
-            },
-            "columnDefs": [
-                { "targets": "_all", "defaultContent": "" }
-            ]
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
         });
 
-        // Gestion Modal Modification
+        // Modal Modification
         $(document).on('click', '.btn-edit-modal', function() {
             const btn = $(this);
             const id = btn.data('id');
-
             $('#display_id').text(id);
             $('#edit_pierre').val(btn.data('pierre'));
             $('#edit_nb').val(btn.data('nb'));
@@ -145,7 +134,6 @@
             }
         });
 
-        // Fonction ajout ligne spécificité
         function addSpecRow(nom = '', prix = 0, specId = '') {
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const html = `
@@ -163,7 +151,6 @@
         $('#add-spec-edit').on('click', () => addSpecRow());
         $(document).on('click', '.btn-remove-spec', function() { $(this).closest('.spec-row-edit').remove(); });
 
-        // 3. Gestion Modal Suppression
         $(document).on('click', '.btn-delete-trigger', function() {
             const id = $(this).data('id');
             $('#delete_display_id').text(id);
@@ -172,5 +159,6 @@
     });
 </script>
 
-@include('partials.modals-devis') </body>
+@include('partials.modals-devis')
+</body>
 </html>

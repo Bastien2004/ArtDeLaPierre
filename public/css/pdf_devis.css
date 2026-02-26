@@ -1,0 +1,148 @@
+/* Configuration de la page A4 */
+@page {
+    size: A4;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 210mm;
+    height: 297mm;
+    font-family: 'Helvetica', Arial, sans-serif;
+    font-size: 10pt;
+    color: #333;
+    line-height: 1.2;
+}
+
+/* Conteneur principal */
+.page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+}
+
+/* Bloc Expéditeur (Haut Gauche) */
+.sender-info {
+    position: absolute;
+    top: 20mm;
+    left: 20mm;
+    width: 85mm;
+}
+
+.logo {
+    width: 55mm;
+    margin-bottom: 5mm;
+}
+
+/* Bloc Client (Haut Droite) */
+.client-info {
+    position: absolute;
+    top: 45mm;
+    left: 120mm;
+    width: 75mm;
+    font-size: 11pt;
+}
+
+/* Infos Devis (Sous les adresses) */
+.devis-meta {
+    position: absolute;
+    top: 85mm;
+    left: 20mm;
+    width: 175mm;
+    border-bottom: 0.2mm solid #7f8c8d;
+    padding-bottom: 2mm;
+}
+
+/* --- LE CONTENEUR DYNAMIQUE --- */
+/* Ce bloc commence à 105mm mais s'étire selon le contenu */
+.table-container {
+    position: absolute;
+    top: 105mm;
+    left: 15mm;
+    width: 180mm;
+}
+
+/* Style du Tableau */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 5mm;
+}
+
+th {
+    background-color: #7f8c8d;
+    color: white;
+    padding: 3mm 2mm;
+    text-align: left;
+    font-size: 9pt;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 3mm 2mm;
+    border-bottom: 0.1mm solid #ecf0f1;
+    font-size: 9pt;
+    vertical-align: top;
+}
+
+/* Bloc des Totaux (Suit le tableau) */
+.totals {
+    margin-left: auto; /* Pousse le bloc à droite sans float */
+    width: 70mm;
+    text-align: right;
+    margin-top: 5mm;
+    padding-top: 2mm;
+    border-top: 0.5mm solid #7f8c8d;
+}
+
+.total-line {
+    margin-bottom: 1.5mm;
+    font-size: 10pt;
+}
+
+.total-ttc {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 3mm;
+    color: #000;
+}
+
+/* Mentions Légales (Suivent les totaux) */
+.legal-notices {
+    margin-top: 12mm;
+    font-size: 8pt;
+    line-height: 1.5;
+    color: #555;
+    width: 140mm;
+}
+
+/* --- BLOCS FIXES EN BAS DE PAGE --- */
+
+/* Boite de Signature */
+.signature-box {
+    position: absolute;
+    bottom: 35mm;
+    right: 20mm;
+    width: 50mm;
+    height: 25mm;
+    border: 0.1mm solid #ccc;
+    border-radius: 2mm;
+    text-align: center;
+    color: #999;
+    padding-top: 18mm;
+    font-size: 9pt;
+}
+
+/* Pied de page final */
+.footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 0;
+    width: 210mm;
+    text-align: center;
+    font-size: 8pt;
+    color: #7f8c8d;
+    border-top: 0.1mm solid #ecf0f1;
+    padding-top: 3mm;
+}
