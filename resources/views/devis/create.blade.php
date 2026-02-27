@@ -16,13 +16,20 @@
         <input type="hidden" name="force_time" value="{{ $timePrefill ?? '' }}">
 
         <h3 class="section-title">Informations Client</h3>
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
-                <label>Particulier / Entreprise</label>
-                <input type="text" name="client" placeholder="Nom du client" value="{{ $clientPrefill ?? '' }}" required>
+                <label>Type de Client</label>
+                <select name="type_client_global" id="type_client_global" class="form-control" required onchange="updateAllPrices()">
+                    <option value="Particulier">Particulier</option>
+                    <option value="Entreprise">Entreprise</option>
+                </select>
             </div>
             <div class="form-group">
-                <label>Adresse du client</label>
+                <label>Nom du Client</label>
+                <input type="text" name="client" placeholder="Nom" value="{{ $clientPrefill ?? '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Adresse</label>
                 <input type="text" name="adresse" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
             </div>
         </div>
@@ -32,27 +39,47 @@
             <div class="ligne-pierre" data-index="0">
                 <button type="button" class="remove-line" onclick="removeLine(this)" title="Supprimer cette pierre">×</button>
 
-                <div class="form-grid">
+                <div class="form-grid" style="grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;">
                     <div class="form-group">
-                        <label>Désignation</label>
-                        <input type="text" name="lignes[0][typePierre]" placeholder="Ex: Pierre Bleues de Soignies en 5cm finition...">
+                        <div class="form-group" style="grid-column: span 6; margin-top: 10px;">
+                            <label>Désignation personnalisée</label>
+                            <input type="text" name="lignes[0][typePierre]" class="input-designation" placeholder="EX : Pierre Bleue">
+                        </div>
+                        <label>Finition</label>
+                        <select name="lignes[0][finition]" class="select-finition" onchange="lookupPrice(this)">
+                            <option value="">-- Choisir --</option>
+                            <option value="Adoucie P40">Adoucie P40</option>
+                            <option value="Brut de sciage">Brut de sciage</option>
+                            <option value="Adoucie Foncé">Adoucie Foncé</option>
+                            <option value="Ciselé">Ciselé</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Quantité</label>
-                        <input type="number" name="lignes[0][nombrePierre]" placeholder="Nombre" required>
+                        <label>Épaisseur</label>
+                        <select name="lignes[0][epaisseur]" class="select-epaisseur" onchange="lookupPrice(this)">
+                            <option value="2">2 cm</option>
+                            <option value="3">3 cm</option>
+                            <option value="4">4 cm</option>
+                            <option value="5">5 cm</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Longueur (m)</label>
+                        <label>Qté</label>
+                        <input type="number" name="lignes[0][nombrePierre]" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Long. (m)</label>
                         <input type="number" step="0.001" name="lignes[0][longueurM]" placeholder="0.000" required>
                     </div>
                     <div class="form-group">
-                        <label>Largeur (m)</label>
+                        <label>Larg. (m)</label>
                         <input type="number" step="0.001" name="lignes[0][largeurM]" placeholder="0.000" required>
                     </div>
                     <div class="form-group">
                         <label>Prix M² (€)</label>
-                        <input type="number" step="0.01" name="lignes[0][prixM2]" placeholder="0.00" required>
+                        <input type="number" step="0.01" name="lignes[0][prixM2]" class="input-prix-m2" readonly required>
                     </div>
+
                 </div>
 
                 <div class="specs-wrapper">
@@ -85,8 +112,54 @@
 </div>
 
 <script>
+    // On récupère la variable PHP envoyée par le contrôleur
+    const grilleTarifs = @json($allTarifs);
+
+    // Fonction pour trouver le prix automatiquement
+    function lookupPrice(element) {
+        const row = element.closest('.ligne-pierre');
+        const typeClient = document.getElementById('type_client_global').value;
+        const finition = row.querySelector('.select-finition').value;
+        const epaisseur = row.querySelector('.select-epaisseur').value;
+
+        const inputPrix = row.querySelector('.input-prix-m2');
+
+        if (!finition || !epaisseur) return;
+
+        // On cherche la correspondance dans les données
+        const tarifTrouve = grilleTarifs.find(t =>
+            t.type_client === typeClient &&
+            t.finition === finition &&
+            t.epaisseur == epaisseur
+        );
+
+        if (tarifTrouve) {
+            inputPrix.value = tarifTrouve.prix_m2;
+            // On génère le nom pour le PDF automatiquement
+
+            // On déclenche manuellement l'événement 'input' pour recalculer les travaux (Rejingot...)
+            inputPrix.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+            inputPrix.value = '';
+            inputDesignation.value = '';
+        }
+    }
+
+    // Fonction pour mettre à jour toutes les lignes si on change Entreprise/Particulier en haut
+    function updateAllPrices() {
+        document.querySelectorAll('.ligne-pierre').forEach(row => {
+            const selectFinition = row.querySelector('.select-finition');
+            if (selectFinition && selectFinition.value !== "") {
+                lookupPrice(selectFinition);
+            }
+        });
+    }
+
+
+
     let pierreIdx = 1;
 
+    // Ajouter une nouvelle pierre
     // Ajouter une nouvelle pierre
     document.getElementById('add-line').onclick = function() {
         let container = document.getElementById('lignes-container');
@@ -96,14 +169,19 @@
         clone.dataset.index = pierreIdx;
         clone.style.opacity = '0';
 
-        // Reset des champs pierre
+        // 1. Reset des INPUTS
         clone.querySelectorAll('input').forEach(i => {
-            // Mise à jour de l'index des noms (lignes[0] -> lignes[1])
             i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
             i.value = '';
         });
 
-        // Vider les spécificités clonées s'il y en avait
+        // 2. Reset des SELECTS (Correction ici)
+        clone.querySelectorAll('select').forEach(s => {
+            s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+            s.selectedIndex = 0;
+        });
+
+        // Vider les spécificités clonées
         clone.querySelector('.specs-container').innerHTML = '';
 
         container.appendChild(clone);

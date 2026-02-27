@@ -316,6 +316,143 @@ input:focus {
     font-weight: bold;
 }
 
+/* --- Mise en page globale des mesures --- */
+.ligne-pierre .form-grid {
+    display: grid;
+    /* On utilise 1.5fr pour la finition pour laisser plus de place au texte */
+    grid-template-columns: 1.5fr 1fr 0.8fr 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+/* --- Style des Selects --- */
+select.form-control,
+.select-finition,
+.select-epaisseur {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* --- Champs en lecture seule (Prix M2) --- */
+input[readonly] {
+    background-color: #f1f1f1;
+    color: #555;
+    cursor: not-allowed;
+    font-weight: bold;
+    border: 1px dashed #ccc;
+}
+
+/* --- Boutons de travaux rapides (Rejingot, Ciselage...) --- */
+.quick-add-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.btn-quick-spec {
+    background-color: #e8f4fd;
+    color: #2980b9;
+    border: 1px solid #bee3f8;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-quick-spec:hover {
+    background-color: #2980b9;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-quick-spec small {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* --- Conteneur des spécificités ajoutées --- */
+.specs-container {
+    margin-top: 10px;
+}
+
+.ligne-spec {
+    background: white;
+    padding: 8px;
+    border-bottom: 1px solid #edf2f7;
+    animation: fadeIn 0.3s ease;
+}
+
+.form-grid-specs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-grid-specs input[type="text"] {
+    flex: 2;
+}
+
+.form-grid-specs input[type="number"] {
+    flex: 1;
+}
+
+/* --- Bouton supprimer (X) --- */
+.remove-spec {
+    background: #fed7d7;
+    color: #c53030;
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-spec:hover {
+    background: #c53030;
+    color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-designation {
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fffde7; /* Une couleur très légère pour montrer que c'est auto-rempli */
+    font-style: italic;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 800px) {
     .form-grid {

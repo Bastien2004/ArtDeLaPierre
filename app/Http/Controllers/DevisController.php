@@ -34,10 +34,16 @@ class DevisController extends Controller
 
         // Récupération des tarifs pour les boutons d'ajout rapide
         $tarifsTravaux = \App\Models\TravailTarif::all();
+        $allTarifs = \App\Models\Tarif::all();
 
         // AJOUT de tarifsTravaux dans le compact
-        return view('devis.create', compact('clientPrefill', 'adressePrefill', 'timePrefill', 'tarifsTravaux'));
-    }
+        return view('devis.create', compact(
+            'clientPrefill',
+            'adressePrefill',
+            'timePrefill',
+            'tarifsTravaux',
+            'allTarifs'
+        ));    }
 
     public function store(Request $request)
     {
