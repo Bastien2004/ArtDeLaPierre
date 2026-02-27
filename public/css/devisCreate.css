@@ -276,6 +276,46 @@ input:focus {
     box-shadow: 0 15px 30px rgba(46, 213, 115, 0.3);
 }
 
+.btn-quick-spec {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-quick-spec:hover {
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+    color: #212529;
+    transform: translateY(-1px);
+}
+
+.btn-quick-spec i {
+    color: #28a745; /* Icône en vert pour l'ajout */
+}
+
+.ligne-spec {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.spec-prix-input[data-unite="ml"] {
+    background-color: #f0faff; /* Légère teinte bleue pour indiquer un calcul auto */
+    font-weight: bold;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 800px) {
     .form-grid {

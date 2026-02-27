@@ -41,11 +41,12 @@
                 <td colspan="8">
                     <div class="group-content">
                         <div class="group-left">
-                            <a href="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
-                               class="btn-icon"
-                               title="Télécharger">
+                            <button type="button"
+                                    class="btn-icon btn-trigger-pdf"
+                                    data-url="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
+                                    title="Télécharger">
                                 <i class="fa-solid fa-download"></i>
-                            </a>
+                            </button>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
                         </div>
@@ -104,10 +105,10 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     $(document).ready(function() {
-        $('#tableDevis').DataTable({
+        // 1. DataTable
+        const table = $('#tableDevis').DataTable({
             responsive: true,
             ordering: false,
             pageLength: 50,
@@ -115,10 +116,12 @@
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
         });
 
-        // Modal Modification
+        // 2. MODAL MODIFICATION (Ouverture)
         $(document).on('click', '.btn-edit-modal', function() {
             const btn = $(this);
             const id = btn.data('id');
+            const qte = parseFloat(btn.data('nb')) || 1;
+
             $('#display_id').text(id);
             $('#edit_pierre').val(btn.data('pierre'));
             $('#edit_nb').val(btn.data('nb'));
@@ -129,36 +132,82 @@
 
             const wrapper = $('#wrapper-specs-edit').empty();
             const specs = btn.data('specs');
+
             if (specs && specs.length > 0) {
-                specs.forEach(s => addSpecRow(s.nom, s.prix, s.id));
+                specs.forEach(s => {
+                    let unite = (s.nom.toLowerCase().includes('rejingot') || s.nom.toLowerCase().includes('ciselage')) ? 'ml' : 'u';
+                    let basePrice = s.prix / qte;
+                    addSpecRow(s.nom, s.prix, unite, basePrice);
+                });
             }
+            updateModalTotal();
         });
 
-        function addSpecRow(nom = '', prix = 0, specId = '') {
+        // 3. FONCTION AJOUT SPEC
+        function addSpecRow(nom = '', prix = 0, unite = 'u', basePrice = 0) {
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const html = `
-            <div class="row mb-2 spec-row-edit align-items-center">
-                <input type="hidden" name="specs[${uniqueId}][id]" value="${specId}">
-                <div class="col-7"><input type="text" name="specs[${uniqueId}][nom]" value="${nom}" class="form-control form-control-sm" required></div>
-                <div class="col-3"><input type="number" step="0.01" name="specs[${uniqueId}][prix]" value="${prix}" class="form-control form-control-sm" required></div>
-                <div class="col-2 text-end">
-                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec"><i class="fa-solid fa-trash"></i></button>
-                </div>
+            <div class="row mb-2 spec-row-edit align-items-center ligne-spec-edit">
+                <div class="col-6"><input type="text" name="specs[${uniqueId}][nom]" value="${nom}" class="form-control form-control-sm" required ${nom !== '' ? 'readonly' : ''}></div>
+                <div class="col-4"><input type="number" step="0.01" name="specs[${uniqueId}][prix]" value="${parseFloat(prix).toFixed(2)}" class="form-control form-control-sm spec-prix-edit" data-unite="${unite}" data-base-price="${basePrice}" required></div>
+                <div class="col-2 text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec"><i class="fa-solid fa-trash"></i></button></div>
             </div>`;
             $('#wrapper-specs-edit').append(html);
+            updateModalTotal();
         }
 
-        $('#add-spec-edit').on('click', () => addSpecRow());
-        $(document).on('click', '.btn-remove-spec', function() { $(this).closest('.spec-row-edit').remove(); });
+        // 4. BOUTONS SPEC (Action)
+        $(document).on('click', '#add-spec-manual-edit', () => addSpecRow());
+        $(document).on('click', '.btn-remove-spec', function() {
+            $(this).closest('.ligne-spec-edit').remove();
+            updateModalTotal();
+        });
 
+        window.addSpecToEdit = function(nom, prixUnitaire, unite) {
+            const long = parseFloat($('#edit_long').val()) || 0;
+            const qte = parseFloat($('#edit_nb').val()) || 1;
+            let prixFinal = (unite === 'ml') ? (prixUnitaire * long * qte) : (prixUnitaire * qte);
+            addSpecRow(nom, prixFinal, unite, prixUnitaire);
+        };
+
+        // 5. CALCULS AUTO
+        $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix', function() {
+            const long = parseFloat($('#edit_long').val()) || 0;
+            const qte = parseFloat($('#edit_nb').val()) || 0;
+            $('.spec-prix-edit').each(function() {
+                const base = parseFloat($(this).data('base-price'));
+                $(this).val(($(this).data('unite') === 'ml' ? (base * long * qte) : (base * qte)).toFixed(2));
+            });
+            updateModalTotal();
+        });
+
+        function updateModalTotal() {
+            const totalPierre = (parseFloat($('#edit_long').val())||0) * (parseFloat($('#edit_larg').val())||0) * (parseFloat($('#edit_prix').val())||0) * (parseFloat($('#edit_nb').val())||0);
+            let totalSpecs = 0;
+            $('.spec-prix-edit').each(function() { totalSpecs += parseFloat($(this).val()) || 0; });
+            $('#total_ligne_edit').text((totalPierre + totalSpecs).toFixed(2));
+        }
+
+        // 6. DELETE & PDF (Les fix)
         $(document).on('click', '.btn-delete-trigger', function() {
             const id = $(this).data('id');
             $('#delete_display_id').text(id);
             $('#deleteForm').attr('action', '/devis/' + id);
         });
-    });
-</script>
 
-@include('partials.modals-devis')
+        let currentPdfUrl = '';
+        $(document).on('click', '.btn-trigger-pdf', function(e) {
+            e.preventDefault();
+            currentPdfUrl = $(this).attr('data-url');
+            $('#pdfRefModal').modal('show');
+        });
+
+        $(document).on('click', '#confirmDownload', function() {
+            const ref = $('#custom_ref').val().trim();
+            window.location.href = currentPdfUrl + (ref ? (currentPdfUrl.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(ref) : '');
+            $('#pdfRefModal').modal('hide');
+        });
+    });
+</script>@include('partials.modals-devis')
 </body>
 </html>

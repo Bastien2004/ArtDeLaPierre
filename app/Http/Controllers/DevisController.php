@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 class DevisController extends Controller
 {
     public function index() {
-        // Groupe par Client + Date et Heure (Y-m-d H:i)
+        // 1. Récupérer les devis groupés
         $devisGroupes = Devis::with('specificites')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -20,44 +20,56 @@ class DevisController extends Controller
                 return $item->client . $item->created_at->format('Y-m-d H:i');
             });
 
-        return view('devis.devis', compact('devisGroupes'));
+        // 2. RÉCUPÉRER LES TARIFS (C'est ce qui manquait)
+        $tarifsTravaux = \App\Models\TravailTarif::all();
+
+        // 3. Envoyer les deux variables à la vue
+        return view('devis.devis', compact('devisGroupes', 'tarifsTravaux'));
     }
 
     public function create(Request $request) {
         $clientPrefill = $request->query('client_prefill');
-        $adressePrefill = $request->query('adresse_prefill'); // Récupération
+        $adressePrefill = $request->query('adresse_prefill');
         $timePrefill = $request->query('time_prefill');
 
-        return view('devis.create', compact('clientPrefill', 'adressePrefill', 'timePrefill'));
+        // Récupération des tarifs pour les boutons d'ajout rapide
+        $tarifsTravaux = \App\Models\TravailTarif::all();
+
+        // AJOUT de tarifsTravaux dans le compact
+        return view('devis.create', compact('clientPrefill', 'adressePrefill', 'timePrefill', 'tarifsTravaux'));
     }
 
     public function store(Request $request)
     {
-        // On vérifie si une date est envoyée via le bouton "Ajouter une ligne"
-        // Sinon, on utilise l'heure actuelle (now()) pour un vrai nouveau devis.
         $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
 
         foreach ($request->lignes as $ligneData) {
+            $quantite = (int) $ligneData['nombrePierre'];
             $matiere = $ligneData['longueurM'] * $ligneData['largeurM'];
+
+            // 1. Prix de la pierre brute
             $prixPierreSeule = $matiere * $ligneData['prixM2'];
 
-            $totalSpecsUnitaire = 0;
+            // 2. Calcul des options
+            $totalSpecsPourToutesLesPierres = 0;
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
-                        $totalSpecsUnitaire += (float) ($specData['prix'] ?? 0);
+                        // Chaque option est multipliée par le nombre de pierres
+                        // (Ex: 2 pierres = 2 rejingots calculés ou 2 paires d'oreilles)
+                        $totalSpecsPourToutesLesPierres += (float)$specData['prix'] * $quantite;
                     }
                 }
             }
 
-            $prixHTFinal = ($prixPierreSeule + $totalSpecsUnitaire) * $ligneData['nombrePierre'];
+            // 3. Total Final HT
+            $prixHTFinal = ($prixPierreSeule * $quantite) + $totalSpecsPourToutesLesPierres;
 
-            // On utilise "make" au lieu de "create" pour pouvoir manipuler les dates avant save
             $devis = new Devis([
                 'client'       => $request->client,
-                'adresse'      => $request->adresse ?? '', // Sécurité pour ton erreur SQLite
+                'adresse'      => $request->adresse ?? '',
                 'typePierre'   => $ligneData['typePierre'],
-                'nombrePierre' => $ligneData['nombrePierre'],
+                'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
                 'matiere'      => $matiere,
@@ -65,26 +77,22 @@ class DevisController extends Controller
                 'prixHT'       => $prixHTFinal,
             ]);
 
-            // FORCE l'heure pour correspondre au groupe existant
             $devis->created_at = $dateCreation;
-            $devis->updated_at = $dateCreation;
             $devis->save();
 
+            // Sauvegarde des spécificités individuellement pour le PDF
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
-                    if (!empty($specData['nom'])) {
-                        $devis->specificites()->create([
-                            'nom'  => $specData['nom'],
-                            'prix' => $specData['prix'] ?? 0,
-                        ]);
-                    }
+                    $devis->specificites()->create([
+                        'nom'  => $specData['nom'],
+                        'prix' => $specData['prix'], // On stocke le prix unitaire (par pierre)
+                    ]);
                 }
             }
         }
 
-        return redirect()->route('devis.index')->with('success', 'Ligne ajoutée au devis !');
+        return redirect()->route('devis.index')->with('success', 'Devis généré avec succès !');
     }
-
     public function edit(string $id)
     {
         $devis = Devis::with('specificites')->findOrFail($id);
@@ -164,8 +172,9 @@ class DevisController extends Controller
     }
 
 
-    public function downloadPDF($client, $date)
+    public function downloadPDF(Request $request,$client, $date)
     {
+        $reference = $request->query('ref');
         // On reformate la date reçue de l'URL pour la requête SQL
         // L'URL aura un format 2026-02-26-13-30-00
         $dateSql = Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
@@ -189,7 +198,8 @@ class DevisController extends Controller
             'pays' => $pays,
             'date'   => $lignes->first()->created_at,
             'totalHT'=> $totalHT,
-            'id'=> $lignes->first()->id
+            'id'=> $lignes->first()->id,
+            'reference' => $reference
         ]);
 
         // Configuration millimétrée

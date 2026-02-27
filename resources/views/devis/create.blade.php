@@ -57,10 +57,22 @@
 
                 <div class="specs-wrapper">
                     <label class="sub-title">Spécificité & Travaux sur cette pierre</label>
+
+                    <div class="quick-add-buttons" style="margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
+                        @foreach($tarifsTravaux as $tarif)
+                            <button type="button" class="btn-quick-spec"
+                                    onclick="addCalculatedSpec(this, '{{ $tarif->nom }}', {{ $tarif->prix }}, '{{ $tarif->unite }}')">
+                                <i class="fa fa-plus-circle"></i> {{ $tarif->nom }}
+                                <small>({{ $tarif->prix }}€/{{ $tarif->unite }})</small>
+                            </button>
+                        @endforeach
+                    </div>
+
                     <div class="specs-container">
                     </div>
+
                     <button type="button" class="btn-add-spec" onclick="addSpec(this)">
-                        + Ajouter une spécificité (Rejingot, Ciselage...)
+                        + Ajouter manuellement
                     </button>
                 </div>
             </div>
@@ -135,6 +147,69 @@
             alert("Un devis doit comporter au moins une pierre.");
         }
     }
+
+    function addCalculatedSpec(button, nom, prixUnitaire, unite) {
+        const pierreRow = button.closest('.ligne-pierre');
+        const specsContainer = pierreRow.querySelector('.specs-container');
+        const pIdx = pierreRow.dataset.index;
+        const sIdx = specsContainer.querySelectorAll('.ligne-spec').length;
+
+        // Récupération des valeurs actuelles
+        const longueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
+        const quantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 1;
+
+        // Calcul : (Prix de base * Longueur si ml) * Quantité de pierres
+        let prixBaseCalcule = (unite === 'ml') ? (prixUnitaire * longueur) : prixUnitaire;
+        let prixFinalAffiche = prixBaseCalcule * quantite;
+
+        const specHtml = `
+    <div class="ligne-spec">
+        <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
+            <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
+            <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
+            <input type="number" step="0.01"
+                   name="lignes[${pIdx}][specs][${sIdx}][prix]"
+                   value="${prixFinalAffiche.toFixed(2)}"
+                   class="form-control spec-prix-input"
+                   data-unite="${unite}"
+                   data-base-price="${prixUnitaire}">
+            <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
+        </div>
+    </div>
+    `;
+
+        specsContainer.insertAdjacentHTML('beforeend', specHtml);
+    }
+
+
+    // Écouteur pour la mise à jour automatique des prix (Rejingot, Ciselage...)
+    document.addEventListener('input', function(e) {
+        const targetName = e.target.name;
+
+        // Si on modifie la Longueur OU la Quantité
+        if (targetName && (targetName.includes('[longueurM]') || targetName.includes('[nombrePierre]'))) {
+            const pierreRow = e.target.closest('.ligne-pierre');
+            const nouvelleLongueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
+            const nouvelleQuantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
+
+            const specInputs = pierreRow.querySelectorAll('.spec-prix-input');
+
+            specInputs.forEach(input => {
+                const prixBaseUnitaire = parseFloat(input.dataset.basePrice);
+                let nouveauPrix;
+
+                if (input.dataset.unite === 'ml') {
+                    // (Prix au ml * Longueur) * Quantité
+                    nouveauPrix = (prixBaseUnitaire * nouvelleLongueur) * nouvelleQuantite;
+                } else {
+                    // Prix fixe * Quantité (ex: Oreilles)
+                    nouveauPrix = prixBaseUnitaire * nouvelleQuantite;
+                }
+
+                input.value = nouveauPrix.toFixed(2);
+            });
+        }
+    });
 </script>
 </body>
 </html>

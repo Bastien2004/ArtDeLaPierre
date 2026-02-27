@@ -1,0 +1,148 @@
+    /* 1. Base et Typographie */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    padding-bottom: 50px;
+}
+
+/* 2. Bouton Retour - Style épuré */
+.btn-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-return:hover {
+    color: #2c3e50;
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    transform: translateX(-5px);
+    text-decoration: none;
+}
+
+/* 3. Le style "Stabilo" */
+.title-stabilo {
+    background: linear-gradient(100deg, #ffc0cb 0%, #ffb6c1 100%);
+    color: #b92b27 !important;
+    padding: 8px 30px;
+    display: inline-block;
+    font-weight: 800;
+    border-radius: 4px;
+    transform: rotate(-0.5deg);
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    border: none !important;
+}
+
+/* 4. Alerte de succès (Modifié avec succès) */
+.alert-custom-success {
+    background-color: #d4edda;
+    border-left: 5px solid #28a745;
+    color: #155724;
+    font-weight: 600;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.4s ease-out;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 5. Structure du Tableau style "Livre de comptes" */
+.table-tarifs {
+    border: 1px solid #bcbcbc !important;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+
+.table-tarifs thead th {
+    border-bottom: 2px solid #333 !important;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 15px 5px;
+    color: #2c3e50;
+}
+
+.bg-epaisseur {
+    background-color: #eceff1 !important;
+    width: 110px;
+    text-align: center;
+    border-right: 2px solid #cfd8dc !important;
+    font-weight: bold;
+}
+
+/* 6. Inputs de saisie */
+.input-prix-invisible {
+    border: 2px solid transparent !important;
+    background: transparent !important;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a237e;
+    transition: all 0.3s ease;
+    padding: 10px 5px;
+}
+
+.input-prix-invisible:focus {
+    background: #ffffff !important;
+    border: 2px solid #1976d2 !important;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    transform: scale(1.05);
+    outline: none;
+}
+
+/* 7. Bouton Enregistrer - Version Premium */
+.btn-save-premium {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    border: none;
+    color: white;
+    padding: 18px 60px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 20px rgba(40, 167, 69, 0.2);
+    text-transform: uppercase;
+}
+
+.btn-save-premium:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(40, 167, 69, 0.3);
+    filter: brightness(1.1);
+}
+
+.btn-save-premium i {
+    transition: transform 0.3s ease;
+}
+
+.btn-save-premium:hover i {
+    transform: rotate(15deg) scale(1.2);
+}

@@ -18,7 +18,7 @@
         @ : frederic.oden.tailleur.pierre@gmail.com
     </div>
 
-    <div class="client-info">
+    <div class="client-info" style="margin-top: 20px;">
         <strong>{{ $client }}</strong><br>
         {!! nl2br(e($adresse)) !!}<br>
         <span style="text-transform: uppercase; font-weight: bold; margin-top: 5px; display: block;">
@@ -27,7 +27,10 @@
     </div>
 
     <div class="devis-meta">
-        <strong>Devis N° {{ $date->format('ymd') }}{{ str_pad($id, 3, '0', STR_PAD_LEFT) }}</strong><br>
+        <strong>
+            Devis N° : {{ $date->format('ymd') }}{{ str_pad($id, 3, '0', STR_PAD_LEFT) }}<br>
+            {{$reference}}
+        </strong><br>
         Date d'émission : {{ $date->format('d/m/Y') }} <br>
         <span style="float: right;">Période de validité : 60 jours</span>
     </div>
@@ -44,20 +47,25 @@
             </tr>
             </thead>
             <tbody>
+            @php $cumulHT = 0; @endphp {{-- Initialisation du compteur --}}
+
             @foreach($lignes as $l)
+                @php
+                    $cumulHT += $l->prixHT;
+                @endphp
                 <tr>
                     <td>
                         <strong>{{ $l->typePierre }}</strong><br>
                         <small>{{ $l->longueurM }}m x {{ $l->largeurM }}m</small>
                     </td>
                     <td>{{ number_format($l->nombrePierre, 2, ',', ' ') }}</td>
-                    <td>{{ number_format($l->prixM2, 2, ',', ' ') }} €</td>
+                    <td>{{ number_format($l->prixHT, 2, ',', ' ') }} €</td>
                     <td>20%</td>
-                    <td style="text-align: right;">{{ number_format($l->prixHT, 2, ',', ' ') }} €</td>
+                    {{-- On affiche le cumul au lieu du prix unitaire de la ligne --}}
+                    <td style="text-align: right;">{{ number_format($cumulHT, 2, ',', ' ') }} €</td>
                 </tr>
             @endforeach
-            </tbody>
-        </table>
+            </tbody>        </table>
 
         <div class="totals">
             <div class="total-line">Total HT : {{ number_format($totalHT, 2, ',', ' ') }} €</div>
