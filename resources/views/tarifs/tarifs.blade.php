@@ -16,7 +16,7 @@
             <h2 class="fw-bold text-dark mb-1">TARIF {{ date('Y') }}</h2>
             <p class="text-muted mb-0">Gestion de la grille de prix</p>
         </div>
-        <a href="{{ route('welcome') }}" class="btn-return">
+        <a href="{{ url('/dashboard') }}" class="btn-return btn-back-stone">
             <i class="fa fa-arrow-left"></i> Retour à l’accueil
         </a>
     </div>

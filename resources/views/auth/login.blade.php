@@ -1,47 +1,48 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+    <div class="login-container">
+        <h1 class="auth-title">Art de la Pierre</h1>
+        <p class="auth-subtitle">Accès Administration</p>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <form method="POST" action="{{ route('login') }}" class="auth-form">
+            @csrf
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <div class="form-group">
+                <label for="email" class="section-title-small">Email Professionnel</label>
+                <input id="email" class="block mt-1 w-full custom-input" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
+            </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <div class="mt-6 form-group">
+                <label for="password" class="section-title-small">Mot de Passe</label>
+                <input id="password" class="block mt-1 w-full custom-input"
+                       type="password"
+                       name="password"
+                       required autocomplete="current-password" />
+                <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger" />
+            </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+            <div class="block mt-4">
+                <label for="remember_me" class="inline-flex items-center cursor-pointer">
+                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-stone-dark shadow-sm focus:ring-stone-accent" name="remember">
+                    <span class="ms-2 text-sm text-gray-600">Rester connecté</span>
+                </label>
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+            <div class="flex flex-col items-center gap-4 mt-8">
+                <button type="submit" class="btn-submit">
+                    {{ __('Se Connecter') }}
+                </button>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+                @if (Route::has('password.request'))
+                    <a class="text-sm text-stone-medium hover:text-stone-dark transition" href="{{ route('password.request') }}">
+                        {{ __('Mot de passe oublié ?') }}
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
 </x-guest-layout>

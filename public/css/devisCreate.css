@@ -453,6 +453,51 @@ input[readonly] {
     font-style: italic;
 }
 
+/* --- BOUTON RETOUR "ART DE LA PIERRE" --- */
+
+.btn-back-stone {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    /* Couleurs de base */
+    background: transparent;
+    color: var(--stone-medium) !important;
+    border: 1.5px solid #d1d8db;
+
+    /* Structure */
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+
+    /* Transition */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 20px;
+}
+
+.btn-back-stone i {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+/* Effet au survol */
+.btn-back-stone:hover {
+    background: white;
+    color: var(--stone-dark) !important;
+    border-color: var(--stone-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateX(-3px); /* Petit décalage vers la gauche pour l'effet "retour" */
+}
+
+/* Animation de l'icône au survol */
+.btn-back-stone:hover i {
+    transform: translateX(-3px);
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 800px) {
     .form-grid {

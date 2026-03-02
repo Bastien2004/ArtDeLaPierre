@@ -1,0 +1,226 @@
+/* --- VARIABLES DE COULEURS --- */
+:root {
+    --stone-dark: #2c3e50;    /* Bleu ardoise profond */
+    --stone-gold: #c5a059;    /* Or brossé */
+    --stone-accent: #34495e;
+    --stone-light: #f8fafc;
+    --stone-medium: #64748b;
+    --white: #ffffff;
+}
+
+/* --- LOGOUT MODAL & CASE (L'ENGGLOBANTE) --- */
+
+/* Style de la "Case" interne à la modale */
+.stone-action-card {
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin: 20px;
+    padding: 35px 25px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Barre de signature Art de la Pierre (Gradient Prestige) */
+.stone-action-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-gold));
+    border-radius: 12px 12px 0 0;
+}
+
+/* Alignement horizontal des deux boutons */
+.btn-group-stone-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+/* Équilibre des boutons */
+.btn-stone-secondary,
+.btn-group-stone-horizontal form {
+    flex: 1;
+}
+
+/* Bouton ANNULER */
+.btn-stone-secondary {
+    background: #f1f5f9;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-stone-secondary:hover {
+    background: #e2e8f0;
+    color: var(--stone-dark) !important;
+}
+
+/* Bouton QUITTER */
+.btn-stone-primary {
+    background: var(--stone-dark);
+    color: var(--white) !important;
+    border: none;
+    padding: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-stone-primary:hover {
+    background: #1a252f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(44, 62, 80, 0.3);
+}
+
+/* --- NAVIGATION & HEADER --- */
+
+h2.font-semibold {
+    font-family: 'Cinzel', serif; /* Typographie haut de gamme */
+    letter-spacing: 1.5px;
+    color: var(--stone-dark);
+    text-transform: uppercase;
+}
+
+/* Bouton Déconnexion du Header */
+.logout-btn-stone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    background: var(--white);
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #ef4444; /* Rouge élégant */
+}
+
+.logout-btn-stone:hover {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    transform: scale(1.02);
+}
+
+/* --- GRILLE DU PANNEAU DE CONTRÔLE --- */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+/* Style des cartes d'action */
+.card-action {
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    padding: 30px;
+    border-radius: 18px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.card-action::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 5px;
+    background: transparent;
+    transition: background 0.3s;
+}
+
+/* Variantes de couleurs gauche */
+.card-action.devis::before { background: var(--stone-dark); }
+.card-action.tarifs::before { background: var(--stone-gold); }
+
+.card-action:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--stone-gold);
+}
+
+/* Icônes */
+.card-icon {
+    font-size: 2rem;
+    margin-right: 25px;
+    background: var(--stone-light);
+    width: 65px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    transition: transform 0.4s ease;
+}
+
+.card-action:hover .card-icon {
+    transform: scale(1.1) rotate(-8deg);
+    background: var(--white);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Corps de texte des cartes */
+.card-body h3 {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--stone-dark);
+    letter-spacing: 0.5px;
+}
+
+.card-body p {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    color: var(--stone-medium);
+    line-height: 1.5;
+}
+
+/* Flèche de direction */
+.card-arrow {
+    font-size: 1.3rem;
+    color: var(--stone-gold);
+    opacity: 0.3;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+}
+
+.card-action:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(8px);
+}
+
+/* --- BOOTSTRAP FIXES --- */
+.modal-backdrop {
+    z-index: 1040 !important;
+    background-color: rgba(44, 62, 80, 0.4) !important; /* Voile bleu nuit translucide */
+}
+#logoutModal { z-index: 1050 !important; }

@@ -1,37 +1,48 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1"
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Art de la Pierre — Gestion</title>
 
-    </head>
-    <body>
-    <header>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=cinzel:700|inter:300,400,600" rel="stylesheet" />
+
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+</head>
+<body class="welcome-body">
+
+<div class="hero-card">
+    <h1 class="hero-title">Art de la Pierre</h1>
+    <div class="hero-divider"></div>
+    <p class="hero-subtitle">Logiciel de gestion technique & chiffrage</p>
+
+    <div class="hero-actions">
         @if (Route::has('login'))
-            <div class="auth-navigation">
-                @auth
-                    <a href="{{ route('devis.index') }}" class="btn-new">Accéder aux Devis</a><br>
-                    <a href="{{ route('tarifs.tarifs') }}" class="btn-new">Gérer les Tarifs</a>
+            @auth
+                <div class="auth-info">
+                    <p>Session active : <strong>{{ Auth::user()->name }}</strong></p>
+                </div>
 
-                    <form method="POST" action="{{ route('logout') }}" style="margin-top: 20px;">
+                <div class="btn-group">
+                    <a href="{{ route('dashboard') }}" class="btn-primary">Accéder au Tableau de bord</a>
+
+                    <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" style="color: red; cursor: pointer; background: none; border: none; text-decoration: underline;">
-                            Se déconnecter
-                        </button>
+                        <button type="submit" class="btn-logout-link">Se déconnecter</button>
                     </form>
-                @else
-                    <h1>Bienvenue sur Art de la Pierre</h1>
-                    <p>Veuillez vous connecter pour accéder au registre.</p>
-                    <a href="{{ route('login') }}" class="btn-login" style="padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px;">
-                        Se connecter
-                    </a>
-                @endauth
-            </div>
+                </div>
+            @else
+                <p class="auth-notice">Veuillez vous identifier pour accéder au registre.</p>
+                <a href="{{ route('login') }}" class="btn-primary">Se connecter</a>
+            @endauth
         @endif
-    </header>
+    </div>
 
-    <footer>
-
+    <footer class="welcome-footer">
+        <p>&copy; {{ date('Y') }} — Atelier Art de la Pierre</p>
     </footer>
-    </body>
+</div>
+
+</body>
 </html>

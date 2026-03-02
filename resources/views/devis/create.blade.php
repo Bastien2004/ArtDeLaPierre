@@ -11,6 +11,10 @@
     <form action="{{ route('devis.store') }}" method="POST">
         @csrf
 
+        <a href="{{ url('/dashboard') }}" class="btn-back-stone">
+            <i class="fa fa-arrow-left"></i> Retour à l’accueil
+        </a>
+
         <h1>Création de Devis</h1>
 
         <input type="hidden" name="force_time" value="{{ $timePrefill ?? '' }}">

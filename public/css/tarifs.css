@@ -1,148 +1,251 @@
-    /* 1. Base et Typographie */
-body {
-    background-color: #f0f2f5;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
-    padding-bottom: 50px;
+/* --- 1. CONFIGURATION & POLICES --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --stone-dark: #1a252f;    /* Bleu ardoise profond */
+    --stone-medium: #95a5a6;  /* Gris satiné */
+    --stone-light: #f8fafb;   /* Off-white minéral */
+    --stone-accent: #c5b9a5;  /* Sable doré / Pierre de taille */
+    --bg-app: #f0f2f5;
+    --danger: #e74c3c;        /* Rouge élégant */
+    --danger-hover: #c0392b;
+    --success: #27ae60;       /* Vert émeraude */
+    --shadow: 0 15px 35px rgba(0,0,0,0.08);
 }
 
-/* 2. Bouton Retour - Style épuré */
-.btn-return {
+/* --- 2. BASE & LAYOUT --- */
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-app);
+    background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+    background-size: 25px 25px;
+    color: var(--stone-dark);
+    margin: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container, .max-w-7xl {
+    padding: 40px 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* --- 3. COMPOSANTS SIGNATURE (CARTES & SECTIONS) --- */
+.dashboard-card, .auth-form, .hero-card, .section-container, form {
+    background: white;
+    padding: 35px 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border: none;
+    margin-bottom: 25px;
+}
+
+/* La barre dégradée "Signature" en haut de chaque bloc blanc */
+.dashboard-card::before, .auth-form::before, .hero-card::before,
+.section-container::before, form::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-accent));
+    border-radius: 15px 15px 0 0;
+}
+
+/* Titres Typographiques */
+h1, h2, .section-title, .auth-title, .hero-title {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    color: var(--stone-dark);
+    text-transform: uppercase;
+}
+
+h1 { text-align: center; font-size: 2rem; margin-bottom: 30px; }
+
+/* --- 4. BOUTONS --- */
+/* Bouton Primaire / Valider */
+.btn-primary, .btn-submit, .btn-save-premium {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    color: #6c757d;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 10px 20px;
+    justify-content: center;
+    background: var(--stone-dark);
+    color: white !important;
+    padding: 12px 28px;
     border-radius: 10px;
-    transition: all 0.2s ease;
-    border: 1px solid #dee2e6;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.btn-return:hover {
-    color: #2c3e50;
-    background-color: #f8f9fa;
-    border-color: #adb5bd;
-    transform: translateX(-5px);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
     text-decoration: none;
 }
 
-/* 3. Le style "Stabilo" */
-.title-stabilo {
-    background: linear-gradient(100deg, #ffc0cb 0%, #ffb6c1 100%);
-    color: #b92b27 !important;
-    padding: 8px 30px;
-    display: inline-block;
-    font-weight: 800;
-    border-radius: 4px;
-    transform: rotate(-0.5deg);
-    box-shadow: 3px 3px 0px rgba(0,0,0,0.05);
-    text-transform: uppercase;
-    margin-bottom: 25px;
-    border: none !important;
+.btn-primary:hover, .btn-submit:hover, .btn-save-premium:hover {
+    background: var(--success);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2);
 }
 
-/* 4. Alerte de succès (Modifié avec succès) */
-.alert-custom-success {
-    background-color: #d4edda;
-    border-left: 5px solid #28a745;
-    color: #155724;
-    font-weight: 600;
-    padding: 15px 20px;
+/* Bouton Déconnexion (Rouge) */
+.btn-logout-link {
+    background: var(--danger);
+    color: white !important;
+    padding: 10px 20px;
     border-radius: 8px;
-    margin-bottom: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
+}
+
+.btn-logout-link:hover {
+    background: var(--danger-hover);
+    transform: scale(1.05);
+}
+
+/* --- 5. FORMULAIRES & INPUTS --- */
+.form-group { margin-bottom: 20px; }
+
+.section-title-small {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+input, select, textarea, .custom-input {
+    background: var(--stone-light);
+    border: 1.5px solid #e1e8ed;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--stone-accent);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(197, 185, 165, 0.1);
+}
+
+/* --- 6. DASHBOARD CARDS --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card-action {
     display: flex;
     align-items: center;
-    gap: 12px;
-    animation: slideDown 0.4s ease-out;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 5. Structure du Tableau style "Livre de comptes" */
-.table-tarifs {
-    border: 1px solid #bcbcbc !important;
-    background-color: white;
+    background: var(--stone-light);
+    padding: 25px;
     border-radius: 12px;
-    overflow: hidden;
+    text-decoration: none;
+    border: 1px solid #eee;
+    transition: 0.3s;
+}
+
+.card-action:hover {
+    transform: translateY(-5px);
+    background: white;
+    border-color: var(--stone-accent);
+    box-shadow: var(--shadow);
+}
+
+.card-icon { font-size: 2rem; margin-right: 20px; }
+.card-body h3 { font-family: 'Cinzel', serif; margin: 0; font-size: 1.1rem; }
+.card-body p { margin: 5px 0 0; font-size: 0.85rem; color: var(--stone-medium); }
+
+/* --- 7. TABLES (TARIFS & DEVIS) --- */
+.table-tarifs {
+    width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
 }
 
-.table-tarifs thead th {
-    border-bottom: 2px solid #333 !important;
-    font-weight: 700;
+.table-tarifs th {
+    background: #f8f9fa;
+    padding: 15px;
+    font-family: 'Cinzel', serif;
     font-size: 0.8rem;
-    padding: 15px 5px;
-    color: #2c3e50;
+    border-bottom: 2px solid var(--stone-dark);
 }
 
 .bg-epaisseur {
-    background-color: #eceff1 !important;
-    width: 110px;
-    text-align: center;
-    border-right: 2px solid #cfd8dc !important;
+    background: #eceff1 !important;
     font-weight: bold;
+    text-align: center;
+    width: 100px;
 }
 
-/* 6. Inputs de saisie */
-.input-prix-invisible {
-    border: 2px solid transparent !important;
-    background: transparent !important;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #1a237e;
-    transition: all 0.3s ease;
-    padding: 10px 5px;
-}
+/* --- BOUTON RETOUR "ART DE LA PIERRE" --- */
 
-.input-prix-invisible:focus {
-    background: #ffffff !important;
-    border: 2px solid #1976d2 !important;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    transform: scale(1.05);
-    outline: none;
-}
-
-/* 7. Bouton Enregistrer - Version Premium */
-.btn-save-premium {
-    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
-    border: none;
-    color: white;
-    padding: 18px 60px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.btn-back-stone {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 20px rgba(40, 167, 69, 0.2);
+    gap: 10px;
+
+    /* Couleurs de base */
+    background: transparent;
+    color: var(--stone-medium) !important;
+    border: 1.5px solid #d1d8db;
+
+    /* Structure */
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+
+    /* Transition */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 20px;
 }
 
-.btn-save-premium:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(40, 167, 69, 0.3);
-    filter: brightness(1.1);
-}
-
-.btn-save-premium i {
+.btn-back-stone i {
+    font-size: 0.75rem;
     transition: transform 0.3s ease;
 }
 
-.btn-save-premium:hover i {
-    transform: rotate(15deg) scale(1.2);
+/* Effet au survol */
+.btn-back-stone:hover {
+    background: white;
+    color: var(--stone-dark) !important;
+    border-color: var(--stone-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateX(-3px); /* Petit décalage vers la gauche pour l'effet "retour" */
+}
+
+/* Animation de l'icône au survol */
+.btn-back-stone:hover i {
+    transform: translateX(-3px);
+}
+
+/* --- 8. ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card, .auth-form, .dashboard-card, .card-action {
+    animation: fadeIn 0.5s ease-out;
 }

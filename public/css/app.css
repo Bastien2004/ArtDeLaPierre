@@ -1,0 +1,376 @@
+/* --- 1. CONFIGURATION & POLICES --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+:root {
+    --stone-dark: #1a252f;    /* Bleu ardoise profond */
+    --stone-medium: #95a5a6;  /* Gris satiné */
+    --stone-light: #f8fafb;   /* Off-white minéral */
+    --stone-accent: #c5b9a5;  /* Sable doré / Pierre de taille */
+    --bg-app: #f0f2f5;
+    --danger: #ff4757;        /* Rouge corail moderne */
+    --danger-hover: #0000bd;
+    --success: #27ae60;       /* Vert émeraude */
+    --shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* --- 2. BASE & LAYOUT --- */
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-app);
+    background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    color: var(--stone-dark);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.container, .max-w-7xl {
+    padding: 40px 20px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* --- 3. COMPOSANTS UNIFIÉS (CARTES) --- */
+.dashboard-card, .auth-form, .hero-card, form {
+    background: white;
+    padding: 35px 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border: none;
+    margin-bottom: 20px;
+}
+
+/* Barre décorative supérieure */
+.dashboard-card::before, .auth-form::before, .hero-card::before, form::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-accent));
+    border-radius: 15px 15px 0 0;
+}
+
+h1, .section-title, h2, .auth-title {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    color: var(--stone-dark);
+    text-transform: uppercase;
+}
+
+h1 { text-align: center; font-size: 2rem; margin-bottom: 30px; }
+
+/* --- 4. BOUTONS --- */
+.btn-primary, .btn-submit {
+    display: inline-block;
+    background: var(--stone-dark);
+    color: white !important;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-primary:hover, .btn-submit:hover {
+    background: var(--success);
+    box-shadow: 0 10px 20px rgba(39, 174, 96, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-logout-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Couleur de fond rouge */
+    background: var(--danger);
+    color: white !important; /* Texte en blanc pour le contraste */
+
+    /* Structure et Espacement */
+    padding: 12px 24px;
+    border-radius: 8px; /* Léger arrondi comme les autres inputs */
+    margin-top: 20px;
+
+    /* Typographie */
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    /* Nettoyage des styles par défaut */
+    border: none;
+    text-decoration: none !important; /* Supprime le soulignement */
+    cursor: pointer;
+
+    /* Effets de transition doux */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* Ombre légère pour le détacher */
+    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2);
+}
+
+/* Effet au survol (Hover) */
+.btn-logout-link:hover {
+    background: var(--danger-hover); /* Devient plus sombre */
+    transform: translateY(-2px); /* Léger effet de soulèvement */
+
+    /* Ombre plus prononcée pour l'effet de profondeur */
+    box-shadow: 0 7px 14px rgba(231, 76, 60, 0.3);
+}
+
+/* Effet au clic (Active) */
+.btn-logout-link:active {
+    transform: translateY(1px); /* S'enfonce légèrement */
+    box-shadow: 0 3px 5px rgba(231, 76, 60, 0.2);
+}
+
+/* --- 5. FORMULAIRES & INPUTS --- */
+.form-group { margin-bottom: 20px; }
+
+.section-title-small {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+input[type="text"], input[type="number"], input[type="email"], input[type="password"], select, .custom-input {
+    background: var(--stone-light);
+    border: 1.5px solid #e1e8ed;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--stone-dark);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(26, 37, 47, 0.05);
+}
+
+/* --- 6. PAGE BIENVENUE & CONNEXION --- */
+.welcome-body, .guest-body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-page-wrapper, .guest-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.hero-card { text-align: center; }
+
+.hero-title, .auth-title { font-size: 1.8rem; margin-bottom: 5px; }
+
+.hero-subtitle, .auth-subtitle {
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.hero-divider {
+    height: 2px;
+    width: 50px;
+    background: var(--stone-accent);
+    margin: 15px auto;
+}
+
+.auth-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: var(--stone-medium);
+    text-decoration: none;
+}
+
+/* --- DROPWDOWN ULTRA-COMPACT --- */
+
+/* On force la largeur du conteneur parent de Breeze */
+.hidden.sm\:flex .relative div[style*="display: none"] {
+    width: 140px !important; /* Largeur réduite */
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* --- 1. CONFIGURATION & POLICES --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --stone-dark: #1a252f;
+    --stone-medium: #95a5a6;
+    --stone-light: #f8fafb;
+    --stone-accent: #c5b9a5;
+    --bg-app: #f0f2f5;
+    --danger: #ff4757;
+    --danger-hover: #e04050; /* Ajouté */
+    --success: #27ae60;
+    --shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* --- 2. BASE & LAYOUT --- */
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-app);
+    background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    color: var(--stone-dark);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.nav-logo-text {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1.5px;
+    color: var(--stone-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* --- 3. COMPOSANTS (CARTES) --- */
+.dashboard-card, .auth-form, .hero-card, form:not(.inline-form) {
+    background: white;
+    padding: 35px 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border: none;
+    margin-bottom: 20px;
+}
+
+.dashboard-card::before, .auth-form::before, .hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-accent));
+    border-radius: 15px 15px 0 0;
+}
+
+/* --- STYLE DE LA MODALE --- */
+.modal-content-stone {
+    border: none !important;
+    border-radius: 0px !important; /* Coins droits pour un aspect pierre taillée */
+    background-color: #fff !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bordure décorative supérieure (L'effet "Pierre Taillée") */
+.modal-content-stone::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-gold), var(--stone-dark));
+    z-index: 1060;
+}
+
+.modal-header-stone {
+    padding: 1.5rem !important;
+    background: var(--stone-light);
+    border-bottom: 1px solid #eee !important;
+}
+
+.modal-title-stone {
+    font-family: 'Cinzel', serif; /* Si tu l'as, sinon Figtree */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: var(--stone-dark);
+    font-size: 1rem !important;
+}
+
+.modal-body-stone {
+    padding: 2.5rem 1.5rem !important;
+}
+
+.modal-footer-stone {
+    background: var(--stone-light);
+    border-top: 1px solid #eee !important;
+    padding: 1rem !important;
+}
+
+/* --- BOUTONS --- */
+.btn-stone-cancel {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #888;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.btn-stone-cancel:hover {
+    background: #eee;
+    color: #333;
+}
+
+.btn-stone-logout {
+    background: var(--stone-dark);
+    border: none;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.btn-stone-logout:hover {
+    background: var(--danger-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+}
+/* On force la largeur du conteneur parent de Breeze */
+.hidden.sm\:flex .relative div[style*="display: none"] {
+    width: 140px !important;
+    left: auto !important;
+    right: 0 !important;
+}
+
+.logout-icon { font-size: 1.2rem; margin-bottom: 2px; }
+.logout-text {
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    color: var(--danger) !important;
+    text-transform: uppercase;
+}
+
+/* --- 5. ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.dashboard-card, .auth-form { animation: fadeIn 0.5s ease-out; }
+
+.hero-card, .auth-form, .dashboard-card { animation: fadeIn 0.5s ease-out; }

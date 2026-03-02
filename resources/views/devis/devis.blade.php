@@ -14,8 +14,9 @@
 
 
 <div class="container-fluid">
-    <a href="{{ route('welcome') }} " class="btn-new">Retour à l’accueil</a>
-    <div class="table-header-flex">
+    <a href="{{ url('/dashboard') }}" class="btn-back-stone">
+        <i class="fa fa-arrow-left"></i> Retour à l’accueil
+    </a>    <div class="table-header-flex">
         <h1>Registre des Devis</h1>
         <a href="{{ route('devis.create') }}" class="btn-new">+ Nouveau Devis</a>
     </div>
