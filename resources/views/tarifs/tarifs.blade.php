@@ -16,8 +16,8 @@
             <h2 class="fw-bold text-dark mb-1">TARIF {{ date('Y') }}</h2>
             <p class="text-muted mb-0">Gestion de la grille de prix</p>
         </div>
-        <a href="{{ route('devis.index') }}" class="btn-return">
-            <i class="fa fa-arrow-left"></i> Retour au Registre
+        <a href="{{ route('welcome') }}" class="btn-return">
+            <i class="fa fa-arrow-left"></i> Retour à l’accueil
         </a>
     </div>
 
