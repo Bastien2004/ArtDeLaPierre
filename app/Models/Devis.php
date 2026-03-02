@@ -18,7 +18,8 @@ class Devis extends Model
         'rejingotML',
         'oreilles',
         'prixHT',
-        'prixUnitairePierre'
+        'prixUnitairePierre',
+        'epaisseur'
     ];
 
     public function specificites()

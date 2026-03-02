@@ -11,8 +11,8 @@
     <form action="{{ route('devis.store') }}" method="POST">
         @csrf
 
-        <a href="{{ url('/dashboard') }}" class="btn-back-stone">
-            <i class="fa fa-arrow-left"></i> Retour à l’accueil
+        <a href="{{ route('devis.index') }}" class="btn-back-stone">
+            <i class="fa fa-arrow-left"></i> Retour au Registre des Devis
         </a>
 
         <h1>Création de Devis</h1>
@@ -24,8 +24,8 @@
             <div class="form-group">
                 <label>Type de Client</label>
                 <select name="type_client_global" id="type_client_global" class="form-control" required onchange="updateAllPrices()">
-                    <option value="Particulier">Particulier</option>
                     <option value="Entreprise">Entreprise</option>
+                    <option value="Particulier">Particulier</option>
                 </select>
             </div>
             <div class="form-group">
@@ -60,12 +60,21 @@
                     </div>
                     <div class="form-group">
                         <label>Épaisseur</label>
-                        <select name="lignes[0][epaisseur]" class="select-epaisseur" onchange="lookupPrice(this)">
-                            <option value="2">2 cm</option>
-                            <option value="3">3 cm</option>
-                            <option value="4">4 cm</option>
-                            <option value="5">5 cm</option>
-                        </select>
+                        <div class="form-group">
+                            <label>Épaisseur</label>
+                            <select name="lignes[0][epaisseur]" class="select-epaisseur" onchange="lookupPrice(this)">
+                                @php
+                                    // On récupère les épaisseurs uniques présentes dans la grille de tarifs
+                                    $epaisseursDisponibles = $allTarifs->pluck('epaisseur')->unique()->sort();
+                                @endphp
+
+                                @foreach($epaisseursDisponibles as $ep)
+                                    <option value="{{ $ep }}" {{ $ep == 3 ? 'selected' : '' }}>
+                                        {{ $ep }} cm
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Qté</label>

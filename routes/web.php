@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
     // Gestion des Tarifs
     Route::get('/tarifs', [TarifController::class, 'index'])->name('tarifs.tarifs');
     Route::post('/tarifs/update-all', [TarifController::class, 'updateAll'])->name('tarifs.updateAll');
+    Route::delete('/tarifs/travail/{id}', [TarifController::class, 'deleteTravail'])->name('tarifs.deleteTravail');
+    Route::delete('/tarifs/epaisseur/{ep}', [TarifController::class, 'deleteEpaisseur'])->name('tarifs.deleteEpaisseur');
 });
 
 require __DIR__.'/auth.php';

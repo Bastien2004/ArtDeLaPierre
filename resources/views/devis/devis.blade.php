@@ -85,7 +85,7 @@
                     </td>
                     <td class="txt-center">{{ $d->nombrePierre }}</td>
                     <td class="col-mesure">
-                        <small class="text-muted">{{ $d->longueurM }}x{{ $d->largeurM }}m</small><br>
+                        <small class="text-muted">{{ $d->longueurM }}m x{{ $d->largeurM }}m x{{ $d->epaisseur }}cm</small><br>
                         <strong>{{ number_format($d->matiere, 2, ',', ' ') }} m²</strong>
                     </td>
                     <td class="col-prix">{{ number_format($d->prixM2, 2, ',', ' ') }}€</td>

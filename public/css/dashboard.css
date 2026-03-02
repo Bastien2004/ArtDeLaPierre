@@ -1,132 +1,62 @@
-/* --- VARIABLES DE COULEURS --- */
+/* --- 1. CONFIGURATION & POLICES --- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+
 :root {
     --stone-dark: #2c3e50;    /* Bleu ardoise profond */
     --stone-gold: #c5a059;    /* Or brossé */
     --stone-accent: #34495e;
     --stone-light: #f8fafc;
     --stone-medium: #64748b;
+    --stone-bg: #f3f4f6;
     --white: #ffffff;
+    --text-muted: #64748b;
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* --- LOGOUT MODAL & CASE (L'ENGGLOBANTE) --- */
-
-/* Style de la "Case" interne à la modale */
-.stone-action-card {
-    background: var(--white);
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    margin: 20px;
-    padding: 35px 25px;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+/* --- 2. BASE & LAYOUT --- */
+body {
+    background-color: var(--stone-bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--stone-dark);
+    line-height: 1.6;
+    margin: 0;
 }
 
-/* Barre de signature Art de la Pierre (Gradient Prestige) */
-.stone-action-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, var(--stone-dark), var(--stone-gold));
-    border-radius: 12px 12px 0 0;
-}
-
-/* Alignement horizontal des deux boutons */
-.btn-group-stone-horizontal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    width: 100%;
-    margin-top: 2rem;
-}
-
-/* Équilibre des boutons */
-.btn-stone-secondary,
-.btn-group-stone-horizontal form {
-    flex: 1;
-}
-
-/* Bouton ANNULER */
-.btn-stone-secondary {
-    background: #f1f5f9;
-    color: #64748b !important;
-    border: 1px solid #e2e8f0;
-    padding: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.75rem;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    display: inline-flex;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.btn-stone-secondary:hover {
-    background: #e2e8f0;
-    color: var(--stone-dark) !important;
-}
-
-/* Bouton QUITTER */
-.btn-stone-primary {
-    background: var(--stone-dark);
-    color: var(--white) !important;
-    border: none;
-    padding: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.75rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    width: 100%;
-}
-
-.btn-stone-primary:hover {
-    background: #1a252f;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(44, 62, 80, 0.3);
-}
-
-/* --- NAVIGATION & HEADER --- */
-
+/* --- 3. NAVIGATION & HEADER --- */
+.header-stone h2,
 h2.font-semibold {
-    font-family: 'Cinzel', serif; /* Typographie haut de gamme */
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
     letter-spacing: 1.5px;
     color: var(--stone-dark);
     text-transform: uppercase;
+    margin: 0;
 }
 
-/* Bouton Déconnexion du Header */
 .logout-btn-stone {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 18px;
+    padding: 10px 20px;
     background: var(--white);
     border: 1.5px solid #e5e7eb;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    border-radius: 10px;
+    transition: var(--transition-smooth);
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: #ef4444; /* Rouge élégant */
+    color: #ef4444;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
 }
 
 .logout-btn-stone:hover {
-    border-color: #ef4444;
-    background-color: #fef2f2;
-    transform: scale(1.02);
+    background: #fff1f2;
+    border-color: #e11d48;
+    transform: translateY(-2px);
 }
 
-/* --- GRILLE DU PANNEAU DE CONTRÔLE --- */
-
+/* --- 4. PANNEAU DE CONTRÔLE (GRILLE & CARTES) --- */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -134,83 +64,112 @@ h2.font-semibold {
     margin-top: 20px;
 }
 
-/* Style des cartes d'action */
 .card-action {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     background: var(--white);
     border: 1px solid #e2e8f0;
-    padding: 30px;
-    border-radius: 18px;
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 35px;
+    border-radius: 20px;
+    text-decoration: none !important;
+    transition: var(--transition-smooth);
     position: relative;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    overflow: hidden;
 }
 
-.card-action::before {
+/* Barre de couleur supérieure (Signature) */
+.card-action::after {
     content: "";
     position: absolute;
-    top: 0; left: 0; bottom: 0;
-    width: 5px;
-    background: transparent;
-    transition: background 0.3s;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
-/* Variantes de couleurs gauche */
-.card-action.devis::before { background: var(--stone-dark); }
-.card-action.tarifs::before { background: var(--stone-gold); }
+.devis-card::after, .devis::after { background: var(--stone-dark); }
+.tarifs-card::after, .tarifs::after { background: var(--stone-gold); }
 
 .card-action:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
     border-color: var(--stone-gold);
 }
 
-/* Icônes */
+.card-action:hover::after { opacity: 1; }
+
+/* Icônes des cases */
 .card-icon {
-    font-size: 2rem;
-    margin-right: 25px;
-    background: var(--stone-light);
     width: 65px;
     height: 65px;
+    background: var(--stone-light);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    transition: transform 0.4s ease;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    transition: var(--transition-smooth);
 }
 
 .card-action:hover .card-icon {
-    transform: scale(1.1) rotate(-8deg);
-    background: var(--white);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transform: scale(1.1) rotate(-5deg);
+    background: var(--stone-dark);
+    color: white;
 }
 
-/* Corps de texte des cartes */
+.tarifs-card:hover .card-icon { background: var(--stone-gold); }
+
+/* --- 5. TYPOGRAPHIE INTERNE DES CASES --- */
+/* Support pour card-content ET card-body selon vos fichiers */
+.card-content, .card-body {
+    width: 100%;
+    text-align: left;
+}
+
+.card-content h3,
 .card-body h3 {
-    margin: 0;
     font-family: 'Cinzel', serif;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--stone-dark);
+    margin: 0 0 12px 0;
     letter-spacing: 0.5px;
+    text-transform: none; /* Garde la casse naturelle pour plus de modernité */
 }
 
+.card-content p,
 .card-body p {
-    margin-top: 6px;
-    font-size: 0.88rem;
     color: var(--stone-medium);
-    line-height: 1.5;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
 }
 
-/* Flèche de direction */
+/* Bouton interactif "Explorer" ou Flèche */
+.btn-discover {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--stone-gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: gap 0.3s;
+}
+
+.card-action:hover .btn-discover {
+    gap: 15px;
+}
+
 .card-arrow {
     font-size: 1.3rem;
     color: var(--stone-gold);
     opacity: 0.3;
-    transition: all 0.3s ease;
-    margin-left: 15px;
+    transition: var(--transition-smooth);
 }
 
 .card-action:hover .card-arrow {
@@ -218,9 +177,76 @@ h2.font-semibold {
     transform: translateX(8px);
 }
 
-/* --- BOOTSTRAP FIXES --- */
-.modal-backdrop {
-    z-index: 1040 !important;
-    background-color: rgba(44, 62, 80, 0.4) !important; /* Voile bleu nuit translucide */
+/* --- 6. MODALE DE DÉCONNEXION --- */
+.stone-action-card {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 35px 25px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: none;
 }
-#logoutModal { z-index: 1050 !important; }
+
+.stone-action-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--stone-dark), var(--stone-gold));
+    border-radius: 15px 15px 0 0;
+}
+
+.btn-group-stone-horizontal {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-stone-primary, .btn-stone-secondary {
+    flex: 1;
+    padding: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-stone-primary {
+    background: var(--stone-dark);
+    color: var(--white) !important;
+    border: none;
+}
+
+.btn-stone-primary:hover {
+    background: #1a252f;
+    transform: translateY(-2px);
+}
+
+.btn-stone-secondary {
+    background: #f1f5f9;
+    color: var(--stone-medium) !important;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-stone-secondary:hover {
+    background: #e2e8f0;
+    color: var(--stone-dark) !important;
+}
+
+/* --- 7. FIXES & RESPONSIVE --- */
+.modal-backdrop {
+    background-color: rgba(44, 62, 80, 0.5) !important;
+}
+
+@media (max-width: 640px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .card-action { padding: 25px; }
+    .btn-group-stone-horizontal { flex-direction: column; }
+}

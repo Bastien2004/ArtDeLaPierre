@@ -2,39 +2,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-    --stone-dark: #1a252f;    /* Bleu ardoise profond */
-    --stone-medium: #95a5a6;  /* Gris satiné */
-    --stone-light: #f8fafb;   /* Off-white minéral */
-    --stone-accent: #c5b9a5;  /* Sable doré / Pierre de taille */
+    --stone-dark: #1a252f;
+    --stone-medium: #95a5a6;
+    --stone-light: #f8fafb;
+    --stone-accent: #c5b9a5;
     --bg-app: #f0f2f5;
-    --danger: #e74c3c;        /* Rouge élégant */
-    --danger-hover: #c0392b;
-    --success: #27ae60;       /* Vert émeraude */
-    --shadow: 0 15px 35px rgba(0,0,0,0.08);
+    --danger: #e74c3c;
+    --success: #27ae60;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
 /* --- 2. BASE & LAYOUT --- */
-* { box-sizing: border-box; }
-
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-app);
     background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
     background-size: 25px 25px;
     color: var(--stone-dark);
-    margin: 0;
-    line-height: 1.6;
-    min-height: 100vh;
 }
 
-.container, .max-w-7xl {
+.container {
     padding: 40px 20px;
     max-width: 1100px;
     margin: auto;
 }
 
-/* --- 3. COMPOSANTS SIGNATURE (CARTES & SECTIONS) --- */
-.dashboard-card, .auth-form, .hero-card, .section-container, form {
+/* --- 3. COMPOSANTS SIGNATURE --- */
+form {
     background: white;
     padding: 35px 30px;
     border-radius: 15px;
@@ -44,9 +38,7 @@ body {
     margin-bottom: 25px;
 }
 
-/* La barre dégradée "Signature" en haut de chaque bloc blanc */
-.dashboard-card::before, .auth-form::before, .hero-card::before,
-.section-container::before, form::before {
+form::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0;
@@ -55,144 +47,152 @@ body {
     border-radius: 15px 15px 0 0;
 }
 
-/* Titres Typographiques */
-h1, h2, .section-title, .auth-title, .hero-title {
+.title-stabilo {
+    display: inline-block;
+    padding: 10px 20px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03) !important;
+    border-left: 5px solid var(--stone-accent) !important;
     font-family: 'Cinzel', serif;
-    letter-spacing: 2px;
-    color: var(--stone-dark);
-    text-transform: uppercase;
+    font-size: 1rem !important;
+    background: white !important;
+    margin-bottom: 1.5rem;
 }
 
-h1 { text-align: center; font-size: 2rem; margin-bottom: 30px; }
-
-/* --- 4. BOUTONS --- */
-/* Bouton Primaire / Valider */
-.btn-primary, .btn-submit, .btn-save-premium {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--stone-dark);
-    color: white !important;
-    padding: 12px 28px;
-    border-radius: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.btn-primary:hover, .btn-submit:hover, .btn-save-premium:hover {
-    background: var(--success);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2);
-}
-
-/* Bouton Déconnexion (Rouge) */
-.btn-logout-link {
-    background: var(--danger);
-    color: white !important;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
-}
-
-.btn-logout-link:hover {
-    background: var(--danger-hover);
-    transform: scale(1.05);
-}
-
-/* --- 5. FORMULAIRES & INPUTS --- */
-.form-group { margin-bottom: 20px; }
-
-.section-title-small {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--stone-medium);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-}
-
-input, select, textarea, .custom-input {
-    background: var(--stone-light);
-    border: 1.5px solid #e1e8ed;
-    padding: 12px 15px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    width: 100%;
-    transition: all 0.2s;
-}
-
-input:focus, select:focus {
-    outline: none;
-    border-color: var(--stone-accent);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(197, 185, 165, 0.1);
-}
-
-/* --- 6. DASHBOARD CARDS --- */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.card-action {
-    display: flex;
-    align-items: center;
-    background: var(--stone-light);
-    padding: 25px;
-    border-radius: 12px;
-    text-decoration: none;
-    border: 1px solid #eee;
-    transition: 0.3s;
-}
-
-.card-action:hover {
-    transform: translateY(-5px);
-    background: white;
-    border-color: var(--stone-accent);
-    box-shadow: var(--shadow);
-}
-
-.card-icon { font-size: 2rem; margin-right: 20px; }
-.card-body h3 { font-family: 'Cinzel', serif; margin: 0; font-size: 1.1rem; }
-.card-body p { margin: 5px 0 0; font-size: 0.85rem; color: var(--stone-medium); }
-
-/* --- 7. TABLES (TARIFS & DEVIS) --- */
+/* --- 4. TABLEAU (CORRECTION GAUCHE ET COULEURS) --- */
 .table-tarifs {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    border-radius: 10px;
+    border: 1px solid #e1e8ed !important;
+    border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #dee2e6;
 }
 
-.table-tarifs th {
-    background: #f8f9fa;
-    padding: 15px;
+.table-tarifs thead th {
     font-family: 'Cinzel', serif;
-    font-size: 0.8rem;
-    border-bottom: 2px solid var(--stone-dark);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 15px;
+    border: none !important;
+    border-bottom: 2px solid var(--stone-dark) !important;
+    text-align: center;
 }
 
-.bg-epaisseur {
-    background: #eceff1 !important;
-    font-weight: bold;
+/* Conservation de tes couleurs de titres */
+.table-tarifs thead th:nth-child(1) { background-color: #f8f9fa !important; }
+.table-tarifs thead th:nth-child(2) { background-color: #fdfd96 !important; }
+.table-tarifs thead th:nth-child(3) { background-color: #c1f0c1 !important; }
+.table-tarifs thead th:nth-child(4) { background-color: #cfe2f3 !important; }
+.table-tarifs thead th:nth-child(5) { background-color: #d9d9d9 !important; }
+
+.table-tarifs td {
+    border: none !important;
+    border-bottom: 1px solid #f0f2f5 !important;
+    padding: 12px 15px !important;
+    background: white !important;
+}
+
+/* Correction de la colonne de gauche (Désignation / Épaisseur) */
+.table-tarifs td:first-child,
+.table-tarifs td.fw-bold {
+    background-color: white !important;
+    border-right: 1px solid #f0f2f5 !important;
+    text-align: left !important;
+    padding-left: 20px !important;
+    font-weight: 600 !important;
+}
+
+/* --- 5. INPUTS PRIX ET AJOUTS --- */
+.input-prix-invisible {
+    border: 1px solid #f0f2f5 !important;
+    background: #fdfdfd !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+    font-weight: 600;
     text-align: center;
-    width: 100px;
+    width: 90px;
+    transition: all 0.2s;
+}
+
+.input-prix-invisible:focus {
+    border-color: var(--stone-accent) !important;
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(197, 185, 165, 0.15) !important;
+    outline: none;
+}
+
+/* Zone d'ajout (Bas de tableau) */
+.table-tarifs tr.bg-white td {
+    background: #fbfcfd !important;
+    padding: 20px 15px !important;
+}
+
+.table-tarifs tr.bg-white input,
+.table-tarifs tr.bg-white select {
+    border: 1px dashed var(--stone-accent) !important;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.9rem;
+    background: white;
+}
+
+/* --- 6. MESSAGES ET ALERTES --- */
+.alert-custom-success {
+    background: white;
+    border-left: 5px solid var(--success);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+}
+
+/* --- 7. BOUTONS MODERNES --- */
+.btn-save-premium {
+    background: var(--stone-dark);
+    color: white !important;
+    padding: 16px 50px !important;
+    border-radius: 50px !important;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 20px rgba(26, 37, 47, 0.15);
+    border: none;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.btn-save-premium:hover {
+    background: var(--success);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(39, 174, 96, 0.2);
+}
+
+.btn-delete-row {
+    color: var(--danger);
+    opacity: 0.4;
+    transition: 0.2s;
+    background: none;
+    border: none;
+}
+
+.btn-delete-row:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Card d'ajout (Épaisseur) */
+.card.bg-light.border-primary {
+    border: none !important;
+    border-left: 5px solid var(--stone-dark) !important;
+    background: white !important;
+    box-shadow: var(--shadow);
+    border-radius: 15px;
+    padding: 10px;
 }
 
 /* --- BOUTON RETOUR "ART DE LA PIERRE" --- */
@@ -202,23 +202,23 @@ input:focus, select:focus {
     align-items: center;
     gap: 10px;
 
-    /* Couleurs de base */
-    background: transparent;
+    /* Couleurs minérales */
+    background: white;
     color: var(--stone-medium) !important;
     border: 1.5px solid #d1d8db;
 
-    /* Structure */
-    padding: 8px 20px;
-    border-radius: 8px;
+    /* Structure & Typographie */
+    padding: 10px 22px;
+    border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     text-decoration: none !important;
 
-    /* Transition */
+    /* Transition fluide */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
 }
 
 .btn-back-stone i {
@@ -226,26 +226,16 @@ input:focus, select:focus {
     transition: transform 0.3s ease;
 }
 
-/* Effet au survol */
+/* Effet au survol (Hover) */
 .btn-back-stone:hover {
     background: white;
     color: var(--stone-dark) !important;
     border-color: var(--stone-dark);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transform: translateX(-3px); /* Petit décalage vers la gauche pour l'effet "retour" */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transform: translateX(-4px); /* Léger décalage à gauche pour accentuer l'idée de "retour" */
 }
 
-/* Animation de l'icône au survol */
+/* Animation de la flèche au survol */
 .btn-back-stone:hover i {
     transform: translateX(-3px);
-}
-
-/* --- 8. ANIMATIONS --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.hero-card, .auth-form, .dashboard-card, .card-action {
-    animation: fadeIn 0.5s ease-out;
 }

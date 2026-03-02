@@ -75,6 +75,7 @@ class DevisController extends Controller
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
                 'typePierre'   => $ligneData['typePierre'],
+                'epaisseur'    => $ligneData['epaisseur'] ?? 2,
                 'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
@@ -133,6 +134,7 @@ class DevisController extends Controller
         // 3. Update final
         $devis->update([
             'typePierre'   => $request->typePierre,
+            'epaisseur'    => $ligneData['epaisseur'] ?? 2,
             'nombrePierre' => $request->nombrePierre,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,

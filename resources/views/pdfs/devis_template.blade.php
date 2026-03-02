@@ -3,14 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Injection directe du CSS pour éviter les erreurs de protocole Snappy */
+        /* Injection directe du CSS */
         {!! file_get_contents(public_path('css/pdf_devis.css')) !!}
+
+        /* Styles spécifiques pour les options */
+        .spec-row td {
+            font-size: 11px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .pierre-row td {
+            background-color: #ffffff;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <div class="page">
     <div class="sender-info">
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.jpg'))) }}" class="logo">
+        <img src="data:image/png;base64,{{ base64_encode(@file_get_contents(public_path('images/logo.jpg'))) }}" class="logo">
         <br><strong>SASU L'ART DE LA PIERRE</strong><br>
         13 bis HAMEAU DE BREAUGIES<br>
         59570 BELLIGNIES<br>
@@ -39,33 +50,54 @@
         <table>
             <thead>
             <tr>
-                <th style="width: 50%;">Désignation</th>
-                <th>Quantité</th>
-                <th>Prix unitaire</th>
-                <th>TVA</th>
-                <th style="text-align: right;">Montant HT</th>
+                <th style="width: 45%;">Désignation</th>
+                <th style="width: 10%;">Qté</th>
+                <th style="width: 15%;">P.U. HT</th>
+                <th style="width: 10%;">TVA</th>
+                <th style="width: 20%; text-align: right;">Total HT</th>
             </tr>
             </thead>
             <tbody>
-            @php $cumulHT = 0; @endphp {{-- Initialisation du compteur --}}
-
             @foreach($lignes as $l)
-                @php
-                    $cumulHT += $l->prixHT;
-                @endphp
-                <tr>
-                    <td>
-                        <strong>{{ $l->typePierre }}</strong><br>
-                        <small>{{ $l->longueurM }}m x {{ $l->largeurM }}m</small>
+                <tr class="pierre-row">
+                    <td style="padding-bottom: 10px;">
+                        <div style="font-size: 1.1em; margin-bottom: 2px;">{{ $l->typePierre }}</div>
+
+                        <small style="font-weight: normal; color: #666; display: block; margin-bottom: 5px;">
+                            Finition : {{ $l->finition }} |
+                            {{ number_format($l->longueurM, 2, ',', ' ') }}m x
+                            {{ number_format($l->largeurM, 2, ',', ' ') }}m x
+                            {{ $l->epaisseur }} cm
+                        </small>
+
+                        @if(isset($l->specificites) && count($l->specificites) > 0)
+                            <div style="margin-left: 10px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
+                                @foreach($l->specificites as $spec)
+                                    <div style="font-size: 10px; font-weight: normal; color: #555; font-style: italic;">
+                                        <span style="color: #999;">+</span> {{ $spec->nom }}
+                                        <span style="float: right; margin-right: 15px;">{{ number_format($spec->prix, 2, ',', ' ') }} €</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </td>
-                    <td>{{ number_format($l->nombrePierre, 2, ',', ' ') }}</td>
-                    <td>{{ number_format($l->prixHT, 2, ',', ' ') }} €</td>
-                    <td>20%</td>
-                    {{-- On affiche le cumul au lieu du prix unitaire de la ligne --}}
-                    <td style="text-align: right;">{{ number_format($cumulHT, 2, ',', ' ') }} €</td>
+
+                    <td style="text-align: center; vertical-align: top; padding-top: 10px;">
+                        {{ number_format($l->nombrePierre, 0, ',', ' ') }}
+                    </td>
+                    <td style="text-align: center; vertical-align: top; padding-top: 10px;">
+                        {{ number_format($l->prixHT / ($l->nombrePierre ?: 1), 2, ',', ' ') }} €
+                    </td>
+                    <td style="text-align: center; vertical-align: top; padding-top: 10px;">
+                        20%
+                    </td>
+                    <td style="text-align: right; vertical-align: top; padding-top: 10px;">
+                        {{ number_format($l->prixHT, 2, ',', ' ') }} €
+                    </td>
                 </tr>
             @endforeach
-            </tbody>        </table>
+            </tbody>
+        </table>
 
         <div class="totals">
             <div class="total-line">Total HT : {{ number_format($totalHT, 2, ',', ' ') }} €</div>
@@ -78,18 +110,16 @@
         <div class="legal-notices">
             Acompte de 40% à la signature du devis.<br>
             DEVIS HORS POSE, HORS LIVRAISON<br><br>
-            <i style="color: #666;">Les Pierres Bleues de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucune réclamation concernant ces particularités ne sera prise en considération. Pour la tolérance d'épaisseur 1 à 2 mm (dalles, seuils, appuis...)</i>
+            <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucune réclamation concernant ces particularités ne sera prise en considération. Pour la tolérance d'épaisseur 1 à 2 mm (dalles, seuils, appuis...)</i>
         </div>
     </div>
 
-    <div class="signature-box">Signature</div>
+    <div class="signature-box">Signature (précédée de la mention "bon pour accord")</div>
 
     <div class="footer">
-        SASU au capital de 1 000 euros<br>
-        Siret : 833 976 210 00017 - RCS : VALENCIENNES<br>
+        SASU au capital de 1 000 euros - Siret : 833 976 210 00017 - RCS : VALENCIENNES<br>
         TVA Intracommunautaire : FR 76 833 976 210<br>
-        <strong>COORDONNÉES BANCAIRES :</strong><br>
-        IBAN : FR76 1627 5500 0008 0021 3604 660 &nbsp;&nbsp; BIC : CEPAFRPP627
+        <strong>COORDONNÉES BANCAIRES :</strong> IBAN : FR76 1627 5500 0008 0021 3604 660 &nbsp; BIC : CEPAFRPP627
     </div>
 </div>
 </body>
