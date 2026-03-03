@@ -1,0 +1,81 @@
+/* Conteneur principal */
+.poids-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* Titre forcé en blanc */
+.poids-container h2 {
+    color: #ffffff !important;
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    margin-bottom: 0;
+}
+
+/* Style du bouton retour */
+.btn-retour-stone {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #c5a059; /* Couleur Or/Bronze */
+    color: white !important;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-retour-stone:hover {
+    background-color: #ac8b4a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Tableau horizontal */
+.abaque-scroll {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.table-poids {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-poids th, .table-poids td {
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.table-poids th {
+    background: rgba(0, 0, 0, 0.2);
+    font-family: 'Cinzel', serif;
+    color: #c5a059;
+}
+
+.table-poids td {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Calculateur */
+.calculateur-box {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-top: 5px solid #c5a059;
+}
+
+.resultat-display {
+    background: #f8fafc;
+    border-left: 5px solid #2c3e50;
+    padding: 15px;
+    border-radius: 8px;
+}

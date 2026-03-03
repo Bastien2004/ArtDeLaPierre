@@ -245,16 +245,12 @@ h2.font-semibold {
     background-color: rgba(44, 62, 80, 0.5) !important;
 }
 
-.poids-card::after {
-    background: #8f7652; /* Gris Acier / Ardoise */
-}
+.poids-card::after, .devis::after { background: var(--stone-dark); }
 
-.poids-card {
-    background: linear-gradient(135deg, var(--white) 0%, #f1f5f9 100%);
+
+.poids-card {    background: linear-gradient(135deg, var(--white) 0%, #f1f5f9 100%);
     transition: var(--transition-smooth);
 }
-
-
 
 @media (max-width: 640px) {
     .dashboard-grid { grid-template-columns: 1fr; }
