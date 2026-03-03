@@ -114,7 +114,7 @@
         </div>
 
         @php
-            $montantLivraison = $lignes->sum('livraison');
+            $montantLivraison = $lignes->avg('livraison');
             $totalHTAvecLivraison = $totalHT + $montantLivraison;
         @endphp
 

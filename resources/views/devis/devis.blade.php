@@ -38,7 +38,7 @@
             @php
                 $p = $lignes->first();
                 $totalGroupe = $lignes->sum('prixHT');
-                $fraisPort = $lignes->sum('livraison');
+                $fraisPort = $lignes->avg('livraison');
             @endphp
 
             <tr class="group-header">

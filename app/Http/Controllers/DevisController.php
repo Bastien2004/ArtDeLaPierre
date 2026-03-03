@@ -82,7 +82,7 @@ class DevisController extends Controller
                 'matiere'      => $matiere,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
-                'livraison'  => ($index === 0) ? (float)($request->livraison ?? 0) : 0,
+                'livraison'    => $request->livraison ?? 0
             ]);
 
             $devis->created_at = $dateCreation;
@@ -153,19 +153,10 @@ class DevisController extends Controller
 
     public function updateLivraison(Request $request)
     {
-        // 1. Trouver toutes les lignes de ce devis
-        $lignes = Devis::where('client', $request->client)
+        // On met à jour TOUTES les lignes avec le même montant
+        Devis::where('client', $request->client)
             ->where('created_at', $request->date)
-            ->orderBy('id', 'asc')
-            ->get();
-
-        if ($lignes->count() > 0) {
-            foreach ($lignes as $index => $ligne) {
-                // Seule la première ligne porte le montant, les autres 0
-                $montant = ($index === 0) ? (float)$request->montant : 0;
-                $ligne->update(['livraison' => $montant]);
-            }
-        }
+            ->update(['livraison' => (float)$request->montant]);
 
         return redirect()->back()->with('success', 'Frais de livraison mis à jour !');
     }
@@ -222,7 +213,7 @@ class DevisController extends Controller
         $pays = $this->extrairePays($adresse);
 
         $totalHT = $lignes->sum('prixHT');
-        $montantLivraison = $lignes->sum('livraison'); // Récupère la livraison stockée
+        $montantLivraison = $lignes->avg('livraison');
         $totalHTAvecLivraison = $totalHT + $montantLivraison;
 
         // On charge la vue qu'on va créer après
