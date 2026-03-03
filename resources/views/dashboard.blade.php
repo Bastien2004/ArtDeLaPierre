@@ -42,6 +42,17 @@
                     </div>
                 </a>
 
+                <a href="{{ route('poids.poids') }}" class="card-action poids-card">
+                    <div class="card-icon">
+                        <span class="icon-bg">⚖️</span>
+                    </div>
+                    <div class="card-content">
+                        <h3>Calcul des Poids</h3>
+                        <p>Gérez les densités des pierres et calculez les charges pour le transport.</p>
+                        <span class="btn-discover">Consulter <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                </a>
+
             </div>
         </div>
     </div>

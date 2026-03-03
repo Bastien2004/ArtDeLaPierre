@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PoidsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DevisController; // Ne pas oublier l'import
 use App\Http\Controllers\TarifController; // Ne pas oublier l'import
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/tarifs/update-all', [TarifController::class, 'updateAll'])->name('tarifs.updateAll');
     Route::delete('/tarifs/travail/{id}', [TarifController::class, 'deleteTravail'])->name('tarifs.deleteTravail');
     Route::delete('/tarifs/epaisseur/{ep}', [TarifController::class, 'deleteEpaisseur'])->name('tarifs.deleteEpaisseur');
+
+    // poids
+    Route::get('/poids', [PoidsController::class, 'index'])->name('poids.poids');
 });
 
 require __DIR__.'/auth.php';
