@@ -151,6 +151,25 @@ class DevisController extends Controller
         return redirect()->route('devis.index')->with('success', 'Ligne et options mises à jour !');
     }
 
+    public function updateLivraison(Request $request)
+    {
+        // 1. Trouver toutes les lignes de ce devis
+        $lignes = Devis::where('client', $request->client)
+            ->where('created_at', $request->date)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        if ($lignes->count() > 0) {
+            foreach ($lignes as $index => $ligne) {
+                // Seule la première ligne porte le montant, les autres 0
+                $montant = ($index === 0) ? (float)$request->montant : 0;
+                $ligne->update(['livraison' => $montant]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Frais de livraison mis à jour !');
+    }
+
     public function destroy($id)
     {
         $devis = Devis::findOrFail($id);

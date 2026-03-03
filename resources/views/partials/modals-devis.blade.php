@@ -11,7 +11,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Type de Pierre</label>
-                        <input type="text" name="typePierre" id="edit_pierre" class="form-control" required>
+                        <input type="text" name="typePierre" id="edit_pierre" class="form-control">
                     </div>
 
                     <div class="row">
@@ -39,7 +39,7 @@
                     <hr>
                     <h6>Spécificités / Options</h6>
                     <div id="wrapper-specs-edit"></div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="add-spec-edit">+ Ajouter une option</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="add-spec-manual-edit">+ Ajouter une option</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -49,6 +49,36 @@
         </div>
     </div>
 </div>
+
+
+
+
+<div class="modal fade" id="modalLivraison" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formLivraison" method="POST" action="{{ route('devis.updateLivraison') }}">
+                @csrf
+                <input type="hidden" name="client" id="livraison_client">
+                <input type="hidden" name="date" id="livraison_date">
+
+                <div class="modal-header">
+                    <h6 class="modal-title">Modifier le transport</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Montant HT (€)</label>
+                    <input type="number" step="0.01" name="montant" id="livraison_input" class="form-control form-control-lg">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">Mettre à jour</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

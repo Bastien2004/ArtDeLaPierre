@@ -23,18 +23,18 @@
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Type de Client</label>
-                <select name="type_client_global" id="type_client_global" class="form-control" required onchange="updateAllPrices()">
+                <select name="type_client_global" id="type_client_global" class="form-control lock-on-add" required onchange="updateAllPrices()">
                     <option value="Entreprise">Entreprise</option>
                     <option value="Particulier">Particulier</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Nom du Client</label>
-                <input type="text" name="client" placeholder="Nom" value="{{ $clientPrefill ?? '' }}" required>
+                <input type="text" name="client" class="lock-on-add" placeholder="Nom" value="{{ $clientPrefill ?? '' }}" required>
             </div>
             <div class="form-group">
                 <label>Adresse</label>
-                <input type="text" name="adresse" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
+                <input type="text" name="adresse" class="lock-on-add" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
             </div>
         </div>
 
@@ -42,7 +42,7 @@
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Frais de Livraison (€ HT)</label>
-                <input type="number" name="livraison" step="0.01" value="0.00" placeholder="0.00">
+                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="0.00" placeholder="0.00">
             </div>
         </div>
 
@@ -133,21 +133,100 @@
 </div>
 
 <script>
-    // On récupère la variable PHP envoyée par le contrôleur
     const grilleTarifs = @json($allTarifs);
 
-    // Fonction pour trouver le prix automatiquement
+    // On attend que le DOM soit chargé pour assigner les événements
+    document.addEventListener('DOMContentLoaded', function() {
+
+        let pierreIdx = 1;
+
+        // --- GESTION DU BOUTON AJOUTER LIGNE ---
+        const btnAddLine = document.getElementById('add-line');
+
+        if (btnAddLine) {
+            btnAddLine.onclick = function() {
+                console.log("CLIC DETECTE - Début du verrouillage");
+
+                // 1. VERROUILLAGE DES INFOS GLOBALES
+                const toLock = [
+                    document.querySelector('input[name="client"]'),
+                    document.querySelector('input[name="adresse"]'),
+                    document.querySelector('input[name="livraison"]'),
+                    document.getElementById('type_client_global')
+                ];
+
+                toLock.forEach(field => {
+                    if (field) {
+                        if (field.tagName === 'SELECT') {
+                            if (!document.getElementById(field.name + '_hidden')) {
+                                let hidden = document.createElement("input");
+                                hidden.type = "hidden";
+                                hidden.name = field.name;
+                                hidden.id = field.name + '_hidden';
+                                hidden.value = field.value;
+                                field.parentNode.insertBefore(hidden, field);
+                            }
+                            field.disabled = true;
+                        } else {
+                            field.readOnly = true;
+                        }
+                        // Style forcé
+                        field.style.setProperty("background-color", "#e9ecef", "important");
+                        field.style.setProperty("cursor", "not-allowed", "important");
+                    }
+                });
+
+                // 2. LOGIQUE DE CLONAGE
+                let container = document.getElementById('lignes-container');
+                let firstLine = container.querySelector('.ligne-pierre');
+                let clone = firstLine.cloneNode(true);
+
+                clone.dataset.index = pierreIdx;
+
+                // Nettoyage complet du clone
+                clone.querySelectorAll('input').forEach(i => {
+                    i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+                    i.value = '';
+                    i.readOnly = false;
+                    i.disabled = false;
+                    i.style.backgroundColor = "";
+                    i.style.cursor = "";
+                });
+
+                clone.querySelectorAll('select').forEach(s => {
+                    s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+                    s.selectedIndex = 0;
+                    s.disabled = false;
+                    s.style.backgroundColor = "";
+                });
+
+                clone.querySelector('.specs-container').innerHTML = '';
+
+                container.appendChild(clone);
+
+                // Animation d'apparition
+                clone.style.opacity = '0';
+                setTimeout(() => {
+                    clone.style.transition = "opacity 0.4s";
+                    clone.style.opacity = '1';
+                }, 10);
+
+                pierreIdx++;
+            };
+        }
+    });
+
+    // --- AUTRES FONCTIONS (Hors DOMContentLoaded ou dedans) ---
+
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
         const typeClient = document.getElementById('type_client_global').value;
         const finition = row.querySelector('.select-finition').value;
         const epaisseur = row.querySelector('.select-epaisseur').value;
-
         const inputPrix = row.querySelector('.input-prix-m2');
 
         if (!finition || !epaisseur) return;
 
-        // On cherche la correspondance dans les données
         const tarifTrouve = grilleTarifs.find(t =>
             t.type_client === typeClient &&
             t.finition === finition &&
@@ -156,65 +235,17 @@
 
         if (tarifTrouve) {
             inputPrix.value = tarifTrouve.prix_m2;
-            // On génère le nom pour le PDF automatiquement
-
-            // On déclenche manuellement l'événement 'input' pour recalculer les travaux (Rejingot...)
             inputPrix.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-            inputPrix.value = '';
-            inputDesignation.value = '';
         }
     }
 
-    // Fonction pour mettre à jour toutes les lignes si on change Entreprise/Particulier en haut
     function updateAllPrices() {
         document.querySelectorAll('.ligne-pierre').forEach(row => {
             const selectFinition = row.querySelector('.select-finition');
-            if (selectFinition && selectFinition.value !== "") {
-                lookupPrice(selectFinition);
-            }
+            if (selectFinition && selectFinition.value !== "") lookupPrice(selectFinition);
         });
     }
 
-
-
-    let pierreIdx = 1;
-
-    // Ajouter une nouvelle pierre
-    // Ajouter une nouvelle pierre
-    document.getElementById('add-line').onclick = function() {
-        let container = document.getElementById('lignes-container');
-        let reference = container.querySelector('.ligne-pierre');
-        let clone = reference.cloneNode(true);
-
-        clone.dataset.index = pierreIdx;
-        clone.style.opacity = '0';
-
-        // 1. Reset des INPUTS
-        clone.querySelectorAll('input').forEach(i => {
-            i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-            i.value = '';
-        });
-
-        // 2. Reset des SELECTS (Correction ici)
-        clone.querySelectorAll('select').forEach(s => {
-            s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-            s.selectedIndex = 0;
-        });
-
-        // Vider les spécificités clonées
-        clone.querySelector('.specs-container').innerHTML = '';
-
-        container.appendChild(clone);
-        setTimeout(() => {
-            clone.style.transition = "opacity 0.4s ease";
-            clone.style.opacity = '1';
-        }, 10);
-
-        pierreIdx++;
-    };
-
-    // Ajouter une spécificité à une pierre précise
     function addSpec(button) {
         const pierreRow = button.closest('.ligne-pierre');
         const specsContainer = pierreRow.querySelector('.specs-container');
@@ -224,26 +255,19 @@
         const specHtml = `
             <div class="ligne-spec">
                 <div class="form-grid-specs">
-                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" placeholder="Ex: Rejingot, Ciselage...">
-                    <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" placeholder="Prix (€)">
+                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" placeholder="Ex: Rejingot">
+                    <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" placeholder="Prix">
                     <button type="button" class="remove-spec" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
-            </div>
-        `;
-
+            </div>`;
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
-    // Supprimer une pierre
     function removeLine(button) {
-        const lines = document.querySelectorAll('.ligne-pierre');
-        if (lines.length > 1) {
-            const row = button.closest('.ligne-pierre');
-            row.style.opacity = '0';
-            row.style.transform = 'translateX(20px)';
-            setTimeout(() => row.remove(), 300);
+        if (document.querySelectorAll('.ligne-pierre').length > 1) {
+            button.closest('.ligne-pierre').remove();
         } else {
-            alert("Un devis doit comporter au moins une pierre.");
+            alert("Minimum une pierre requise.");
         }
     }
 
@@ -252,61 +276,82 @@
         const specsContainer = pierreRow.querySelector('.specs-container');
         const pIdx = pierreRow.dataset.index;
         const sIdx = specsContainer.querySelectorAll('.ligne-spec').length;
-
-        // Récupération des valeurs actuelles
         const longueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
         const quantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
-        // Calcul : (Prix de base * Longueur si ml) * Quantité de pierres
-        let prixBaseCalcule = (unite === 'ml') ? (prixUnitaire * longueur) : prixUnitaire;
-        let prixFinalAffiche = prixBaseCalcule * quantite;
+        let prixFinal = (unite === 'ml' ? prixUnitaire * longueur : prixUnitaire) * quantite;
 
         const specHtml = `
-    <div class="ligne-spec">
-        <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
-            <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
-            <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
-            <input type="number" step="0.01"
-                   name="lignes[${pIdx}][specs][${sIdx}][prix]"
-                   value="${prixFinalAffiche.toFixed(2)}"
-                   class="form-control spec-prix-input"
-                   data-unite="${unite}"
-                   data-base-price="${prixUnitaire}">
-            <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
-        </div>
-    </div>
-    `;
-
+            <div class="ligne-spec">
+                <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
+                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
+                    <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
+                    <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
+                    <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
+                </div>
+            </div>`;
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
-
-    // Écouteur pour la mise à jour automatique des prix (Rejingot, Ciselage...)
     document.addEventListener('input', function(e) {
-        const targetName = e.target.name;
-
-        // Si on modifie la Longueur OU la Quantité
-        if (targetName && (targetName.includes('[longueurM]') || targetName.includes('[nombrePierre]'))) {
+        if (e.target.name && (e.target.name.includes('[longueurM]') || e.target.name.includes('[nombrePierre]'))) {
             const pierreRow = e.target.closest('.ligne-pierre');
-            const nouvelleLongueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
-            const nouvelleQuantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
+            const L = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
+            const Q = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
 
-            const specInputs = pierreRow.querySelectorAll('.spec-prix-input');
-
-            specInputs.forEach(input => {
-                const prixBaseUnitaire = parseFloat(input.dataset.basePrice);
-                let nouveauPrix;
-
-                if (input.dataset.unite === 'ml') {
-                    // (Prix au ml * Longueur) * Quantité
-                    nouveauPrix = (prixBaseUnitaire * nouvelleLongueur) * nouvelleQuantite;
-                } else {
-                    // Prix fixe * Quantité (ex: Oreilles)
-                    nouveauPrix = prixBaseUnitaire * nouvelleQuantite;
-                }
-
-                input.value = nouveauPrix.toFixed(2);
+            pierreRow.querySelectorAll('.spec-prix-input').forEach(input => {
+                const base = parseFloat(input.dataset.basePrice);
+                input.value = (input.dataset.unite === 'ml' ? base * L * Q : base * Q).toFixed(2);
             });
+        }
+    });
+
+
+    function verrouillerInfosClient() {
+        const selectors = [
+            'select[name="type_client_global"]',
+            'input[name="client"]',
+            'input[name="adresse"]',
+            'input[name="livraison"]'
+        ];
+
+        selectors.forEach(sel => {
+            const field = document.querySelector(sel);
+            if (field) {
+                if (field.tagName === 'SELECT') {
+                    field.disabled = true;
+                    if (!document.getElementById(field.name + '_hidden')) {
+                        let h = document.createElement("input");
+                        h.type = "hidden";
+                        h.name = field.name;
+                        h.id = field.name + '_hidden';
+                        h.value = field.value;
+                        field.parentNode.insertBefore(h, field);
+                    }
+                } else {
+                    field.readOnly = true;
+                }
+                field.style.backgroundColor = "#e9ecef";
+                field.style.cursor = "not-allowed";
+            }
+        });
+    }
+
+
+    // À ajouter tout en bas de votre script
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Si les champs sont pré-remplis par Laravel (cas du bouton + Ligne)
+        const clientInput = document.querySelector('input[name="client"]');
+        if (clientInput && clientInput.value.trim() !== "") {
+            console.log("Pré-remplissage détecté, verrouillage automatique...");
+            verrouillerInfosClient();
+        }
+
+        // 2. Sécurité supplémentaire : lier la fonction au bouton s'il n'est pas déjà lié
+        const btnAdd = document.getElementById('add-line');
+        if(btnAdd) {
+            // On s'assure que cliquer sur "Ajouter une pierre" verrouille aussi
+            btnAdd.addEventListener('click', verrouillerInfosClient);
         }
     });
 </script>

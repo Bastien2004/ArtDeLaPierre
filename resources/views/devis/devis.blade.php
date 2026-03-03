@@ -53,9 +53,14 @@
                             </button>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
-                            @if($fraisPort > 0)
-                                <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold;">
+                            @if($fraisPort > 0 || $fraisPort == 0) {{-- On l'affiche même si c'est 0 pour pouvoir l'éditer --}}
+                            <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
+                                  class="btn-edit-transport"
+                                  data-client="{{ $p->client }}"
+                                  data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
+                                  data-current="{{ $fraisPort }}">
                                     <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
+                                    <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
                                 </span>
                             @endif
                         </div>
@@ -216,6 +221,14 @@
             window.location.href = currentPdfUrl + (ref ? (currentPdfUrl.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(ref) : '');
             $('#pdfRefModal').modal('hide');
         });
+    });
+
+    $(document).on('click', '.btn-edit-transport', function() {
+        const btn = $(this);
+        $('#livraison_client').val(btn.data('client'));
+        $('#livraison_date').val(btn.data('date'));
+        $('#livraison_input').val(btn.data('current'));
+        $('#modalLivraison').modal('show');
     });
 </script>@include('partials.modals-devis')
 </body>

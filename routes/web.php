@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/devis/{id}', [DevisController::class, 'destroy'])->name('devis.destroy');
     Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])
         ->name('devis.downloadPDF');
+    Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
 
     // Gestion des Tarifs
     Route::get('/tarifs', [TarifController::class, 'index'])->name('tarifs.tarifs');
