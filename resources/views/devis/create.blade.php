@@ -38,6 +38,14 @@
             </div>
         </div>
 
+        <h3 class="section-title">Informations Client</h3>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Frais de Livraison (€ HT)</label>
+                <input type="number" name="livraison" step="0.01" value="0.00" placeholder="0.00">
+            </div>
+        </div>
+
         <h3 class="section-title">Pierres & Mesures</h3>
         <div id="lignes-container">
             <div class="ligne-pierre" data-index="0">
@@ -90,7 +98,7 @@
                     </div>
                     <div class="form-group">
                         <label>Prix M² (€)</label>
-                        <input type="number" step="0.01" name="lignes[0][prixM2]" class="input-prix-m2" readonly required>
+                        <input type="number" step="0.01" name="lignes[0][prixM2]" class="input-prix-m2" required>
                     </div>
 
                 </div>

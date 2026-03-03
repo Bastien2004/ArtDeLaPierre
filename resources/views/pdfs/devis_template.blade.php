@@ -100,17 +100,35 @@
         </table>
 
         <div class="totals">
-            <div class="total-line">Total HT : {{ number_format($totalHT, 2, ',', ' ') }} €</div>
-            <div class="total-line">TVA 20% : {{ number_format($totalHT * 0.2, 2, ',', ' ') }} €</div>
+            <div class="total-line">Sous-total HT : {{ number_format($totalHT, 2, ',', ' ') }} €</div>
+
+            @if($montantLivraison > 0)
+                <div class="total-line">Frais de livraison : {{ number_format($montantLivraison, 2, ',', ' ') }} €</div>
+            @endif
+
+            <div class="total-line"><strong>Total HT : {{ number_format($totalHTAvecLivraison, 2, ',', ' ') }} €</strong></div>
+            <div class="total-line">TVA 20% : {{ number_format($totalHTAvecLivraison * 0.2, 2, ',', ' ') }} €</div>
             <div class="total-ttc">
-                Total TTC : {{ number_format($totalHT * 1.2, 2, ',', ' ') }} €
+                Total TTC : {{ number_format($totalHTAvecLivraison * 1.2, 2, ',', ' ') }} €
             </div>
         </div>
 
+        @php
+            $montantLivraison = $lignes->sum('livraison');
+            $totalHTAvecLivraison = $totalHT + $montantLivraison;
+        @endphp
+
         <div class="legal-notices">
             Acompte de 40% à la signature du devis.<br>
-            DEVIS HORS POSE, HORS LIVRAISON<br><br>
-            <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucune réclamation concernant ces particularités ne sera prise en considération. Pour la tolérance d'épaisseur 1 à 2 mm (dalles, seuils, appuis...)</i>
+
+            @if($montantLivraison > 0)
+                DEVIS HORS POSE, LIVRAISON INCLUSE<br>
+            @else
+                DEVIS HORS POSE, HORS LIVRAISON<br>
+            @endif
+
+            <br>
+            <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies... (le reste de ton texte)</i>
         </div>
     </div>
 

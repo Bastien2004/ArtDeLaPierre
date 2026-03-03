@@ -49,7 +49,7 @@ class DevisController extends Controller
     {
         $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
 
-        foreach ($request->lignes as $ligneData) {
+        foreach ($request->lignes as $index => $ligneData){
             $quantite = (int) $ligneData['nombrePierre'];
             $matiere = $ligneData['longueurM'] * $ligneData['largeurM'];
 
@@ -82,6 +82,7 @@ class DevisController extends Controller
                 'matiere'      => $matiere,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
+                'livraison'  => ($index === 0) ? (float)($request->livraison ?? 0) : 0,
             ]);
 
             $devis->created_at = $dateCreation;
@@ -110,7 +111,7 @@ class DevisController extends Controller
     {
         $devis = Devis::findOrFail($id);
 
-        // 1. Gérer les spécificités (On supprime tout et on recrée pour simplifier la synchro)
+        // 1. Gérer les spécificités
         $devis->specificites()->delete();
 
         $totalSpecsUnitaire = 0;
@@ -129,18 +130,22 @@ class DevisController extends Controller
         // 2. Calculs
         $matiere = $request->longueurM * $request->largeurM;
         $prixPierreSeule = $matiere * $request->prixM2;
-        $prixHTFinal = ($prixPierreSeule + $totalSpecsUnitaire) * $request->nombrePierre;
 
-        // 3. Update final
+        // Le prixHT doit être calculé comme dans le store
+        $prixHTFinal = ($prixPierreSeule * $request->nombrePierre) + ($totalSpecsUnitaire);
+
+        // 3. Update final (Correction de $ligneData en $request)
         $devis->update([
             'typePierre'   => $request->typePierre,
-            'epaisseur'    => $ligneData['epaisseur'] ?? 2,
+            'epaisseur'    => $request->epaisseur ?? $devis->epaisseur, // Utilise l'ancienne si pas envoyé
             'nombrePierre' => $request->nombrePierre,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,
             'prixM2'       => $request->prixM2,
             'matiere'      => $matiere,
             'prixHT'       => $prixHTFinal,
+            // On ne touche pas à la livraison ici pour ne pas écraser
+            // celle de la première ligne si on modifie la deuxième
         ]);
 
         return redirect()->route('devis.index')->with('success', 'Ligne et options mises à jour !');
@@ -196,7 +201,10 @@ class DevisController extends Controller
 
         $adresse = $lignes->first()->adresse;
         $pays = $this->extrairePays($adresse);
+
         $totalHT = $lignes->sum('prixHT');
+        $montantLivraison = $lignes->sum('livraison'); // Récupère la livraison stockée
+        $totalHTAvecLivraison = $totalHT + $montantLivraison;
 
         // On charge la vue qu'on va créer après
         $pdf = PDF::loadView('pdfs.devis_template', [
@@ -204,6 +212,8 @@ class DevisController extends Controller
             'client' => $client,
             'adresse' => $adresse,
             'pays' => $pays,
+            'montantLivraison' => $montantLivraison,
+            'totalHTAvecLivraison' => $totalHTAvecLivraison,
             'date'   => $lignes->first()->created_at,
             'totalHT'=> $totalHT,
             'id'=> $lignes->first()->id,

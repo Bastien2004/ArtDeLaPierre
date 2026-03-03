@@ -38,6 +38,7 @@
             @php
                 $p = $lignes->first();
                 $totalGroupe = $lignes->sum('prixHT');
+                $fraisPort = $lignes->sum('livraison');
             @endphp
 
             <tr class="group-header">
@@ -52,6 +53,11 @@
                             </button>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
+                            @if($fraisPort > 0)
+                                <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold;">
+                                    <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
+                                </span>
+                            @endif
                         </div>
 
                         <div class="group-right">

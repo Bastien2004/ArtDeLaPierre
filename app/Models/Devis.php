@@ -19,7 +19,8 @@ class Devis extends Model
         'oreilles',
         'prixHT',
         'prixUnitairePierre',
-        'epaisseur'
+        'epaisseur',
+        'livraison',
     ];
 
     public function specificites()
