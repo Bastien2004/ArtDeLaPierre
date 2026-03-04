@@ -8,7 +8,6 @@ body {
     margin: 0;
     padding: 0;
     width: 210mm;
-    height: 297mm;
     font-family: 'Helvetica', Arial, sans-serif;
     font-size: 10pt;
     color: #333;
@@ -19,7 +18,7 @@ body {
 .page {
     position: relative;
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
 }
 
 /* Bloc Expéditeur (Haut Gauche) */
@@ -54,8 +53,7 @@ body {
     padding-bottom: 2mm;
 }
 
-/* --- LE CONTENEUR DYNAMIQUE --- */
-/* Ce bloc commence à 105mm mais s'étire selon le contenu */
+/* Conteneur dynamique — commence après le header fixe */
 .table-container {
     position: absolute;
     top: 105mm;
@@ -86,9 +84,9 @@ td {
     vertical-align: top;
 }
 
-/* Bloc des Totaux (Suit le tableau) */
+/* Bloc des Totaux */
 .totals {
-    margin-left: auto; /* Pousse le bloc à droite sans float */
+    margin-left: auto;
     width: 70mm;
     text-align: right;
     margin-top: 5mm;
@@ -108,7 +106,7 @@ td {
     color: #000;
 }
 
-/* Mentions Légales (Suivent les totaux) */
+/* Mentions Légales */
 .legal-notices {
     margin-top: 12mm;
     font-size: 8pt;
@@ -117,13 +115,11 @@ td {
     width: 140mm;
 }
 
-/* --- BLOCS FIXES EN BAS DE PAGE --- */
-
-/* Boite de Signature */
+/* Signature — dans le flux, après les mentions */
 .signature-box {
-    position: absolute;
-    bottom: 35mm;
-    right: 20mm;
+    margin-top: 15mm;
+    margin-left: auto;
+    margin-right: 5mm;
     width: 50mm;
     height: 25mm;
     border: 0.1mm solid #ccc;
@@ -132,19 +128,19 @@ td {
     color: #999;
     padding-top: 18mm;
     font-size: 9pt;
+    box-sizing: border-box;
 }
 
-/* Pied de page final */
+/* Footer — dans le flux, après la signature */
 .footer {
-    position: absolute;
-    bottom: 10mm;
-    left: 0;
+    margin-top: 8mm;
+    margin-left: -15mm; /* Compense le margin-left du table-container */
     width: 210mm;
     text-align: center;
     font-size: 8pt;
     color: #7f8c8d;
     border-top: 0.1mm solid #ecf0f1;
     padding-top: 3mm;
+    padding-bottom: 8mm;
+    box-sizing: border-box;
 }
-
-

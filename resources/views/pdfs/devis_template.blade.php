@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Injection directe du CSS */
         {!! file_get_contents(public_path('css/pdf_devis.css')) !!}
 
-        /* Styles spécifiques pour les options */
         .spec-row td {
             font-size: 11px;
             background-color: #fafafa;
@@ -20,6 +18,8 @@
 </head>
 <body>
 <div class="page">
+
+    {{-- HEADER FIXE --}}
     <div class="sender-info">
         <img src="data:image/png;base64,{{ base64_encode(@file_get_contents(public_path('images/logo.jpg'))) }}" class="logo">
         <br><strong>SASU L'ART DE LA PIERRE</strong><br>
@@ -40,13 +40,15 @@
     <div class="devis-meta">
         <strong>
             Devis N° : {{ $date->format('ymd') }}{{ str_pad($id, 3, '0', STR_PAD_LEFT) }}<br>
-            {{$reference}}
+            {{ $reference }}
         </strong><br>
-        Date d'émission : {{ $date->format('d/m/Y') }} <br>
+        Date d'émission : {{ $date->format('d/m/Y') }}<br>
         <span style="float: right;">Période de validité : 60 jours</span>
     </div>
 
+    {{-- CONTENU DYNAMIQUE : table-container contient tout ce qui suit le header --}}
     <div class="table-container">
+
         <table>
             <thead>
             <tr>
@@ -81,7 +83,6 @@
                             </div>
                         @endif
                     </td>
-
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
                         {{ number_format($l->nombrePierre, 0, ',', ' ') }}
                     </td>
@@ -130,15 +131,19 @@
             <br>
             <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies... (le reste de ton texte)</i>
         </div>
-    </div>
 
-    <div class="signature-box">Signature (précédée de la mention "bon pour accord")</div>
+        {{-- SIGNATURE dans le flux, juste après les mentions --}}
+        <div class="signature-box">Signature (précédée de la mention "bon pour accord")</div>
 
-    <div class="footer">
-        SASU au capital de 1 000 euros - Siret : 833 976 210 00017 - RCS : VALENCIENNES<br>
-        TVA Intracommunautaire : FR 76 833 976 210<br>
-        <strong>COORDONNÉES BANCAIRES :</strong> IBAN : FR76 1627 5500 0008 0021 3604 660 &nbsp; BIC : CEPAFRPP627
-    </div>
+        {{-- FOOTER dans le flux, à l'intérieur du table-container --}}
+        <div class="footer">
+            SASU au capital de 1 000 euros - Siret : 833 976 210 00017 - RCS : VALENCIENNES<br>
+            TVA Intracommunautaire : FR 76 833 976 210<br>
+            <strong>COORDONNÉES BANCAIRES :</strong> IBAN : FR76 1627 5500 0008 0021 3604 660 &nbsp; BIC : CEPAFRPP627
+        </div>
+
+    </div>{{-- fin .table-container --}}
+
 </div>
 </body>
 </html>
