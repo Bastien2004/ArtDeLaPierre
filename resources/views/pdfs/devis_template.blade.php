@@ -129,7 +129,9 @@
             @endif
 
             <br>
-            <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies... (le reste de ton texte)</i>
+            <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures,
+                limés, tâches blanches, coquillages et fossiles. Aucune réclamation concernant ces particularités ne sera prise
+                en considération. Pour la tolérance d'épaisseur 1 à 2 mm(dalles, seuils, appuis...)</i>
         </div>
 
         {{-- SIGNATURE dans le flux, juste après les mentions --}}
@@ -142,7 +144,7 @@
             <strong>COORDONNÉES BANCAIRES :</strong> IBAN : FR76 1627 5500 0008 0021 3604 660 &nbsp; BIC : CEPAFRPP627
         </div>
 
-    </div>{{-- fin .table-container --}}
+    </div>
 
 </div>
 </body>
