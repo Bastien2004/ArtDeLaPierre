@@ -42,13 +42,13 @@
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Frais de Livraison (€ HT)</label>
-                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="0.00" placeholder="0.00">
-            </div>
+                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">            </div>
         </div>
 
         <h3 class="section-title">Pierres & Mesures</h3>
         <div id="lignes-container">
             <div class="ligne-pierre" data-index="0">
+                <input type="hidden" name="lignes[0][livraison]" class="input-livraison-ligne" value="0.00">
                 <button type="button" class="remove-line" onclick="removeLine(this)" title="Supprimer cette pierre">×</button>
 
                 <div class="form-grid" style="grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;">
@@ -145,13 +145,22 @@
 
         if (btnAddLine) {
             btnAddLine.onclick = function() {
-                console.log("CLIC DETECTE - Début du verrouillage");
+                // 1. RÉCUPÉRATION DE LA VALEUR
+                const livraisonInput = document.querySelector('input[name="livraison"]');
+                const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
 
-                // 1. VERROUILLAGE DES INFOS GLOBALES
+                // --- SÉCURITÉ : On met à jour le champ caché de la ligne 0 AVANT de cloner ---
+                // Sinon, le clone partira toujours avec la valeur par défaut (0.00) de la ligne 0
+                const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
+                if (firstHiddenLivraison) {
+                    firstHiddenLivraison.value = livraisonActuelle;
+                }
+
+                // 2. VERROUILLAGE DES INFOS GLOBALES
                 const toLock = [
                     document.querySelector('input[name="client"]'),
                     document.querySelector('input[name="adresse"]'),
-                    document.querySelector('input[name="livraison"]'),
+                    livraisonInput,
                     document.getElementById('type_client_global')
                 ];
 
@@ -170,23 +179,33 @@
                         } else {
                             field.readOnly = true;
                         }
-                        // Style forcé
                         field.style.setProperty("background-color", "#e9ecef", "important");
                         field.style.setProperty("cursor", "not-allowed", "important");
                     }
                 });
 
-                // 2. LOGIQUE DE CLONAGE
+                // 3. LOGIQUE DE CLONAGE
                 let container = document.getElementById('lignes-container');
                 let firstLine = container.querySelector('.ligne-pierre');
                 let clone = firstLine.cloneNode(true);
 
                 clone.dataset.index = pierreIdx;
 
-                // Nettoyage complet du clone
                 clone.querySelectorAll('input').forEach(i => {
-                    i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-                    i.value = '';
+                    // Mise à jour de l'index des noms [0] -> [1]
+                    if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+
+                    // INJECTION DE LA VALEUR DANS LE CLONE
+                    if (i.classList.contains('input-livraison-ligne')) {
+                        i.value = livraisonActuelle;
+                    }
+                    // NETTOYAGE DES AUTRES CHAMPS
+                    else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
+                        i.value = '';
+                    } else if (i.name.includes('nombrePierre')) {
+                        i.value = '1';
+                    }
+
                     i.readOnly = false;
                     i.disabled = false;
                     i.style.backgroundColor = "";
@@ -201,10 +220,9 @@
                 });
 
                 clone.querySelector('.specs-container').innerHTML = '';
-
                 container.appendChild(clone);
 
-                // Animation d'apparition
+                // Animation
                 clone.style.opacity = '0';
                 setTimeout(() => {
                     clone.style.transition = "opacity 0.4s";

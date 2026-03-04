@@ -36,65 +36,76 @@ class DevisController extends Controller
         $tarifsTravaux = \App\Models\TravailTarif::all();
         $allTarifs = \App\Models\Tarif::all();
 
+        $livraisonPrefill = $request->query('livraison_prefill', '0.00');
+
+
         // AJOUT de tarifsTravaux dans le compact
         return view('devis.create', compact(
             'clientPrefill',
             'adressePrefill',
             'timePrefill',
+            'livraisonPrefill',
             'tarifsTravaux',
             'allTarifs'
         ));    }
 
     public function store(Request $request)
     {
+        // On définit la date (soit forcée, soit maintenant)
         $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
 
-        foreach ($request->lignes as $index => $ligneData){
+        // On récupère la livraison globale une seule fois
+        $livraisonFixe = (float) ($request->livraison ?? 0);
+
+
+        foreach ($request->lignes as $index => $ligneData) {
             $quantite = (int) $ligneData['nombrePierre'];
-            $matiere = $ligneData['longueurM'] * $ligneData['largeurM'];
+            $matiereParPierre = $ligneData['longueurM'] * $ligneData['largeurM'];
 
-            // 1. Prix de la pierre brute
-            $prixPierreSeule = $matiere * $ligneData['prixM2'];
+            // 1. Calcul du prix de la pierre seule (pour UNE unité)
+            $prixPierreUnitaire = $matiereParPierre * $ligneData['prixM2'];
 
-            // 2. Calcul des options
-            $totalSpecsPourToutesLesPierres = 0;
+            // 2. Calcul des options (pour UNE unité)
+            $totalOptionsUnitaire = 0;
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
-                        // Chaque option est multipliée par le nombre de pierres
-                        // (Ex: 2 pierres = 2 rejingots calculés ou 2 paires d'oreilles)
-                        $totalSpecsPourToutesLesPierres += (float)$specData['prix'] * $quantite;
+                        // On additionne le prix unitaire de l'option
+                        $totalOptionsUnitaire += (float) $specData['prix'];
                     }
                 }
             }
 
-            // 3. Total Final HT
-            $prixHTFinal = ($prixPierreSeule * $quantite) + $totalSpecsPourToutesLesPierres;
+            // 3. Calcul du Total HT de la ligne ( (Pierre + Options) * Quantité )
+            $prixHTFinal = ($prixPierreUnitaire + $totalOptionsUnitaire) * $quantite;
 
+            // 4. Création du devis
             $devis = new Devis([
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
-                'typePierre'   => $ligneData['typePierre'],
+                'typePierre'   => $ligneData['typePierre'] ?? 'Pierre Bleue',
                 'epaisseur'    => $ligneData['epaisseur'] ?? 2,
                 'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
-                'matiere'      => $matiere,
+                'matiere'      => $matiereParPierre,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
-                'livraison'    => $request->livraison ?? 0
+                'livraison'    => $livraisonFixe
             ]);
 
             $devis->created_at = $dateCreation;
             $devis->save();
 
-            // Sauvegarde des spécificités individuellement pour le PDF
+            // 5. Sauvegarde des spécificités liées
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
-                    $devis->specificites()->create([
-                        'nom'  => $specData['nom'],
-                        'prix' => $specData['prix'], // On stocke le prix unitaire (par pierre)
-                    ]);
+                    if (!empty($specData['nom'])) {
+                        $devis->specificites()->create([
+                            'nom'  => $specData['nom'],
+                            'prix' => $specData['prix'], // Prix unitaire
+                        ]);
+                    }
                 }
             }
         }
@@ -111,10 +122,10 @@ class DevisController extends Controller
     {
         $devis = Devis::findOrFail($id);
 
-        // 1. Gérer les spécificités
+        // 1. Mise à jour des spécificités (on vide et on recrée)
         $devis->specificites()->delete();
 
-        $totalSpecsUnitaire = 0;
+        $totalOptionsUnitaire = 0;
         if ($request->has('specs')) {
             foreach ($request->specs as $specData) {
                 if (!empty($specData['nom'])) {
@@ -122,33 +133,33 @@ class DevisController extends Controller
                         'nom' => $specData['nom'],
                         'prix' => $specData['prix'] ?? 0
                     ]);
-                    $totalSpecsUnitaire += (float) ($specData['prix'] ?? 0);
+                    // Somme des options pour recalculer le prixHT de la ligne
+                    $totalOptionsUnitaire += (float) ($specData['prix'] ?? 0);
                 }
             }
         }
 
-        // 2. Calculs
-        $matiere = $request->longueurM * $request->largeurM;
-        $prixPierreSeule = $matiere * $request->prixM2;
+        // 2. Recalcul des mesures
+        $quantite = (int) $request->nombrePierre;
+        $matiereParPierre = (float) $request->longueurM * (float) $request->largeurM;
+        $prixPierreUnitaire = $matiereParPierre * (float) $request->prixM2;
 
-        // Le prixHT doit être calculé comme dans le store
-        $prixHTFinal = ($prixPierreSeule * $request->nombrePierre) + ($totalSpecsUnitaire);
+        // 3. Calcul du Total HT Final (Indispensable pour corriger ton ancien bug)
+        $prixHTFinal = ($prixPierreUnitaire + $totalOptionsUnitaire) * $quantite;
 
-        // 3. Update final (Correction de $ligneData en $request)
+        // 4. Mise à jour de la ligne
         $devis->update([
             'typePierre'   => $request->typePierre,
-            'epaisseur'    => $request->epaisseur ?? $devis->epaisseur, // Utilise l'ancienne si pas envoyé
-            'nombrePierre' => $request->nombrePierre,
+            'epaisseur'    => $request->epaisseur ?? $devis->epaisseur,
+            'nombrePierre' => $quantite,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,
             'prixM2'       => $request->prixM2,
-            'matiere'      => $matiere,
+            'matiere'      => $matiereParPierre,
             'prixHT'       => $prixHTFinal,
-            // On ne touche pas à la livraison ici pour ne pas écraser
-            // celle de la première ligne si on modifie la deuxième
         ]);
 
-        return redirect()->route('devis.index')->with('success', 'Ligne et options mises à jour !');
+        return redirect()->route('devis.index')->with('success', 'Ligne mise à jour avec succès !');
     }
 
     public function updateLivraison(Request $request)
