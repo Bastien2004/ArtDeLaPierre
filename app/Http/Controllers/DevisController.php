@@ -51,35 +51,29 @@ class DevisController extends Controller
 
     public function store(Request $request)
     {
-        // On définit la date (soit forcée, soit maintenant)
         $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
-
-        // On récupère la livraison globale une seule fois
         $livraisonFixe = (float) ($request->livraison ?? 0);
-
 
         foreach ($request->lignes as $index => $ligneData) {
             $quantite = (int) $ligneData['nombrePierre'];
-            $matiereParPierre = $ligneData['longueurM'] * $ligneData['largeurM'];
+            $matiereUnitaire = (float)$ligneData['longueurM'] * (float)$ligneData['largeurM'];
 
-            // 1. Calcul du prix de la pierre seule (pour UNE unité)
-            $prixPierreUnitaire = $matiereParPierre * $ligneData['prixM2'];
+            // A. Calcul du bloc Pierres (Surface x Prix x Qté)
+            $prixTotalPierres = ($matiereUnitaire * (float)$ligneData['prixM2']) * $quantite;
 
-            // 2. Calcul des options (pour UNE unité)
-            $totalOptionsUnitaire = 0;
+            // B. Calcul du bloc Options (On fait juste la SOMME, le JS a déjà multiplié par Qté)
+            $totalOptionsLigne = 0;
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
-                        // On additionne le prix unitaire de l'option
-                        $totalOptionsUnitaire += (float) $specData['prix'];
+                        $totalOptionsLigne += (float) $specData['prix'];
                     }
                 }
             }
 
-            // 3. Calcul du Total HT de la ligne ( (Pierre + Options) * Quantité )
-            $prixHTFinal = ($prixPierreUnitaire + $totalOptionsUnitaire) * $quantite;
+            // C. TOTAL FINAL : Bloc Pierres + Bloc Options
+            $prixHTFinal = $prixTotalPierres + $totalOptionsLigne;
 
-            // 4. Création du devis
             $devis = new Devis([
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
@@ -88,7 +82,7 @@ class DevisController extends Controller
                 'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
-                'matiere'      => $matiereParPierre,
+                'matiere'      => $matiereUnitaire,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
                 'livraison'    => $livraisonFixe
@@ -97,20 +91,18 @@ class DevisController extends Controller
             $devis->created_at = $dateCreation;
             $devis->save();
 
-            // 5. Sauvegarde des spécificités liées
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
                         $devis->specificites()->create([
                             'nom'  => $specData['nom'],
-                            'prix' => $specData['prix'], // Prix unitaire
+                            'prix' => $specData['prix'], // Montant total envoyé par le formulaire
                         ]);
                     }
                 }
             }
         }
-
-        return redirect()->route('devis.index')->with('success', 'Devis généré avec succès !');
+        return redirect()->route('devis.index')->with('success', 'Devis généré !');
     }
     public function edit(string $id)
     {
@@ -121,11 +113,9 @@ class DevisController extends Controller
     public function update(Request $request, string $id)
     {
         $devis = Devis::findOrFail($id);
-
-        // 1. Mise à jour des spécificités (on vide et on recrée)
         $devis->specificites()->delete();
 
-        $totalOptionsUnitaire = 0;
+        $totalOptionsCumulees = 0; // On va stocker le TOTAL de toutes les options envoyées
         if ($request->has('specs')) {
             foreach ($request->specs as $specData) {
                 if (!empty($specData['nom'])) {
@@ -133,24 +123,23 @@ class DevisController extends Controller
                         'nom' => $specData['nom'],
                         'prix' => $specData['prix'] ?? 0
                     ]);
-                    // Somme des options pour recalculer le prixHT de la ligne
-                    $totalOptionsUnitaire += (float) ($specData['prix'] ?? 0);
+                    // On additionne le prix tel quel (car le JS l'a déjà multiplié par la quantité)
+                    $totalOptionsCumulees += (float) ($specData['prix'] ?? 0);
                 }
             }
         }
 
-        // 2. Recalcul des mesures
         $quantite = (int) $request->nombrePierre;
         $matiereParPierre = (float) $request->longueurM * (float) $request->largeurM;
-        $prixPierreUnitaire = $matiereParPierre * (float) $request->prixM2;
 
-        // 3. Calcul du Total HT Final (Indispensable pour corriger ton ancien bug)
-        $prixHTFinal = ($prixPierreUnitaire + $totalOptionsUnitaire) * $quantite;
+        // Calcul du prix de la pierre seule (multiplié par quantité)
+        $prixTotalPierres = ($matiereParPierre * (float) $request->prixM2) * $quantite;
 
-        // 4. Mise à jour de la ligne
+        // LE CALCUL FINAL : On ajoute les options qui sont déjà au bon montant global
+        $prixHTFinal = $prixTotalPierres + $totalOptionsCumulees;
+
         $devis->update([
             'typePierre'   => $request->typePierre,
-            'epaisseur'    => $request->epaisseur ?? $devis->epaisseur,
             'nombrePierre' => $quantite,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,
@@ -159,7 +148,7 @@ class DevisController extends Controller
             'prixHT'       => $prixHTFinal,
         ]);
 
-        return redirect()->route('devis.index')->with('success', 'Ligne mise à jour avec succès !');
+        return redirect()->route('devis.index')->with('success', 'Ligne mise à jour !');
     }
 
     public function updateLivraison(Request $request)

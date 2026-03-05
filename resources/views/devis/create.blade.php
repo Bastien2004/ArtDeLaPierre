@@ -294,23 +294,33 @@
         const specsContainer = pierreRow.querySelector('.specs-container');
         const pIdx = pierreRow.dataset.index;
         const sIdx = specsContainer.querySelectorAll('.ligne-spec').length;
+
         const longueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
         const quantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
-        let prixFinal = (unite === 'ml' ? prixUnitaire * longueur : prixUnitaire) * quantite;
+        // --- LOGIQUE MINI 1M POUR REJINGOT ---
+        let prixBaseCalcul = prixUnitaire;
+        if (nom.toLowerCase().includes('rejingot') && longueur < 1 && longueur > 0) {
+            // Si < 1m, on facture comme si c'était 1m (soit le prix unitaire plein)
+            prixBaseCalcul = prixUnitaire / Math.max(longueur, 0.001);
+            // Note: On divise par la longueur pour que la multiplication finale (base * L * Q) retombe sur (prixUnitaire * 1 * Q)
+        }
+
+        let prixFinal = (unite === 'ml' ? prixUnitaire * Math.max(longueur, 1) : prixUnitaire) * quantite;
 
         const specHtml = `
-            <div class="ligne-spec">
-                <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
-                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
-                    <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
-                    <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
-                    <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
-                </div>
-            </div>`;
+        <div class="ligne-spec">
+            <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
+                <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
+                <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
+                <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
+                <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
+            </div>
+        </div>`;
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
+    // Mise à jour dynamique lors de la modification des mesures
     document.addEventListener('input', function(e) {
         if (e.target.name && (e.target.name.includes('[longueurM]') || e.target.name.includes('[nombrePierre]'))) {
             const pierreRow = e.target.closest('.ligne-pierre');
@@ -318,12 +328,19 @@
             const Q = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
 
             pierreRow.querySelectorAll('.spec-prix-input').forEach(input => {
+                const nom = input.closest('.form-grid-specs').querySelector('input[type="text"]').value;
                 const base = parseFloat(input.dataset.basePrice);
-                input.value = (input.dataset.unite === 'ml' ? base * L * Q : base * Q).toFixed(2);
+
+                if (input.dataset.unite === 'ml') {
+                    // Si c'est un rejingot et que L < 1, on force L à 1 pour le calcul
+                    let longueurEffective = (nom.toLowerCase().includes('rejingot') && L < 1) ? 1 : L;
+                    input.value = (base * longueurEffective * Q).toFixed(2);
+                } else {
+                    input.value = (base * Q).toFixed(2);
+                }
             });
         }
     });
-
 
     function verrouillerInfosClient() {
         const selectors = [
