@@ -85,7 +85,8 @@ table.dataTable thead th {
 /* --- GROUPES (En-têtes de devis) --- */
 .group-header td {
     background-color: var(--stone-dark) !important;
-    padding: 0 !important; /* On laisse le group-content gérer le padding interne */
+    color: white;
+    border: none !important;
 }
 
 .group-content {
@@ -372,6 +373,127 @@ table.dataTable thead th {
 .dataTables_filter input:focus {
     border-color: var(--stone-accent) !important;
     box-shadow: 0 0 0 3px rgba(197, 185, 165, 0.15);
+}
+
+/* Conteneur spécifique pour le poids total du groupe */
+.group-weight-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.weight-badge-gold {
+    color: #d4af37; /* Couleur dorée */
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(212, 175, 55, 0.1); /* Léger fond doré transparent */
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    white-space: nowrap;
+}
+
+/* Correction pour l'alignement responsive sans marges fixes */
+.group-header td[colspan="5"] {
+    text-align: left;
+}
+
+.group-header td[colspan="3"] {
+    text-align: right;
+}
+
+/* Style pour l'icône de poids si vous en utilisez une */
+.weight-badge-gold i {
+    font-size: 0.8rem;
+    margin-right: 5px;
+    opacity: 0.8;
+}
+
+/* Conteneur des boutons rapides */
+.gap-2 { gap: 0.5rem; }
+
+.btn-outline-info {
+    border-color: #17a2b8;
+    color: #17a2b8;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-radius: 20px; /* Bord arrondi pour un look moderne */
+    padding: 5px 12px;
+}
+
+.btn-outline-info:hover {
+    background-color: #17a2b8;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Style des lignes de spécificités ajoutées */
+.ligne-spec-edit {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px !important;
+    transition: all 0.2s;
+}
+
+.ligne-spec-edit:hover {
+    background-color: #f8f9fa;
+    border-color: #d4af37; /* Rappel de votre couleur or au survol */
+}
+
+.ligne-spec-edit input {
+    border: 1px solid #ced4da;
+}
+
+.ligne-spec-edit input:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+}
+
+/* Icônes dans les boutons */
+.btn-outline-info i {
+    margin-right: 5px;
+    font-size: 0.9em;
+}
+
+/* Bouton supprimer (trash) */
+.btn-remove-spec {
+    border: none;
+    color: #dc3545;
+    background: transparent;
+}
+
+.btn-remove-spec:hover {
+    background-color: #fff5f5;
+    color: #a71d2a;
+    border-radius: 50%;
+}
+
+/* Séparateur élégant */
+hr {
+    border-top: 2px solid #eee;
+    margin: 20px 0;
+}
+
+h6 {
+    color: #444;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Media query pour petits écrans : on réduit la taille si besoin */
+@media (max-width: 768px) {
+    .weight-badge-gold {
+        font-size: 0.8rem;
+        padding: 2px 5px;
+    }
 }
 
 /* --- UTILS --- */

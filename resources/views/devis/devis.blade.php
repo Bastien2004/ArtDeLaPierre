@@ -25,10 +25,11 @@
         <thead>
         <tr>
             <th style="width: 50px;">Réf.</th>
-            <th style="display:none;">Client Hidden</th> <th>Désignation / Spécificité</th>
+            <th style="display:none;">Client Hidden</th>
+            <th>Désignation / Spécificité</th>
             <th style="width: 40px;">Nb</th>
             <th style="width: 100px;">Dimensions / m²</th>
-            <th style="width: 80px;">Prix M²</th>
+            <th style="width: 100px;">Poids (kg)</th> <th style="width: 80px;">Prix M²</th>
             <th class="txt-right" style="width: 100px;">Total HT</th>
             <th class="txt-center" style="width: 80px;">Actions</th>
         </tr>
@@ -39,10 +40,11 @@
                 $p = $lignes->first();
                 $totalGroupe = $lignes->sum('prixHT');
                 $fraisPort = $lignes->avg('livraison');
+                $poidsTotalGroupe = $lignes->sum('poids');
             @endphp
 
             <tr class="group-header">
-                <td colspan="8">
+                <td colspan="9">
                     <div class="group-content">
                         <div class="group-left">
                             <button type="button"
@@ -53,15 +55,15 @@
                             </button>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
-                            @if($fraisPort > 0 || $fraisPort == 0) {{-- On l'affiche même si c'est 0 pour pouvoir l'éditer --}}
-                            <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
-                                  class="btn-edit-transport"
-                                  data-client="{{ $p->client }}"
-                                  data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
-                                  data-current="{{ $fraisPort }}">
-                                    <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
-                                    <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
-                                </span>
+                            @if($fraisPort >= 0)
+                                <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
+                                      class="btn-edit-transport"
+                                      data-client="{{ $p->client }}"
+                                      data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
+                                      data-current="{{ $fraisPort }}">
+                                <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
+                                <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
+                            </span>
                             @endif
                         </div>
 
@@ -69,19 +71,24 @@
                             <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison')]) }}" class="btn-add-line">
                                 <i class="fa-solid fa-plus"></i> Ligne
                             </a>
-                            <span class="col-total-groupe">
-                                {{ number_format($totalGroupe, 2, ',', ' ') }} €
+                            <span class="weight-badge-gold" style="color: #d4af37; font-weight: bold; font-size: 0.95em;">
+                                <i class="fa-solid fa-weight-hanging"></i>
+                                {{ number_format($poidsTotalGroupe, 2, ',', ' ') }} kg
                             </span>
+                            <span class="col-total-groupe">
+                            {{ number_format($totalGroupe, 2, ',', ' ') }} €
+                        </span>
                         </div>
                     </div>
                 </td>
-                @for($i=0; $i<7; $i++) <td style="display:none;"></td> @endfor
+                @for($i=0; $i<8; $i++) <td style="display:none;"></td> @endfor
             </tr>
 
             @foreach($lignes as $d)
                 <tr class="row-detail">
                     <td class="col-ref">#{{ $d->id }}</td>
-                    <td style="display:none;">{{ $d->client }}</td> <td class="col-pierre">
+                    <td style="display:none;">{{ $d->client }}</td>
+                    <td class="col-pierre">
                         <div class="stone-name">{{ $d->typePierre ?? '' }}</div>
                         @if($d->specificites->count() > 0)
                             <div class="specs-mini-list">
@@ -99,15 +106,28 @@
                         <small class="text-muted">{{ $d->longueurM }}m x{{ $d->largeurM }}m x{{ $d->epaisseur }}cm</small><br>
                         <strong>{{ number_format($d->matiere, 2, ',', ' ') }} m²</strong>
                     </td>
+
+                    <td class="txt-center">
+                    <span class="badge bg-light text-dark border">
+                        {{ number_format($d->poids, 2, ',', ' ') }} kg
+                    </span>
+                    </td>
+
                     <td class="col-prix">{{ number_format($d->prixM2, 2, ',', ' ') }}€</td>
                     <td class="col-total-ligne">{{ number_format($d->prixHT, 2, ',', ' ') }}€</td>
                     <td class="col-actions">
                         <button class="btn-edit-modal" data-bs-toggle="modal" data-bs-target="#modificationModal"
-                                data-id="{{ $d->id }}" data-pierre="{{ $d->typePierre }}" data-nb="{{ $d->nombrePierre }}"
-                                data-long="{{ $d->longueurM }}" data-larg="{{ $d->largeurM }}" data-prix="{{ $d->prixM2 }}"
-                                data-specs="{{ $d->specificites->toJson() }}">✏️</button>
-                        <button class="btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-                                data-id="{{ $d->id }}">❌</button>
+                                data-id="{{ $d->id }}"
+                                data-pierre="{{ $d->typePierre }}"
+                                data-nb="{{ $d->nombrePierre }}"
+                                data-long="{{ $d->longueurM }}"
+                                data-larg="{{ $d->largeurM }}"
+                                data-prix="{{ $d->prixM2 }}"
+                                data-poids="{{ $d->poids }}"
+                                data-epaisseur="{{ $d->epaisseur }}"
+                                data-specs="{{ $d->specificites->toJson() }}">✏️
+                        </button>
+                        <button class="btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-id="{{ $d->id }}">❌</button>
                     </td>
                 </tr>
             @endforeach
@@ -142,6 +162,8 @@
             $('#edit_long').val(btn.data('long'));
             $('#edit_larg').val(btn.data('larg'));
             $('#edit_prix').val(btn.data('prix'));
+            $('#edit_poids').val(btn.data('poids'))
+            $('#edit_epaisseur').val(btn.data('epaisseur'));
             $('#editForm').attr('action', '/devis/' + id);
 
             const wrapper = $('#wrapper-specs-edit').empty();
@@ -161,11 +183,24 @@
         function addSpecRow(nom = '', prix = 0, unite = 'u', basePrice = 0) {
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const html = `
-            <div class="row mb-2 spec-row-edit align-items-center ligne-spec-edit">
-                <div class="col-6"><input type="text" name="specs[${uniqueId}][nom]" value="${nom}" class="form-control form-control-sm" required ${nom !== '' ? 'readonly' : ''}></div>
-                <div class="col-4"><input type="number" step="0.01" name="specs[${uniqueId}][prix]" value="${parseFloat(prix).toFixed(2)}" class="form-control form-control-sm spec-prix-edit" data-unite="${unite}" data-base-price="${basePrice}" required></div>
-                <div class="col-2 text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec"><i class="fa-solid fa-trash"></i></button></div>
-            </div>`;
+    <div class="row mb-2 spec-row-edit align-items-center ligne-spec-edit">
+        <div class="col-6">
+            <input type="text" name="specs[${uniqueId}][nom]" value="${nom}" class="form-control form-control-sm" placeholder="Nom de l'option" required>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm">
+                <input type="number" step="0.01" name="specs[${uniqueId}][prix]" value="${parseFloat(prix).toFixed(2)}"
+                       class="form-control spec-prix-edit"
+                       data-unite="${unite}"
+                       data-base-price="${basePrice}" required>
+                <span class="input-group-text">€</span>
+            </div>
+        </div>
+        <div class="col-2 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    </div>`;
+
             $('#wrapper-specs-edit').append(html);
             updateModalTotal();
         }
@@ -185,13 +220,30 @@
         };
 
         // 5. CALCULS AUTO
-        $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix', function() {
+        $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix, #edit_epaisseur', function() {
+
+            // Récupération des valeurs
             const long = parseFloat($('#edit_long').val()) || 0;
+            const larg = parseFloat($('#edit_larg').val()) || 0;
+            const epais = parseFloat($('#edit_epaisseur').val()) || 0;
             const qte = parseFloat($('#edit_nb').val()) || 0;
+            const prixM2 = parseFloat($('#edit_prix').val()) || 0;
+
+            // --- CALCUL DU POIDS AUTOMATIQUE ---
+            // Epaisseur est en cm, on divise par 100 pour l'avoir en mètres
+            // Densité moyenne de la pierre : 2500 kg/m3
+            const densite = 2500;
+            const poidsCalcule = long * larg * (epais / 100) * densite * qte;
+
+            // Mise à jour de la case grisée
+            $('#edit_poids').val(poidsCalcule.toFixed(2));
+
+            // --- MISE À JOUR DES OPTIONS ---
             $('.spec-prix-edit').each(function() {
                 const base = parseFloat($(this).data('base-price'));
                 $(this).val(($(this).data('unite') === 'ml' ? (base * long * qte) : (base * qte)).toFixed(2));
             });
+
             updateModalTotal();
         });
 

@@ -83,6 +83,7 @@ class DevisController extends Controller
                 'longueurM'    => $ligneData['longueurM'],
                 'largeurM'     => $ligneData['largeurM'],
                 'matiere'      => $matiereUnitaire,
+                'poids'        => $ligneData['poids'] ?? 0,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
                 'livraison'    => $livraisonFixe
@@ -143,8 +144,10 @@ class DevisController extends Controller
             'nombrePierre' => $quantite,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,
+            'epaisseur'    => $request->epaisseur,
             'prixM2'       => $request->prixM2,
             'matiere'      => $matiereParPierre,
+            'poids'        => $request->poids,
             'prixHT'       => $prixHTFinal,
         ]);
 

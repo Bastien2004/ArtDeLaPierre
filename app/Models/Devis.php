@@ -20,6 +20,7 @@ class Devis extends Model
         'prixHT',
         'prixUnitairePierre',
         'epaisseur',
+        'poids',
         'livraison',
     ];
 

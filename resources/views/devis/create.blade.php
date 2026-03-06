@@ -101,6 +101,11 @@
                         <input type="number" step="0.01" name="lignes[0][prixM2]" class="input-prix-m2" required>
                     </div>
 
+                    <div class="form-group">
+                        <label>Poids (kg)</label>
+                        <input type="number" step="0.01" name="lignes[0][poids]" class="input-poids" readonly style="background: #f1f1f1; font-weight: bold;">
+                    </div>
+
                 </div>
 
                 <div class="specs-wrapper">
@@ -387,6 +392,37 @@
         if(btnAdd) {
             // On s'assure que cliquer sur "Ajouter une pierre" verrouille aussi
             btnAdd.addEventListener('click', verrouillerInfosClient);
+        }
+    });
+
+
+    function calculerPoidsLigne(row) {
+        const L = parseFloat(row.querySelector('input[name*="[longueurM]"]').value) || 0;
+        const l = parseFloat(row.querySelector('input[name*="[largeurM]"]').value) || 0;
+        const ep = parseFloat(row.querySelector('.select-epaisseur').value) || 0;
+        const Q = parseFloat(row.querySelector('input[name*="[nombrePierre]"]').value) || 1;
+
+        // Formule : Longueur * Largeur * (Epaisseur en m) * Densité (2700) * Quantité
+        const poids = L * l * (ep / 100) * 2700 * Q;
+
+        const inputPoids = row.querySelector('.input-poids');
+        if (inputPoids) {
+            inputPoids.value = poids.toFixed(2);
+        }
+    }
+
+    // Mets à jour ton document.addEventListener('input') pour inclure le poids :
+    document.addEventListener('input', function(e) {
+        const row = e.target.closest('.ligne-pierre');
+        if (row && (e.target.name.includes('longueurM') || e.target.name.includes('largeurM') || e.target.name.includes('nombrePierre'))) {
+            calculerPoidsLigne(row);
+        }
+    });
+
+    // N'oublie pas de l'appeler aussi quand on change l'épaisseur
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('select-epaisseur')) {
+            calculerPoidsLigne(e.target.closest('.ligne-pierre'));
         }
     });
 </script>
