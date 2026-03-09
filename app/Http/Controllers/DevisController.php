@@ -77,7 +77,7 @@ class DevisController extends Controller
             $devis = new Devis([
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
-                'typePierre'   => $ligneData['typePierre'] ?? 'Pierre Bleue',
+                'typePierre'   => $ligneData['typePierre'] ?? '',
                 'epaisseur'    => $ligneData['epaisseur'] ?? 2,
                 'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
@@ -242,5 +242,28 @@ class DevisController extends Controller
             ->setOption('margin-right', '0mm')
             ->setOption('disable-smart-shrinking', true)
             ->download("Devis_{$client}.pdf");
+    }
+
+    public function downloadAtelierPDF(Request $request, $client, $date)
+    {
+        $dateSql = \Carbon\Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
+
+        $lignes = Devis::where('client', $client)
+            ->where('created_at', $dateSql)
+            ->with('specificites')
+            ->get();
+
+        // On récupère toutes les épaisseurs uniques présentes dans vos tarifs
+        $epaiseursTarifs = \App\Models\Tarif::distinct()->pluck('epaisseur')->toArray();
+
+        $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('pdfs.atelier_template', [
+            'lignes' => $lignes,
+            'client' => $client,
+            'date'   => $lignes->first()->created_at,
+            'reference' => $request->query('ref'),
+            'epaiseursTarifs' => $epaiseursTarifs // On envoie la liste à la vue
+        ]);
+
+        return $pdf->setOption('page-size', 'A4')->download("ATELIER_{$client}.pdf");
     }
 }

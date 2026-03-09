@@ -53,6 +53,12 @@
                                     title="Télécharger">
                                 <i class="fa-solid fa-download"></i>
                             </button>
+                            <button type="button"
+                                    class="btn-icon btn-trigger-pdf"
+                                    data-url="{{ route('devis.downloadAtelierPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
+                                    title="Télécharger">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
                             @if($fraisPort >= 0)
@@ -229,7 +235,6 @@
             const qte = parseFloat($('#edit_nb').val()) || 0;
             const prixM2 = parseFloat($('#edit_prix').val()) || 0;
 
-            // --- CALCUL DU POIDS AUTOMATIQUE ---
             // Epaisseur est en cm, on divise par 100 pour l'avoir en mètres
             // Densité moyenne de la pierre : 2500 kg/m3
             const densite = 2500;
@@ -238,7 +243,7 @@
             // Mise à jour de la case grisée
             $('#edit_poids').val(poidsCalcule.toFixed(2));
 
-            // --- MISE À JOUR DES OPTIONS ---
+            // MISE À JOUR DES OPTIONS
             $('.spec-prix-edit').each(function() {
                 const base = parseFloat($(this).data('base-price'));
                 $(this).val(($(this).data('unite') === 'ml' ? (base * long * qte) : (base * qte)).toFixed(2));
@@ -254,7 +259,7 @@
             $('#total_ligne_edit').text((totalPierre + totalSpecs).toFixed(2));
         }
 
-        // 6. DELETE & PDF (Les fix)
+        // DELETE & PDF
         $(document).on('click', '.btn-delete-trigger', function() {
             const id = $(this).data('id');
             $('#delete_display_id').text(id);

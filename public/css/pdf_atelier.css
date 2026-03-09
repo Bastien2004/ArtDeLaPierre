@@ -1,0 +1,133 @@
+body {
+    font-family: 'Courier', 'Arial', sans-serif;
+    margin: 0;
+    padding: 10px;
+}
+
+.container {
+    padding: 10px;
+}
+
+/* En-tête plus grand pour identifier le projet au premier coup d'œil */
+.label { font-size: 14px; font-weight: bold; color: #555; }
+.val {
+    font-size: 20px; /* Augmenté */
+    font-weight: bold;
+    text-decoration: underline;
+    margin-right: 20px;
+}
+
+.header-atelier {
+    border-bottom: 3px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+    display: table;
+    width: 100%;
+}
+
+/* Liste de débit : on passe sur des tailles très lisibles */
+.debit-row {
+    margin-bottom: 25px; /* Plus d'espace entre les blocs */
+    padding: 10px 0;
+    border-bottom: 1px solid #000; /* Ligne plus sombre */
+}
+
+.col-qty {
+    display: inline-block;
+    width: 80px;
+    font-weight: bold;
+    font-size: 35px; /* Très gros pour ne pas rater le nombre de pièces */
+    vertical-align: middle;
+}
+
+.col-main {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.type-pierre {
+    display: block;
+    font-size: 15px; /* Augmenté */
+    color: #444;
+    margin-bottom: 5px;
+}
+
+/* Dimensions : C'est le plus important pour le débit */
+.dims {
+    font-size: 32px; /* Augmenté massivement */
+    font-weight: bold;
+    margin-right: 30px;
+}
+
+/* SURLIGNAGE SELON ÉPAISSEUR */
+.epaisseur {
+    padding: 5px 15px; /* Plus large */
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 28px; /* Augmenté pour être vu de loin */
+    border: 1px solid #000; /* Ajout d'une bordure pour le contraste */
+}
+
+/* Couleurs surlignage */
+.ep-2 { background-color: #ffff00; }
+.ep-3 { background-color: #a8e4ff; }
+.ep-4 { background-color: #dc36ea; }
+.ep-5 { background-color: #0df10d; }
+.ep-6 { background-color: #68efc1; }
+.ep-10 { background-color: #f83c90; }
+.ep-11 { background-color: #f4561e; }
+.ep-12 { background-color: #ff9e5f; }
+.ep-14 { background-color: #7becec; }
+.ep-15 { background-color: #a100aa; }
+.ep-18 { background-color: #a86bbf; }
+
+.ep-default { background-color: #ddd; }
+
+/* Spécificités en Rouge pour ne pas oublier le travail manuel */
+.specs {
+    font-size: 22px; /* Augmenté */
+    color: #cc0000;
+    font-style: italic;
+    margin-top: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.footer-sign {
+    margin-top: 40px;
+    width: 100%;
+}
+
+.sign-box {
+    display: inline-block;
+    width: 45%;
+    border-top: 2px solid #000;
+    padding-top: 10px;
+    font-size: 16px; /* Augmenté */
+    margin-right: 4%;
+}
+
+/* --- TAILLES DE RÉFÉRENCE (LARGE) --- */
+.zoom-large .dims { font-size: 32px; }
+.zoom-large .col-qty { font-size: 35px; }
+.zoom-large .epaisseur { font-size: 28px; }
+.zoom-large .debit-row { margin-bottom: 25px; }
+.zoom-large .specs { font-size: 22px; }
+
+/* --- TAILLES MOYENNES (8 à 12 lignes) --- */
+.zoom-medium .dims { font-size: 24px; }
+.zoom-medium .col-qty { font-size: 26px; }
+.zoom-medium .epaisseur { font-size: 20px; }
+.zoom-medium .debit-row { margin-bottom: 12px; padding: 5px 0; }
+.zoom-medium .specs { font-size: 18px; }
+.zoom-medium .val { font-size: 16px; }
+
+/* --- TAILLES COMPACTES (Plus de 12 lignes) --- */
+.zoom-compact .dims { font-size: 18px; }
+.zoom-compact .col-qty { font-size: 20px; }
+.zoom-compact .epaisseur { font-size: 16px; padding: 3px 8px; }
+.zoom-compact .debit-row { margin-bottom: 5px; padding: 2px 0; }
+.zoom-compact .specs { font-size: 14px; margin-top: 2px; }
+.zoom-compact .val { font-size: 14px; }
+.zoom-compact .header-atelier { margin-bottom: 10px; }
+.zoom-compact .footer-sign { margin-top: 15px; }

@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])
         ->name('devis.downloadPDF');
     Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
+    Route::get('/devis/atelier/{client}/{date}', [DevisController::class, 'downloadAtelierPDF'])->name('devis.downloadAtelierPDF');
 
     // Gestion des Tarifs
     Route::get('/tarifs', [TarifController::class, 'index'])->name('tarifs.tarifs');
