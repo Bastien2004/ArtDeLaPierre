@@ -510,3 +510,41 @@ input[readonly] {
         padding: 30px 20px;
     }
 }
+
+/* --- CHAMP TAILLE REJINGOT --- */
+.taille-rejingot-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.taille-rejingot-wrapper input[type="number"] {
+    width: 55px;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1.5px solid #bee3f8;
+    border-radius: 8px;
+    background-color: #f0faff;
+    font-weight: 600;
+    color: var(--stone-dark);
+    transition: all 0.2s ease;
+}
+
+.taille-rejingot-wrapper input[type="number"]:focus {
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
+}
+
+.taille-rejingot-wrapper .separator {
+    font-weight: 700;
+    color: var(--stone-medium);
+    font-size: 1rem;
+}
+
+.taille-rejingot-wrapper .unite-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--stone-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

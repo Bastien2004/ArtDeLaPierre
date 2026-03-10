@@ -52,7 +52,11 @@
                     @if($l->specificites->count() > 0)
                         <div class="specs">
                             @foreach($l->specificites as $spec)
-                                + {{ $spec->nom }}
+                                <span>+ {{ $spec->nom }}
+                                    @if($spec->nom && strtolower($spec->nom) === 'rejingot' && $spec->tailleRejingot)
+                                        ({{ $spec->tailleRejingot }})
+                                    @endif
+                                </span>
                             @endforeach
                         </div>
                     @endif

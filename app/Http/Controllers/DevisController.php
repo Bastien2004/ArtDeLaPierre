@@ -58,10 +58,8 @@ class DevisController extends Controller
             $quantite = (int) $ligneData['nombrePierre'];
             $matiereUnitaire = (float)$ligneData['longueurM'] * (float)$ligneData['largeurM'];
 
-            // A. Calcul du bloc Pierres (Surface x Prix x Qté)
             $prixTotalPierres = ($matiereUnitaire * (float)$ligneData['prixM2']) * $quantite;
 
-            // B. Calcul du bloc Options (On fait juste la SOMME, le JS a déjà multiplié par Qté)
             $totalOptionsLigne = 0;
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
@@ -71,9 +69,9 @@ class DevisController extends Controller
                 }
             }
 
-            // C. TOTAL FINAL : Bloc Pierres + Bloc Options
             $prixHTFinal = $prixTotalPierres + $totalOptionsLigne;
 
+            // ✅ Plus de tailleRejingot ici, ça n'appartient pas au Devis
             $devis = new Devis([
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
@@ -86,7 +84,7 @@ class DevisController extends Controller
                 'poids'        => $ligneData['poids'] ?? 0,
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
-                'livraison'    => $livraisonFixe
+                'livraison'    => $livraisonFixe,
             ]);
 
             $devis->created_at = $dateCreation;
@@ -95,14 +93,23 @@ class DevisController extends Controller
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
+                        // ✅ Construction de la taille ici, dans la bonne boucle
+                        $tailleMin = $specData['tailleMin'] ?? null;
+                        $tailleMax = $specData['tailleMax'] ?? null;
+                        $taille = ($tailleMin !== null && $tailleMax !== null)
+                            ? $tailleMin . '/' . $tailleMax . ' cm'
+                            : null;
+
                         $devis->specificites()->create([
-                            'nom'  => $specData['nom'],
-                            'prix' => $specData['prix'], // Montant total envoyé par le formulaire
+                            'nom'            => $specData['nom'],
+                            'prix'           => $specData['prix'],
+                            'tailleRejingot' => $taille,
                         ]);
                     }
                 }
             }
         }
+
         return redirect()->route('devis.index')->with('success', 'Devis généré !');
     }
     public function edit(string $id)

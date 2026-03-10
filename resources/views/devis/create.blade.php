@@ -302,25 +302,28 @@
         const longueur = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
         const quantite = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
-        // --- LOGIQUE MINI 1M POUR REJINGOT ---
-        let prixBaseCalcul = prixUnitaire;
-        if (nom.toLowerCase().includes('rejingot') && longueur < 1 && longueur > 0) {
-            // Si < 1m, on facture comme si c'était 1m (soit le prix unitaire plein)
-            prixBaseCalcul = prixUnitaire / Math.max(longueur, 0.001);
-            // Note: On divise par la longueur pour que la multiplication finale (base * L * Q) retombe sur (prixUnitaire * 1 * Q)
-        }
-
         let prixFinal = (unite === 'ml' ? prixUnitaire * Math.max(longueur, 1) : prixUnitaire) * quantite;
 
-        const specHtml = `
-        <div class="ligne-spec">
-            <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px;">
-                <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
-                <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
-                <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
-                <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
+        // Champ taille uniquement pour le rejingot
+        const tailleField = nom.toLowerCase().includes('rejingot') ? `
+            <div class="taille-rejingot-wrapper">
+                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMin]" value="2" min="0" step="0.1">
+                <span class="separator">/</span>
+                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMax]" value="3" min="0" step="0.1">
+                <span class="unite-label">cm</span>
             </div>
-        </div>`;
+        ` : '';
+
+        const specHtml = `
+            <div class="ligne-spec">
+                <div class="form-grid-specs" style="display: flex; gap: 10px; margin-bottom: 5px; align-items: center;">
+                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
+                    ${tailleField}
+                    <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
+                    <input type="number" step="0.1" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
+                    <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
+                </div>
+            </div>`;
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
@@ -337,7 +340,7 @@
 
                 if (input.dataset.unite === 'ml') {
                     // Si c'est un rejingot et que L < 1, on force L à 1 pour le calcul
-                    let longueurEffective = (nom.toLowerCase().includes('rejingot') && L < 1) ? 1 : L;
+                    let longueurEffective = (nom.toLowerCase().includes('rejingot') && L < 1 && L > 0) ? 1 : L;
                     input.value = (base * longueurEffective * Q).toFixed(2);
                 } else {
                     input.value = (base * Q).toFixed(2);

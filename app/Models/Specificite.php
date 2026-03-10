@@ -9,14 +9,15 @@ class Specificite extends Model
 {
     use HasFactory;
 
-    // 1. Autoriser l'assignation de masse (indispensable pour le ->create() du contrôleur)
+    // Autoriser l'assignation de masse (indispensable pour le ->create() du contrôleur)
     protected $fillable = [
         'devis_id',
         'nom',
-        'prix'
+        'prix',
+        'tailleRejingot'
     ];
 
-    // 2. Définir la relation inverse
+    // Définir la relation inverse
     // Chaque spécificité appartient à une seule ligne de devis
     public function devis()
     {
