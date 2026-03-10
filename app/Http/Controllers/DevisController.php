@@ -219,6 +219,8 @@ class DevisController extends Controller
         $montantLivraison = $lignes->avg('livraison');
         $totalHTAvecLivraison = $totalHT + $montantLivraison;
 
+        $poids = $lignes->sum('poids');
+
         // On charge la vue qu'on va créer après
         $pdf = PDF::loadView('pdfs.devis_template', [
             'lignes' => $lignes,
@@ -230,7 +232,8 @@ class DevisController extends Controller
             'date'   => $lignes->first()->created_at,
             'totalHT'=> $totalHT,
             'id'=> $lignes->first()->id,
-            'reference' => $reference
+            'reference' => $reference,
+            'poids' => $poids
         ]);
 
         // Configuration millimétrée

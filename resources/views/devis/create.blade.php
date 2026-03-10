@@ -155,39 +155,43 @@
                 const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
 
                 // --- SÉCURITÉ : On met à jour le champ caché de la ligne 0 AVANT de cloner ---
-                // Sinon, le clone partira toujours avec la valeur par défaut (0.00) de la ligne 0
                 const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
                 if (firstHiddenLivraison) {
                     firstHiddenLivraison.value = livraisonActuelle;
                 }
 
-                // 2. VERROUILLAGE DES INFOS GLOBALES
-                const toLock = [
-                    document.querySelector('input[name="client"]'),
-                    document.querySelector('input[name="adresse"]'),
-                    livraisonInput,
-                    document.getElementById('type_client_global')
-                ];
+                // 2. VERROUILLAGE DES INFOS GLOBALES (uniquement si pré-rempli)
+                const clientInput = document.querySelector('input[name="client"]');
+                const estPreRempli = clientInput && clientInput.value.trim() !== "";
 
-                toLock.forEach(field => {
-                    if (field) {
-                        if (field.tagName === 'SELECT') {
-                            if (!document.getElementById(field.name + '_hidden')) {
-                                let hidden = document.createElement("input");
-                                hidden.type = "hidden";
-                                hidden.name = field.name;
-                                hidden.id = field.name + '_hidden';
-                                hidden.value = field.value;
-                                field.parentNode.insertBefore(hidden, field);
+                if (estPreRempli) {
+                    const toLock = [
+                        document.querySelector('input[name="client"]'),
+                        document.querySelector('input[name="adresse"]'),
+                        livraisonInput,
+                        document.getElementById('type_client_global')
+                    ];
+
+                    toLock.forEach(field => {
+                        if (field) {
+                            if (field.tagName === 'SELECT') {
+                                if (!document.getElementById(field.name + '_hidden')) {
+                                    let hidden = document.createElement("input");
+                                    hidden.type = "hidden";
+                                    hidden.name = field.name;
+                                    hidden.id = field.name + '_hidden';
+                                    hidden.value = field.value;
+                                    field.parentNode.insertBefore(hidden, field);
+                                }
+                                field.disabled = true;
+                            } else {
+                                field.readOnly = true;
                             }
-                            field.disabled = true;
-                        } else {
-                            field.readOnly = true;
+                            field.style.setProperty("background-color", "#e9ecef", "important");
+                            field.style.setProperty("cursor", "not-allowed", "important");
                         }
-                        field.style.setProperty("background-color", "#e9ecef", "important");
-                        field.style.setProperty("cursor", "not-allowed", "important");
-                    }
-                });
+                    });
+                }
 
                 // 3. LOGIQUE DE CLONAGE
                 let container = document.getElementById('lignes-container');
@@ -197,15 +201,11 @@
                 clone.dataset.index = pierreIdx;
 
                 clone.querySelectorAll('input').forEach(i => {
-                    // Mise à jour de l'index des noms [0] -> [1]
                     if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
 
-                    // INJECTION DE LA VALEUR DANS LE CLONE
                     if (i.classList.contains('input-livraison-ligne')) {
                         i.value = livraisonActuelle;
-                    }
-                    // NETTOYAGE DES AUTRES CHAMPS
-                    else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
+                    } else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
                         i.value = '';
                     } else if (i.name.includes('nombrePierre')) {
                         i.value = '1';
@@ -239,7 +239,6 @@
         }
     });
 
-    // --- AUTRES FONCTIONS (Hors DOMContentLoaded ou dedans) ---
 
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
@@ -387,10 +386,10 @@
             verrouillerInfosClient();
         }
 
-        // 2. Sécurité supplémentaire : lier la fonction au bouton s'il n'est pas déjà lié
+        // Sécurité supplémentaire : lier la fonction au bouton s'il n'est pas déjà lié
         const btnAdd = document.getElementById('add-line');
-        if(btnAdd) {
-            // On s'assure que cliquer sur "Ajouter une pierre" verrouille aussi
+        if(btnAdd && clientInput && clientInput.value.trim() !== "") {
+            // On verrouille au clic UNIQUEMENT si on est en mode "ajout de ligne" (pré-remplissage)
             btnAdd.addEventListener('click', verrouillerInfosClient);
         }
     });

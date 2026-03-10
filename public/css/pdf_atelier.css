@@ -108,26 +108,26 @@ body {
 }
 
 /* --- TAILLES DE RÉFÉRENCE (LARGE) --- */
-.zoom-large .dims { font-size: 32px; }
-.zoom-large .col-qty { font-size: 35px; }
-.zoom-large .epaisseur { font-size: 28px; }
-.zoom-large .debit-row { margin-bottom: 25px; }
-.zoom-large .specs { font-size: 22px; }
+.zoom-large .dims { font-size: 37px; }
+.zoom-large .col-qty { font-size: 40px; }
+.zoom-large .epaisseur { font-size: 33px; }
+.zoom-large .debit-row { margin-bottom: 30px; }
+.zoom-large .specs { font-size: 27px; }
 
 /* --- TAILLES MOYENNES (8 à 12 lignes) --- */
-.zoom-medium .dims { font-size: 24px; }
-.zoom-medium .col-qty { font-size: 26px; }
-.zoom-medium .epaisseur { font-size: 20px; }
-.zoom-medium .debit-row { margin-bottom: 12px; padding: 5px 0; }
-.zoom-medium .specs { font-size: 18px; }
-.zoom-medium .val { font-size: 16px; }
+.zoom-medium .dims { font-size: 29px; }
+.zoom-medium .col-qty { font-size: 31px; }
+.zoom-medium .epaisseur { font-size: 25px; }
+.zoom-medium .debit-row { margin-bottom: 17px; padding: 5px 0; }
+.zoom-medium .specs { font-size: 23px; }
+.zoom-medium .val { font-size: 21px; }
 
 /* --- TAILLES COMPACTES (Plus de 12 lignes) --- */
-.zoom-compact .dims { font-size: 18px; }
-.zoom-compact .col-qty { font-size: 20px; }
-.zoom-compact .epaisseur { font-size: 16px; padding: 3px 8px; }
-.zoom-compact .debit-row { margin-bottom: 5px; padding: 2px 0; }
-.zoom-compact .specs { font-size: 14px; margin-top: 2px; }
-.zoom-compact .val { font-size: 14px; }
-.zoom-compact .header-atelier { margin-bottom: 10px; }
-.zoom-compact .footer-sign { margin-top: 15px; }
+.zoom-compact .dims { font-size: 20px; }
+.zoom-compact .col-qty { font-size: 22px; }
+.zoom-compact .epaisseur { font-size: 18px; padding: 5px 10px; }
+.zoom-compact .debit-row { margin-bottom: 7px; padding: 4px 0; }
+.zoom-compact .specs { font-size: 16px; margin-top: 4px; }
+.zoom-compact .val { font-size: 16px; }
+.zoom-compact .header-atelier { margin-bottom: 12px; }
+.zoom-compact .footer-sign { margin-top: 17px; }

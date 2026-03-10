@@ -52,8 +52,9 @@
         <table>
             <thead>
             <tr>
-                <th style="width: 45%;">Désignation</th>
+                <th style="width: 35%;">Désignation</th>
                 <th style="width: 10%;">Qté</th>
+                <th style="width: 10%">Poids (kg)</th>
                 <th style="width: 15%;">P.U. HT</th>
                 <th style="width: 10%;">TVA</th>
                 <th style="width: 20%; text-align: right;">Total HT</th>
@@ -69,7 +70,7 @@
                             Finition : {{ $l->finition }} |
                             {{ number_format($l->longueurM, 2, ',', ' ') }}m x
                             {{ number_format($l->largeurM, 2, ',', ' ') }}m x
-                            {{ $l->epaisseur }} cm
+                            {{ $l->epaisseur }} cm | {{number_format($l->longueurM * $l->largeurM,2, ",", " ")}} m²
                         </small>
 
                         @if(isset($l->specificites) && count($l->specificites) > 0)
@@ -85,6 +86,9 @@
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
                         {{ number_format($l->nombrePierre, 0, ',', ' ') }}
+                    </td>
+                    <td style="text-align: center; vertical-align: top; padding-top: 10px;">
+                        {{ number_format($l->poids, 2,',',' ') }}
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
                         {{ number_format($l->prixHT / ($l->nombrePierre ?: 1), 2, ',', ' ') }} €
