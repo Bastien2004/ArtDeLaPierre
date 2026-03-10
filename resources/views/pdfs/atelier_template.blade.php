@@ -53,7 +53,7 @@
                         <div class="specs">
                             @foreach($l->specificites as $spec)
                                 <span>+ {{ $spec->nom }}
-                                    @if($spec->nom && strtolower($spec->nom) === 'rejingot' && $spec->tailleRejingot)
+                                    @if($spec->tailleRejingot && str_contains(strtolower($spec->nom), 'rejingot'))
                                         ({{ $spec->tailleRejingot }})
                                     @endif
                                 </span>
