@@ -161,6 +161,7 @@
             const btn = $(this);
             const id = btn.data('id');
             const qte = parseFloat(btn.data('nb')) || 1;
+            const long = parseFloat(btn.data('long')) || 1;
 
             $('#display_id').text(id);
             $('#edit_pierre').val(btn.data('pierre'));
@@ -168,22 +169,31 @@
             $('#edit_long').val(btn.data('long'));
             $('#edit_larg').val(btn.data('larg'));
             $('#edit_prix').val(btn.data('prix'));
-            $('#edit_poids').val(btn.data('poids'))
+            $('#edit_poids').val(btn.data('poids'));
             $('#edit_epaisseur').val(btn.data('epaisseur'));
             $('#editForm').attr('action', '/devis/' + id);
 
-            const wrapper = $('#wrapper-specs-edit').empty();
+            $('#wrapper-specs-edit').empty();
             const specs = btn.data('specs');
 
             if (specs && specs.length > 0) {
                 specs.forEach(s => {
-                    let unite = (s.nom.toLowerCase().includes('rejingot') || s.nom.toLowerCase().includes('ciselage')) ? 'ml' : 'u';
-                    let basePrice = s.prix / qte;
+                    const estMl = s.nom.toLowerCase().includes('rejingot') || s.nom.toLowerCase().includes('ciselage');
+                    const unite = estMl ? 'ml' : 'u';
+                    // basePrice = prix unitaire pur (on "annule" la multiplication qté*longueur qui a été faite à la création)
+                    let basePrice;
+                    if (estMl) {
+                        const longEffective = (s.nom.toLowerCase().includes('rejingot') && long < 1) ? 1 : long;
+                        basePrice = s.prix / (qte * longEffective);
+                    } else {
+                        basePrice = s.prix / qte;
+                    }
                     addSpecRow(s.nom, s.prix, unite, basePrice);
                 });
             }
             updateModalTotal();
         });
+
 
         // 3. FONCTION AJOUT SPEC
         function addSpecRow(nom = '', prix = 0, unite = 'u', basePrice = 0) {
@@ -221,7 +231,13 @@
         window.addSpecToEdit = function(nom, prixUnitaire, unite) {
             const long = parseFloat($('#edit_long').val()) || 0;
             const qte = parseFloat($('#edit_nb').val()) || 1;
-            let prixFinal = (unite === 'ml') ? (prixUnitaire * long * qte) : (prixUnitaire * qte);
+            let prixFinal;
+            if (unite === 'ml') {
+                const longEffective = (nom.toLowerCase().includes('rejingot') && long < 1 && long > 0) ? 1 : long;
+                prixFinal = prixUnitaire * longEffective * qte;
+            } else {
+                prixFinal = prixUnitaire * qte;
+            }
             addSpecRow(nom, prixFinal, unite, prixUnitaire);
         };
 
@@ -237,7 +253,7 @@
 
             // Epaisseur est en cm, on divise par 100 pour l'avoir en mètres
             // Densité moyenne de la pierre : 2500 kg/m3
-            const densite = 2500;
+            const densite = 2700;
             const poidsCalcule = long * larg * (epais / 100) * densite * qte;
 
             // Mise à jour de la case grisée
@@ -245,8 +261,14 @@
 
             // MISE À JOUR DES OPTIONS
             $('.spec-prix-edit').each(function() {
-                const base = parseFloat($(this).data('base-price'));
-                $(this).val(($(this).data('unite') === 'ml' ? (base * long * qte) : (base * qte)).toFixed(2));
+                const base = parseFloat($(this).data('base-price')) || 0;
+                const nomSpec = $(this).closest('.ligne-spec-edit').find('input[type="text"]').val().toLowerCase();
+                if ($(this).data('unite') === 'ml') {
+                    const longEffective = (nomSpec.includes('rejingot') && long < 1 && long > 0) ? 1 : long;
+                    $(this).val((base * longEffective * qte).toFixed(2));
+                } else {
+                    $(this).val((base * qte).toFixed(2));
+                }
             });
 
             updateModalTotal();

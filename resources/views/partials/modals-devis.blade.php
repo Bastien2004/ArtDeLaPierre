@@ -52,14 +52,14 @@
                     <h6>Spécificités / Options</h6>
 
                     <div class="mb-3 d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Ciselage', 12, 'ml')">
-                            <i class="fa fa-cut"></i> + Ciselage (12€/ml)
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Ciselage', 18, 'ml')">
+                            <i class="fa fa-cut"></i> + Ciselage (18€/ml)
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Rejingot', 15, 'ml')">
-                            <i class="fa fa-ruler-combined"></i> + Rejingot (15€/ml)
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Rejingot', 16, 'ml')">
+                            <i class="fa fa-ruler-combined"></i> + Rejingot (16€/ml)
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Oreilles', 10, 'u')">
-                            <i class="fa fa-tag"></i> + Oreilles (10€/u)
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="addSpecToEdit('Oreilles', 5, 'u')">
+                            <i class="fa fa-tag"></i> + Oreilles (5€/u)
                         </button>
                     </div>
 
