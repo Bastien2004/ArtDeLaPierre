@@ -78,7 +78,6 @@
                                 @foreach($l->specificites as $spec)
                                     <div style="font-size: 10px; font-weight: normal; color: #555; font-style: italic;">
                                         <span style="color: #999;">+</span> {{ $spec->nom }}
-                                        <span style="float: right; margin-right: 15px;">{{ number_format($spec->prix, 2, ',', ' ') }} €</span>
                                     </div>
                                 @endforeach
                             </div>
