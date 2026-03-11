@@ -23,7 +23,7 @@
     {{-- EN-TÊTE --}}
     <div class="header-atelier">
         <div class="header-left">
-            <span class="label">QUANTITÉ</span> <span class="label">NOM :</span> <span class="val">{{ $client }}</span><br>
+            <span class="label">NOM :</span> <span class="val">{{ $client }}</span><br>
             <span class="label">REF :</span> <span class="val">{{ $reference }}</span>
         </div>
         <div class="header-right">
