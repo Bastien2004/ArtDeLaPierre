@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
     {
         // Création du compte par défaut
         User::updateOrCreate(
-            ['email' => 'admin@artdelapierre.fr'],
+            ['email' => 'bastienhecquet2004@gmail.com'],
             [
                 'name' => 'Administrateur',
-                'password' => Hash::make('73TGrDjhVpCqj'),
+                'password' => Hash::make('admin'),
             ]
         );
     }

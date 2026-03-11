@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->float('epaisseurCM');
-            $table->float('poids_M2');
+            $table->float('poids_m2');
             $table->timestamps();
         });
     }

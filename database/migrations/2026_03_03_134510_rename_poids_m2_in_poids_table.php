@@ -8,16 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('poids', function (Blueprint $table) {
-            // renameColumn('ancien_nom', 'nouveau_nom')
-            $table->renameColumn('poids/M2', 'poids_m2');
-        });
+        // Migration obsolète - colonne déjà nommée poids_M2 à la création
     }
 
     public function down(): void
     {
-        Schema::table('poids', function (Blueprint $table) {
-            $table->renameColumn('poids_m2', 'poids/M2');
-        });
+        //
     }
 };
