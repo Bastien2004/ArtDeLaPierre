@@ -47,18 +47,31 @@
                 <td colspan="9">
                     <div class="group-content">
                         <div class="group-left">
-                            <button type="button"
-                                    class="btn-icon btn-trigger-pdf"
-                                    data-url="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
-                                    title="Télécharger">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
-                            <button type="button"
-                                    class="btn-icon btn-trigger-pdf"
-                                    data-url="{{ route('devis.downloadAtelierPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
-                                    title="Télécharger">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
+                            <div class="dl-dropdown-wrapper">
+                                <button type="button" class="btn-dl-main" data-client="{{ $p->client }}">
+                                    <i class="fa-solid fa-download"></i>
+                                    <span>Télécharger</span>
+                                    <i class="fa-solid fa-chevron-down dl-chevron"></i>
+                                </button>
+                                <div class="dl-menu">
+                                    <a class="dl-option btn-trigger-pdf"
+                                       data-url="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}">
+                                        <span class="dl-icon-wrap"><i class="fa-solid fa-file-invoice"></i></span>
+                                        <div>
+                                            <span class="dl-label">Devis client</span>
+                                            <span class="dl-sub">Document commercial</span>
+                                        </div>
+                                    </a>
+                                    <a class="dl-option btn-trigger-pdf"
+                                       data-url="{{ route('devis.downloadAtelierPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}">
+                                        <span class="dl-icon-wrap"><i class="fa-solid fa-hammer"></i></span>
+                                        <div>
+                                            <span class="dl-label">Bon atelier</span>
+                                            <span class="dl-sub">Fiche de fabrication</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
                             <span class="client-name">{{ $p->client }}</span>
                             <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
                             @if($fraisPort >= 0)
@@ -146,6 +159,19 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Toggle dropdown téléchargement
+    $(document).on('click', '.btn-dl-main', function(e) {
+        e.stopPropagation();
+        const wrapper = $(this).closest('.dl-dropdown-wrapper');
+        $('.dl-dropdown-wrapper').not(wrapper).removeClass('open');
+        wrapper.toggleClass('open');
+    });
+
+    // Fermer si clic ailleurs
+    $(document).on('click', function() {
+        $('.dl-dropdown-wrapper').removeClass('open');
+    });
+
     $(document).ready(function() {
         // 1. DataTable
         const table = $('#tableDevis').DataTable({
