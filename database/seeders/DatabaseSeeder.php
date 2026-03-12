@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // Création du compte par défaut
         User::updateOrCreate(
-            ['email' => 'bastienhecquet2004@gmail.com'],
+            ['email' => 'frederic.oden.tailleur.pierre@gmail.com'],
             [
                 'name' => 'Administrateur',
                 'password' => Hash::make('admin'),
