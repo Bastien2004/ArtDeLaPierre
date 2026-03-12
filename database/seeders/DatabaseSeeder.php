@@ -24,5 +24,10 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('admin'),
             ]
         );
+        $this->call([
+            TarifSeeder::class,
+            TravailTarifSeeder::class,
+            PoidsPierreBleueSeeder::class,
+        ]);
     }
 }
