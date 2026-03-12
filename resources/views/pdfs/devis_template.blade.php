@@ -68,11 +68,10 @@
 
                         <small style="font-weight: normal; color: #666; display: block; margin-bottom: 5px;">
                             Finition : {{ $l->finition }} |
-                            {{ number_format($l->longueurM, 2, ',', ' ') }}m x
-                            {{ number_format($l->largeurM, 2, ',', ' ') }}m x
-                            {{ $l->epaisseur }} cm | {{number_format($l->longueurM * $l->largeurM,2, ",", " ")}} m²
+                            {{ number_format(floor($l->longueurM * 100) / 100, 2, ',', ' ') }}m x
+                            {{ number_format(floor($l->largeurM * 100) / 100, 2, ',', ' ') }}m x
+                            {{ number_format(floor($l->longueurM * $l->largeurM * 100) / 100, 2, ',', ' ') }} m²
                         </small>
-
                         @if(isset($l->specificites) && count($l->specificites) > 0)
                             <div style="margin-left: 10px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
                                 @foreach($l->specificites as $spec)
@@ -87,7 +86,7 @@
                         {{ number_format($l->nombrePierre, 0, ',', ' ') }}
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
-                        {{ number_format($l->poids, 2,',',' ') }}
+                        {{ number_format(floor($l->poids * 100) / 100, 2, ',', ' ') }}
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
                         {{ number_format($l->prixHT / ($l->nombrePierre ?: 1), 2, ',', ' ') }} €
