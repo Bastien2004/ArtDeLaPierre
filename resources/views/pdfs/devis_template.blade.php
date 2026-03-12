@@ -1,3 +1,13 @@
+@php
+    function formatDim($val) {
+        $v = number_format($val, 3, ',', ' ');
+        if (substr($v, -1) === '0') {
+            return number_format($val, 2, ',', ' ');
+        }
+        return $v;
+    }
+@endphp
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -68,9 +78,9 @@
 
                         <small style="font-weight: normal; color: #666; display: block; margin-bottom: 5px;">
                             Finition : {{ $l->finition }} |
-                            {{ number_format(floor($l->longueurM * 100) / 100, 2, ',', ' ') }}m x
-                            {{ number_format(floor($l->largeurM * 100) / 100, 2, ',', ' ') }}m x
-                            {{ number_format(floor($l->longueurM * $l->largeurM * 100) / 100, 2, ',', ' ') }} m²
+                            {{ formatDim($l->longueurM) }}m x
+                            {{ formatDim($l->largeurM) }}m x
+                            {{ formatDim($l->longueurM * $l->largeurM) }} m²
                         </small>
                         @if(isset($l->specificites) && count($l->specificites) > 0)
                             <div style="margin-left: 10px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
@@ -86,7 +96,7 @@
                         {{ number_format($l->nombrePierre, 0, ',', ' ') }}
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
-                        {{ number_format(floor($l->poids * 100) / 100, 2, ',', ' ') }}
+                        {{ formatDim($l->poids) }}
                     </td>
                     <td style="text-align: center; vertical-align: top; padding-top: 10px;">
                         {{ number_format($l->prixHT / ($l->nombrePierre ?: 1), 2, ',', ' ') }} €
