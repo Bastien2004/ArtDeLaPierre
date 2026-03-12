@@ -28,7 +28,6 @@ Route::middleware('auth')->group(function () {
 
     // Gestion des Devis
     Route::resource('devis', DevisController::class);
-    Route::delete('/devis/{id}', [DevisController::class, 'destroy'])->name('devis.destroy');
     Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])
         ->name('devis.downloadPDF');
     Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
