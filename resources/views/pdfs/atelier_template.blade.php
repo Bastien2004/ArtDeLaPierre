@@ -17,6 +17,14 @@
     } elseif ($nbLignes > 7) {
         $zoomClass = 'zoom-medium';
     }
+
+    function formatDim($val) {
+        $v = number_format($val, 3, ',', ' ');
+        if (substr($v, -1) === '0') {
+            return number_format($val, 2, ',', ' ');
+        }
+        return $v;
+    }
 @endphp
 
 <div class="container {{ $zoomClass }}">
@@ -41,8 +49,8 @@
                 <div class="col-main">
                     <span class="type-pierre">{{ strtoupper($l->typePierre) }}</span>
                     <span class="dims">
-                        {{ number_format(floor($l->longueurM * 100) / 100, 2, ',', ' ') }} x {{ number_format(floor($l->largeurM * 100) / 100, 2, ',', ' ') }}                    </span>
-
+                        {{ formatDim($l->longueurM) }} x {{ formatDim($l->largeurM) }}
+                    </span>
                     {{-- Badge d'épaisseur dynamique selon tes tables CSS --}}
                     <span class="epaisseur {{ $dynamicEpClass }}">
                         {{ $l->epaisseur }} cm
