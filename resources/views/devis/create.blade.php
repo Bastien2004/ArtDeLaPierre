@@ -140,105 +140,73 @@
 <script>
     const grilleTarifs = @json($allTarifs);
 
-    // On attend que le DOM soit chargé pour assigner les événements
     document.addEventListener('DOMContentLoaded', function() {
+    let pierreIdx = 1;
 
-        let pierreIdx = 1;
+    // Verrouillage si mode ajout de ligne
+    const timePrefill = document.querySelector('input[name="force_time"]').value;
+    if (timePrefill !== '') {
+        verrouillerInfosClient();
+    }
 
-        // --- GESTION DU BOUTON AJOUTER LIGNE ---
-        const btnAddLine = document.getElementById('add-line');
+    const btnAddLine = document.getElementById('add-line');
+    if (btnAddLine) {
+        btnAddLine.onclick = function() {
+            const livraisonInput = document.querySelector('input[name="livraison"]');
+            const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
 
-        if (btnAddLine) {
-            btnAddLine.onclick = function() {
-                // 1. RÉCUPÉRATION DE LA VALEUR
-                const livraisonInput = document.querySelector('input[name="livraison"]');
-                const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
+            const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
+            if (firstHiddenLivraison) firstHiddenLivraison.value = livraisonActuelle;
 
-                // --- SÉCURITÉ : On met à jour le champ caché de la ligne 0 AVANT de cloner ---
-                const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
-                if (firstHiddenLivraison) {
-                    firstHiddenLivraison.value = livraisonActuelle;
+            // Verrouillage uniquement si mode ajout de ligne
+            if (timePrefill !== '') {
+                verrouillerInfosClient();
+            }
+
+            // LOGIQUE DE CLONAGE
+            let container = document.getElementById('lignes-container');
+            let firstLine = container.querySelector('.ligne-pierre');
+            let clone = firstLine.cloneNode(true);
+
+            clone.dataset.index = pierreIdx;
+
+            clone.querySelectorAll('input').forEach(i => {
+                if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+
+                if (i.classList.contains('input-livraison-ligne')) {
+                    i.value = livraisonActuelle;
+                } else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
+                    i.value = '';
+                } else if (i.name.includes('nombrePierre')) {
+                    i.value = '1';
                 }
 
-                // 2. VERROUILLAGE DES INFOS GLOBALES (uniquement si pré-rempli)
-                const clientInput = document.querySelector('input[name="client"]');
-                const estPreRempli = clientInput && clientInput.value.trim() !== "";
+                i.readOnly = false;
+                i.disabled = false;
+                i.style.backgroundColor = "";
+                i.style.cursor = "";
+            });
 
-                if (estPreRempli) {
-                    const toLock = [
-                        document.querySelector('input[name="client"]'),
-                        document.querySelector('input[name="adresse"]'),
-                        livraisonInput,
-                        document.getElementById('type_client_global')
-                    ];
+            clone.querySelectorAll('select').forEach(s => {
+                s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+                s.selectedIndex = 0;
+                s.disabled = false;
+                s.style.backgroundColor = "";
+            });
 
-                    toLock.forEach(field => {
-                        if (field) {
-                            if (field.tagName === 'SELECT') {
-                                if (!document.getElementById(field.name + '_hidden')) {
-                                    let hidden = document.createElement("input");
-                                    hidden.type = "hidden";
-                                    hidden.name = field.name;
-                                    hidden.id = field.name + '_hidden';
-                                    hidden.value = field.value;
-                                    field.parentNode.insertBefore(hidden, field);
-                                }
-                                field.disabled = true;
-                            } else {
-                                field.readOnly = true;
-                            }
-                            field.style.setProperty("background-color", "#e9ecef", "important");
-                            field.style.setProperty("cursor", "not-allowed", "important");
-                        }
-                    });
-                }
+            clone.querySelector('.specs-container').innerHTML = '';
+            container.appendChild(clone);
 
-                // 3. LOGIQUE DE CLONAGE
-                let container = document.getElementById('lignes-container');
-                let firstLine = container.querySelector('.ligne-pierre');
-                let clone = firstLine.cloneNode(true);
+            // Animation
+            clone.style.opacity = '0';
+            setTimeout(() => {
+                clone.style.transition = "opacity 0.4s";
+                clone.style.opacity = '1';
+            }, 10);
 
-                clone.dataset.index = pierreIdx;
-
-                clone.querySelectorAll('input').forEach(i => {
-                    if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-
-                    if (i.classList.contains('input-livraison-ligne')) {
-                        i.value = livraisonActuelle;
-                    } else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
-                        i.value = '';
-                    } else if (i.name.includes('nombrePierre')) {
-                        i.value = '1';
-                    }
-
-                    i.readOnly = false;
-                    i.disabled = false;
-                    i.style.backgroundColor = "";
-                    i.style.cursor = "";
-                });
-
-                clone.querySelectorAll('select').forEach(s => {
-                    s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-                    s.selectedIndex = 0;
-                    s.disabled = false;
-                    s.style.backgroundColor = "";
-                });
-
-                clone.querySelector('.specs-container').innerHTML = '';
-                container.appendChild(clone);
-
-                // Animation
-                clone.style.opacity = '0';
-                setTimeout(() => {
-                    clone.style.transition = "opacity 0.4s";
-                    clone.style.opacity = '1';
-                }, 10);
-
-                pierreIdx++;
-            };
-        }
-    });
-
+            pierreIdx++;
+        };
+    }});
 
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
@@ -378,25 +346,6 @@
             }
         });
     }
-
-
-    // À ajouter tout en bas de votre script
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1. Si les champs sont pré-remplis par Laravel (cas du bouton + Ligne)
-        const clientInput = document.querySelector('input[name="client"]');
-        if (clientInput && clientInput.value.trim() !== "") {
-            console.log("Pré-remplissage détecté, verrouillage automatique...");
-            verrouillerInfosClient();
-        }
-
-        // Sécurité supplémentaire : lier la fonction au bouton s'il n'est pas déjà lié
-        const btnAdd = document.getElementById('add-line');
-        if(btnAdd && clientInput && clientInput.value.trim() !== "") {
-            // On verrouille au clic UNIQUEMENT si on est en mode "ajout de ligne" (pré-remplissage)
-            btnAdd.addEventListener('click', verrouillerInfosClient);
-        }
-    });
-
 
     function calculerPoidsLigne(row) {
         const L = parseFloat(row.querySelector('input[name*="[longueurM]"]').value) || 0;
