@@ -17,18 +17,18 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Longueur (m)</label>
-                            <input type="number" step="0.01" name="longueurM" id="edit_long" class="form-control" required>
+                            <input type="number" step="0.0001" name="longueurM" id="edit_long" class="form-control" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Largeur (m)</label>
-                            <input type="number" step="0.01" name="largeurM" id="edit_larg" class="form-control" required>
+                            <input type="number" step="0.0001" name="largeurM" id="edit_larg" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Prix M² (€)</label>
-                            <input type="number" step="0.01" name="prixM2" id="edit_prix" class="form-control" required>
+                            <input type="number" step="0.0001" name="prixM2" id="edit_prix" class="form-control" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Nombre</label>
@@ -36,14 +36,14 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Épaisseur (cm)</label>
-                            <input type="number" step="0.1" name="epaisseur" id="edit_epaisseur" class="form-control" required>
+                            <input type="number" step="0.001" name="epaisseur" id="edit_epaisseur" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Poids Total (kg)</label>
-                            <input type="number" step="0.01" name="poids" id="edit_poids" class="form-control" readonly
+                            <input type="number" step="0.001" name="poids" id="edit_poids" class="form-control" readonly
                                    style="background-color: #f8f9fa; font-weight: bold; color: #d4af37; text-align: center; font-size: 1.2em;">
                         </div>
                     </div>
