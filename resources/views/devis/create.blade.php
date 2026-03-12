@@ -141,72 +141,78 @@
     const grilleTarifs = @json($allTarifs);
 
     document.addEventListener('DOMContentLoaded', function() {
-    let pierreIdx = 1;
+        let pierreIdx = 1;
 
-    // Verrouillage si mode ajout de ligne
-    const timePrefill = document.querySelector('input[name="force_time"]').value;
-    if (timePrefill !== '') {
-        verrouillerInfosClient();
-    }
+        const timePrefill = document.querySelector('input[name="force_time"]').value;
+        if (timePrefill !== '') {
+            verrouillerInfosClient();
+        }
 
-    const btnAddLine = document.getElementById('add-line');
-    if (btnAddLine) {
-        btnAddLine.onclick = function() {
-            const livraisonInput = document.querySelector('input[name="livraison"]');
-            const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
+        const btnAddLine = document.getElementById('add-line');
+        if (btnAddLine) {
+            btnAddLine.onclick = function() {
+                const livraisonInput = document.querySelector('input[name="livraison"]');
+                const livraisonActuelle = livraisonInput ? livraisonInput.value : "0.00";
 
-            const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
-            if (firstHiddenLivraison) firstHiddenLivraison.value = livraisonActuelle;
+                const firstHiddenLivraison = document.querySelector('input[name="lignes[0][livraison]"]');
+                if (firstHiddenLivraison) firstHiddenLivraison.value = livraisonActuelle;
 
-            // Verrouillage uniquement si mode ajout de ligne
-            if (timePrefill !== '') {
-                verrouillerInfosClient();
-            }
-
-            // LOGIQUE DE CLONAGE
-            let container = document.getElementById('lignes-container');
-            let firstLine = container.querySelector('.ligne-pierre');
-            let clone = firstLine.cloneNode(true);
-
-            clone.dataset.index = pierreIdx;
-
-            clone.querySelectorAll('input').forEach(i => {
-                if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-
-                if (i.classList.contains('input-livraison-ligne')) {
-                    i.value = livraisonActuelle;
-                } else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
-                    i.value = '';
-                } else if (i.name.includes('nombrePierre')) {
-                    i.value = '1';
+                if (timePrefill !== '') {
+                    verrouillerInfosClient();
                 }
 
-                i.readOnly = false;
-                i.disabled = false;
-                i.style.backgroundColor = "";
-                i.style.cursor = "";
-            });
+                let container = document.getElementById('lignes-container');
+                let allLines = container.querySelectorAll('.ligne-pierre');
+                let lastLine = allLines[allLines.length - 1];
 
-            clone.querySelectorAll('select').forEach(s => {
-                s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
-                s.selectedIndex = 0;
-                s.disabled = false;
-                s.style.backgroundColor = "";
-            });
+                const finitionValue = lastLine.querySelector('.select-finition').value;
+                const epaisseurValue = lastLine.querySelector('.select-epaisseur').value;
 
-            clone.querySelector('.specs-container').innerHTML = '';
-            container.appendChild(clone);
+                let clone = lastLine.cloneNode(true);
+                clone.dataset.index = pierreIdx;
 
-            // Animation
-            clone.style.opacity = '0';
-            setTimeout(() => {
-                clone.style.transition = "opacity 0.4s";
-                clone.style.opacity = '1';
-            }, 10);
+                clone.querySelectorAll('input').forEach(i => {
+                    if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
 
-            pierreIdx++;
-        };
-    }});
+                    if (i.classList.contains('input-livraison-ligne')) {
+                        i.value = livraisonActuelle;
+                    } else if (i.classList.contains('input-designation') || i.name.includes('longueurM') || i.name.includes('largeurM') || i.name.includes('prixM2')) {
+                        i.value = '';
+                    } else if (i.name.includes('nombrePierre')) {
+                        i.value = '1';
+                    }
+
+                    i.readOnly = false;
+                    i.disabled = false;
+                    i.style.backgroundColor = "";
+                    i.style.cursor = "";
+                });
+
+                clone.querySelectorAll('select').forEach(s => {
+                    s.name = s.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
+                    s.disabled = false;
+                    s.style.backgroundColor = "";
+                });
+
+                clone.querySelector('.select-finition').value = finitionValue;
+                clone.querySelector('.select-epaisseur').value = epaisseurValue;
+
+                clone.querySelector('.specs-container').innerHTML = '';
+                container.appendChild(clone);
+
+                clone.style.opacity = '0';
+                setTimeout(() => {
+                    clone.style.transition = "opacity 0.4s";
+                    clone.style.opacity = '1';
+                }, 10);
+
+                const newSelect = clone.querySelector('.select-finition');
+                if (newSelect && newSelect.value) lookupPrice(newSelect);
+
+                pierreIdx++;
+            }; // fin btnAddLine.onclick
+        }
+    }); // fin DOMContentLoaded
 
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
@@ -272,7 +278,6 @@
 
         let prixFinal = (unite === 'ml' ? prixUnitaire * Math.max(longueur, 1) : prixUnitaire) * quantite;
 
-        // Champ taille uniquement pour le rejingot
         const tailleField = nom.toLowerCase().includes('rejingot') ? `
             <div class="taille-rejingot-wrapper">
                 <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMin]" value="2" min="0" step="0.1">
@@ -295,7 +300,6 @@
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
-    // Mise à jour dynamique lors de la modification des mesures
     document.addEventListener('input', function(e) {
         if (e.target.name && (e.target.name.includes('[longueurM]') || e.target.name.includes('[nombrePierre]'))) {
             const pierreRow = e.target.closest('.ligne-pierre');
@@ -307,7 +311,6 @@
                 const base = parseFloat(input.dataset.basePrice);
 
                 if (input.dataset.unite === 'ml') {
-                    // Si c'est un rejingot et que L < 1, on force L à 1 pour le calcul
                     let longueurEffective = (nom.toLowerCase().includes('rejingot') && L < 1 && L > 0) ? 1 : L;
                     input.value = (base * longueurEffective * Q).toFixed(2);
                 } else {
@@ -353,7 +356,6 @@
         const ep = parseFloat(row.querySelector('.select-epaisseur').value) || 0;
         const Q = parseFloat(row.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
-        // Formule : Longueur * Largeur * (Epaisseur en m) * Densité (2700) * Quantité
         const poids = L * l * (ep / 100) * 2700 * Q;
 
         const inputPoids = row.querySelector('.input-poids');
@@ -362,7 +364,6 @@
         }
     }
 
-    // Mets à jour ton document.addEventListener('input') pour inclure le poids :
     document.addEventListener('input', function(e) {
         const row = e.target.closest('.ligne-pierre');
         if (row && (e.target.name.includes('longueurM') || e.target.name.includes('largeurM') || e.target.name.includes('nombrePierre'))) {
@@ -370,7 +371,6 @@
         }
     });
 
-    // N'oublie pas de l'appeler aussi quand on change l'épaisseur
     document.addEventListener('change', function(e) {
         if (e.target.classList.contains('select-epaisseur')) {
             calculerPoidsLigne(e.target.closest('.ligne-pierre'));
