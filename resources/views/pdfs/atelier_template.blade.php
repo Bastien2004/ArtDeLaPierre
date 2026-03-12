@@ -41,8 +41,7 @@
                 <div class="col-main">
                     <span class="type-pierre">{{ strtoupper($l->typePierre) }}</span>
                     <span class="dims">
-                        {{ number_format($l->longueurM, 2, ',', ' ') }} x {{ number_format($l->largeurM, 2, ',', ' ') }}
-                    </span>
+                        {{ number_format(floor($l->longueurM * 100) / 100, 2, ',', ' ') }} x {{ number_format(floor($l->largeurM * 100) / 100, 2, ',', ' ') }}                    </span>
 
                     {{-- Badge d'épaisseur dynamique selon tes tables CSS --}}
                     <span class="epaisseur {{ $dynamicEpClass }}">
