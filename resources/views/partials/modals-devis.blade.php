@@ -148,3 +148,36 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalEmail" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa-solid fa-envelope me-2"></i>Envoyer le devis par mail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="email_client">
+                <input type="hidden" id="email_date">
+                <div class="mb-3">
+                    <label class="form-label">Destinataire</label>
+                    <input type="email" id="email_destinataire" class="form-control" placeholder="client@exemple.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Objet</label>
+                    <input type="text" id="email_objet" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea id="email_message" class="form-control" rows="8"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="btn-send-email" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

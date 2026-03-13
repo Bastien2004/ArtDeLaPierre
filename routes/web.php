@@ -26,7 +26,8 @@ Route::middleware('auth')->group(function () {
 
     // --- TES OUTILS MÉTIER ---
 
-    // Gestion des Devis
+    // Gestion des Devis*
+    Route::post('/devis/send-email', [DevisController::class, 'sendEmail'])->name('devis.sendEmail');
     Route::resource('devis', DevisController::class);
     Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])
         ->name('devis.downloadPDF');

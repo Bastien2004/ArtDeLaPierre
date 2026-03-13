@@ -277,4 +277,74 @@ class DevisController extends Controller
 
         return $pdf->setOption('page-size', 'A4')->download("ATELIER_{$client}.pdf");
     }
+
+
+
+    public function sendEmail(Request $request)
+    {
+        $request->validate([
+            'destinataire' => 'required|email',
+            'objet'        => 'required|string',
+            'message'      => 'required|string',
+            'client'       => 'required|string',
+            'date'         => 'required|string',
+        ]);
+
+        try {
+            $dateMinute = \Carbon\Carbon::parse($request->date)->format('Y-m-d H:i');
+
+            $lignes = \App\Models\Devis::where('client', $request->client)
+                ->whereRaw("to_char(created_at, 'YYYY-MM-DD HH24:MI') = ?", [$dateMinute])
+                ->with('specificites')
+                ->get();
+
+            \Log::info('SendEmail lignes trouvées: ' . $lignes->count() . ' pour client=' . $request->client . ' date=' . $dateMinute);
+
+            $adresse              = $lignes->first()->adresse;
+            $pays                 = $this->extrairePays($adresse);
+            $totalHT              = $lignes->sum('prixHT');
+            $montantLivraison     = $lignes->avg('livraison');
+            $totalHTAvecLivraison = $totalHT + $montantLivraison;
+            $poids                = $lignes->sum('poids');
+
+            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('pdfs.devis_template', [
+                'lignes'               => $lignes,
+                'client'               => $request->client,
+                'adresse'              => $adresse,
+                'pays'                 => $pays,
+                'montantLivraison'     => $montantLivraison,
+                'totalHTAvecLivraison' => $totalHTAvecLivraison,
+                'date'                 => $lignes->first()->created_at,
+                'totalHT'              => $totalHT,
+                'id'                   => $lignes->first()->id,
+                'reference'            => null,
+                'poids'                => $poids,
+            ])
+                ->setOption('page-size', 'A4')
+                ->setOption('margin-top', '0mm')
+                ->setOption('margin-bottom', '0mm')
+                ->setOption('margin-left', '0mm')
+                ->setOption('margin-right', '0mm')
+                ->setOption('disable-smart-shrinking', true);
+
+            $pdfContent = $pdf->output();
+            $pdfNom     = 'Devis_' . $request->client . '.pdf';
+
+            \Mail::to($request->destinataire)
+                ->send(new \App\Mail\DevisEmail(
+                    $request->destinataire,
+                    $request->objet,
+                    $request->message,
+                    $pdfContent,
+                    $pdfNom
+                ));
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            \Log::error('SendEmail error: ' . $e->getMessage());
+            return response('Erreur: ' . iconv('UTF-8', 'UTF-8//IGNORE', $e->getMessage()), 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    }
 }

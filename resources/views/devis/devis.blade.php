@@ -91,6 +91,14 @@
                             <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison')]) }}" class="btn-add-line">
                                 <i class="fa-solid fa-plus"></i> Ligne
                             </a>
+
+                            <button type="button" class="btn-email-devis"
+                                    data-client="{{ $p->client }}"
+                                    data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
+                                    data-total="{{ number_format($totalGroupe, 2, '.', '') }}">
+                                <i class="fa-solid fa-envelope"></i>
+                            </button>
+
                             <span class="weight-badge-gold" style="color: #d4af37; font-weight: bold; font-size: 0.95em;">
                                 <i class="fa-solid fa-weight-hanging"></i>
                                 {{ number_format($poidsTotalGroupe, 2, ',', ' ') }} kg
@@ -183,42 +191,66 @@
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
         });
 
-        // 2. MODAL MODIFICATION (Ouverture)
-        $(document).on('click', '.btn-edit-modal', function() {
+        $(document).on('click', '#btn-send-email', function() {
             const btn = $(this);
-            const id = btn.data('id');
-            const qte = parseFloat(btn.data('nb')) || 1;
-            const long = parseFloat(btn.data('long')) || 1;
+            btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Envoi...');
 
-            $('#display_id').text(id);
-            $('#edit_pierre').val(btn.data('pierre'));
-            $('#edit_nb').val(btn.data('nb'));
-            $('#edit_long').val(btn.data('long'));
-            $('#edit_larg').val(btn.data('larg'));
-            $('#edit_prix').val(btn.data('prix'));
-            $('#edit_poids').val(btn.data('poids'));
-            $('#edit_epaisseur').val(btn.data('epaisseur'));
-            $('#editForm').attr('action', '/devis/' + id);
+            $.ajax({
+                url: '{{ route("devis.sendEmail") }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    destinataire: $('#email_destinataire').val(),
+                    objet:        $('#email_objet').val(),
+                    message:      $('#email_message').val(),
+                    client:       $('#email_client').val(),
+                    date:         $('#email_date').val(),
+                },
+                success: function() {
+                    $('#modalEmail').modal('hide');
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Envoyer');
+                    // Toast succès
+                    $('body').append('<div class="toast-success">Mail envoyé ✓</div>');
+                    setTimeout(() => $('.toast-success').remove(), 3000);
+                },
+                error: function(xhr) {
+                    btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Envoyer');
 
-            $('#wrapper-specs-edit').empty();
-            const specs = btn.data('specs');
-
-            if (specs && specs.length > 0) {
-                specs.forEach(s => {
-                    const estMl = s.nom.toLowerCase().includes('rejingot') || s.nom.toLowerCase().includes('ciselage');
-                    const unite = estMl ? 'ml' : 'u';
-                    // basePrice = prix unitaire pur (on "annule" la multiplication qté*longueur qui a été faite à la création)
-                    let basePrice;
-                    if (estMl) {
-                        const longEffective = (s.nom.toLowerCase().includes('rejingot') && long < 1) ? 1 : long;
-                        basePrice = s.prix / (qte * longEffective);
+                    if (xhr.status === 422) {
+                        alert('Données invalides. Vérifiez le destinataire, l\'objet et le message.');
+                    } else if (xhr.status === 500) {
+                        alert('Erreur serveur : impossible d\'envoyer le mail. Vérifiez la configuration SMTP.');
+                    } else if (xhr.status === 0) {
+                        alert('Pas de connexion réseau. Vérifiez votre connexion internet.');
                     } else {
-                        basePrice = s.prix / qte;
+                        alert('Erreur inattendue (' + xhr.status + '). Réessayez.');
                     }
-                    addSpecRow(s.nom, s.prix, unite, basePrice);
-                });
-            }
-            updateModalTotal();
+                }
+            });
+        });
+
+        function updateMailtoLink() {
+            const dest  = encodeURIComponent($('#email_destinataire').val());
+            const objet = encodeURIComponent($('#email_objet').val());
+            const corps = encodeURIComponent($('#email_message').val());
+            $('#email_mailto_btn').attr('href', `mailto:${dest}?subject=${objet}&body=${corps}`);
+        }
+
+        $(document).on('input', '#email_destinataire, #email_objet, #email_message', updateMailtoLink);
+
+        // 2. MODAL MODIFICATION (Ouverture)
+        $(document).on('click', '.btn-email-devis', function() {
+            const client = $(this).data('client');
+            const date   = $(this).data('date');
+            const total  = $(this).data('total');
+
+            $('#email_destinataire').val('');
+            $('#email_objet').val('Votre devis – Art de la Pierre');
+            $('#email_message').val('Bonjour ' + client + ',\n\nVeuillez trouver ci-joint votre devis d\'un montant de ' + total + ' € HT.\n\nN\'hésitez pas à nous contacter pour toute question.\n\nCordialement,\nL\'art de la Pierre');
+            $('#email_client').val(client);  // ← champs cachés
+            $('#email_date').val(date);
+
+            $('#modalEmail').modal('show');
         });
 
 

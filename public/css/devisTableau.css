@@ -599,6 +599,46 @@ h6 {
     margin-top: 1px;
 }
 
+.toast-success {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #2d6a4f;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+/* --- BOUTON EMAIL DEVIS --- */
+.btn-email-devis {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #1e1e1e;
+    border: 1px solid #3a3a3a;
+    color: #d4af37;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+    white-space: nowrap;
+}
+
+.btn-email-devis:hover {
+    background: #2a2a2a;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 2px rgba(212,175,55,0.15);
+}
+
+.btn-email-devis i {
+    font-size: 0.85rem;
+}
+
 /* Media query pour petits écrans : on réduit la taille si besoin */
 @media (max-width: 768px) {
     .weight-badge-gold {
