@@ -15,6 +15,7 @@ class DevisController extends Controller
         // 1. Récupérer les devis groupés
         $devisGroupes = Devis::with('specificites')
             ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
                 return $item->client . $item->created_at->format('Y-m-d H:i');
