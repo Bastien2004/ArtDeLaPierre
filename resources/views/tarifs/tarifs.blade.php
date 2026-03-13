@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/tarifs.css') }}" rel="stylesheet">
+    <link rel="icon" href="{{ asset('LogoHead.png') }}" type="image/png">
     <style>
         .btn-delete-row { color: #dc3545; opacity: 0.5; transition: 0.3s; border: none; background: none; }
         .btn-delete-row:hover { opacity: 1; transform: scale(1.2); }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nouveau Devis - Art de la Pierre</title>
     <link rel="stylesheet" href="{{ asset('css/devisCreate.css') }}">
+    <link rel="icon" href="{{ asset('LogoHead.png') }}" type="image/png">
 </head>
 <body>
 <div class="container">
