@@ -79,8 +79,9 @@
                         <small style="font-weight: normal; color: #666; display: block; margin-bottom: 5px;">
                             Finition : {{ $l->finition }} |
                             {{ formatDim($l->longueurM) }}m x
-                            {{ formatDim($l->largeurM) }}m x
+                            {{ formatDim($l->largeurM) }}m :
                             {{ formatDim($l->longueurM * $l->largeurM) }} m²
+                            en {{ $l->epaisseur }} cm
                         </small>
                         @if(isset($l->specificites) && count($l->specificites) > 0)
                             <div style="margin-left: 10px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">

@@ -241,7 +241,7 @@ class DevisController extends Controller
             'totalHT'=> $totalHT,
             'id'=> $lignes->first()->id,
             'reference' => $reference,
-            'poids' => $poids
+            'poids' => $poids,
         ]);
 
         // Configuration millimétrée
