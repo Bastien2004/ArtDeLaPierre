@@ -29,7 +29,8 @@
                 </div>
             @endif
 
-            <div class="mail-card">
+                <div class="mail-card">
+                    <div class="mail-card-top-bar"></div>
 
                 {{-- En-tête --}}
                 <div class="mail-card-header">

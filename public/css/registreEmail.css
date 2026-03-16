@@ -29,21 +29,16 @@ body {
     border-radius: 20px;
     box-shadow: var(--shadow);
     position: relative;
-    overflow: visible;
-    border-top: 6px solid transparent;
-    background-clip: padding-box;
+    overflow: hidden;
 }
 
-/* Bandeau gradient en haut — identique au formulaire devis */
-.mail-card::before {
-    content: "";
-    position: absolute;
-    top: -6px; left: 0; right: 0;
+/* Bandeau via vrai div — évite les ::before parasites */
+.mail-card-top-bar {
     height: 6px;
     background: linear-gradient(90deg, var(--stone-dark), var(--stone-accent));
     border-radius: 20px 20px 0 0;
-    z-index: 2;
-    pointer-events: none;
+    margin: 0;
+    padding: 0;
 }
 
 /* ─── EN-TÊTE DE CARTE ─── */
@@ -88,7 +83,6 @@ body {
     margin: 0;
 }
 
-/* Badge compteur */
 .badge-count {
     background: var(--stone-light);
     border: 1px solid var(--border);
@@ -104,6 +98,24 @@ body {
 /* ─── CORPS DE CARTE ─── */
 .mail-card-body {
     padding: 28px 36px 36px;
+}
+
+/* ─── RESET FORM (app.css applique form::before gradient + styles carte) ─── */
+.mail-card form {
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin-bottom: 0 !important;
+    position: static !important;
+}
+
+.mail-card form::before {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+    height: 0 !important;
 }
 
 /* ─── DATATABLES — RESET & STYLE CUSTOM ─── */
@@ -179,13 +191,6 @@ table.dataTable thead th {
     border-bottom: 2px solid var(--stone-dark) !important;
     border-top: none !important;
     white-space: nowrap;
-}
-
-/* Flèches de tri DataTables */
-table.dataTable thead th.sorting::after,
-table.dataTable thead th.sorting_asc::after,
-table.dataTable thead th.sorting_desc::after {
-    opacity: 0.4;
 }
 
 table.dataTable thead th.sorting_asc::after  { opacity: 1; color: var(--stone-accent); }
@@ -306,14 +311,13 @@ table.dataTable tbody td {
     cursor: default;
 }
 
-/* Texte "Précédente" / "Suivante" */
 .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
 .dataTables_wrapper .dataTables_paginate .paginate_button.next {
     color: var(--stone-medium) !important;
     font-weight: 500 !important;
 }
 
-/* ─── INFO (ex : "1 à 10 sur 42 entrées") ─── */
+/* ─── INFO ─── */
 .dataTables_wrapper .dataTables_info {
     font-size: 0.78rem;
     color: var(--stone-medium);
@@ -355,7 +359,7 @@ table.dataTable tbody td {
     font-weight: 500;
 }
 
-/* ─── BOUTON RETOUR (cohérent avec devisCreate.css) ─── */
+/* ─── BOUTON RETOUR ─── */
 .btn-back-stone {
     display: inline-flex;
     align-items: center;
@@ -390,22 +394,9 @@ table.dataTable tbody td {
     transform: translateX(-3px);
 }
 
-/* ─── RESET FORM GLOBAL LARAVEL ─── */
-/* app.css applique background/padding/border-radius sur tous les form — on neutralise */
-.mail-card form,
-.mail-card form:not(.inline-form) {
-    background: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    margin-bottom: 0 !important;
-    position: static !important;
-}
-
 /* ─── RESPONSIVE ─── */
 @media (max-width: 640px) {
-    .mail-card-header  { padding: 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
-    .mail-card-body    { padding: 20px; }
+    .mail-card-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .mail-card-body   { padding: 20px; }
     .dataTables_wrapper .dataTables_filter input { width: 180px; }
 }
