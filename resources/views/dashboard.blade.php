@@ -53,6 +53,17 @@
                     </div>
                 </a>
 
+                <a href="{{ route('emails.index') }}" class="card-action tarifs-card">
+                <div class="card-icon">
+                        <span class="icon-bg">📧</span>
+                    </div>
+                    <div class="card-content">
+                        <h3>Registre des adresses mails</h3>
+                        <p>Consultez et gérez toutes les adresses email enregistrées sur le site.</p>
+                        <span class="btn-discover">Consulter <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                </a>
+
             </div>
         </div>
     </div>

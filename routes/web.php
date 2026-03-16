@@ -46,6 +46,10 @@ Route::middleware('auth')->group(function () {
 
     // poids
     Route::get('/poids', [PoidsController::class, 'index'])->name('poids.poids');
+
+    // Registre email
+    Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');
+    Route::delete('/emails/{id}', [EmailController::class, 'destroy'])->name('emails.destroy');
 });
 
 require __DIR__.'/auth.php';

@@ -5,6 +5,19 @@ use App\Models\Email;
 use Illuminate\Http\Request;
 class EmailController extends Controller
 {
+
+    public function index()
+    {
+        $emails = \App\Models\Email::orderBy('created_at', 'desc')->get();
+        return view('emails.registreMail', compact('emails')); // ← ici
+    }
+
+    public function destroy($id)
+    {
+        \App\Models\Email::findOrFail($id)->delete();
+        return redirect()->route('emails.index')->with('success', 'Email supprimé.');
+    }
+
     // Appelé en AJAX pour l'autocomplete
     public function search(Request $request)
     {
