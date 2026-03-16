@@ -21,7 +21,7 @@
         <input type="hidden" name="force_time" value="{{ $timePrefill ?? '' }}">
 
         <h3 class="section-title">Informations Client</h3>
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 20px;">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Type de Client</label>
                 <select name="type_client_global" id="type_client_global" class="form-control lock-on-add" required onchange="updateAllPrices()">
@@ -36,6 +36,20 @@
             <div class="form-group">
                 <label>Adresse</label>
                 <input type="text" name="adresse" class="lock-on-add" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
+            </div>
+
+            {{-- NOUVEAU : champ email avec autocomplete --}}
+            <div class="form-group" style="position: relative;">
+                <label>Email du client</label>
+                <input
+                    type="text"
+                    id="email_destinataire"
+                    name="email_destinataire"
+                    class="lock-on-add"
+                    autocomplete="off"
+                    placeholder="email@exemple.com"
+                >
+                <ul id="email-suggestions"></ul>
             </div>
         </div>
 
@@ -377,6 +391,63 @@
             calculerPoidsLigne(e.target.closest('.ligne-pierre'));
         }
     });
+
+    (function() {
+        const input    = document.getElementById('email_destinataire');
+        const list     = document.getElementById('email-suggestions');
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrf     = csrfMeta ? csrfMeta.content : document.querySelector('input[name="_token"]').value;
+
+        // --- Autocomplete à la frappe ---
+        input.addEventListener('input', async function () {
+            const q = this.value.trim();
+            if (q.length < 2) { list.style.display = 'none'; return; }
+
+            try {
+                const res    = await fetch(`/emails/search?q=${encodeURIComponent(q)}`);
+                const emails = await res.json();
+
+                list.innerHTML = '';
+                if (!emails.length) { list.style.display = 'none'; return; }
+
+                emails.forEach(email => {
+                    const li = document.createElement('li');
+                    li.textContent = email;
+                    li.addEventListener('mousedown', () => {
+                        input.value = email;
+                        list.style.display = 'none';
+                    });
+                    list.appendChild(li);
+                });
+
+                list.style.display = 'block';
+            } catch (e) {
+                list.style.display = 'none';
+            }
+        });
+
+        // --- Fermer si clic ailleurs ---
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !list.contains(e.target)) {
+                list.style.display = 'none';
+            }
+        });
+
+        // --- Enregistrer l'email à la soumission du formulaire ---
+        input.closest('form').addEventListener('submit', function () {
+            const adresse = input.value.trim();
+            if (!adresse || !adresse.includes('@')) return;
+
+            // Envoi en fire-and-forget (non bloquant)
+            navigator.sendBeacon('/emails', (() => {
+                const fd = new FormData();
+                fd.append('adresse', adresse);
+                fd.append('_token', csrf);
+                return fd;
+            })());
+        });
+    })();
+
 </script>
 </body>
 </html>

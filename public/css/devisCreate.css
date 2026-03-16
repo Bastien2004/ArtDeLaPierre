@@ -548,3 +548,31 @@ input[readonly] {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+#email-suggestions {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #ccc;
+    background: #fff;
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#email-suggestions li {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#email-suggestions li:hover {
+    background: #f5f0e8;
+    color: #5a3e28;
+}

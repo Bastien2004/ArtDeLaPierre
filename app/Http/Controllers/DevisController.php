@@ -111,6 +111,11 @@ class DevisController extends Controller
             }
         }
 
+        // Enregistrer l'email si fourni
+        if (!empty($request->email_destinataire)) {
+            \App\Models\Email::firstOrCreate(['adresse' => $request->email_destinataire]);
+        }
+
         return redirect()->route('devis.index')->with('success', 'Devis généré !');
     }
     public function edit(string $id)

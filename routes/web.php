@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\PoidsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DevisController; // Ne pas oublier l'import
@@ -33,6 +34,9 @@ Route::middleware('auth')->group(function () {
         ->name('devis.downloadPDF');
     Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
     Route::get('/devis/atelier/{client}/{date}', [DevisController::class, 'downloadAtelierPDF'])->name('devis.downloadAtelierPDF');
+    Route::get('/emails/search', [EmailController::class, 'search'])->name('emails.search');
+    Route::post('/emails', [EmailController::class, 'store'])->name('emails.store');
+
 
     // Gestion des Tarifs
     Route::get('/tarifs', [TarifController::class, 'index'])->name('tarifs.tarifs');
