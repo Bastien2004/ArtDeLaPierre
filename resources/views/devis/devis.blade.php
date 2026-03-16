@@ -168,6 +168,40 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    $(document).on('click', '.btn-edit-modal', function() {
+        const btn = $(this);
+        const id       = btn.data('id');
+        const pierre   = btn.data('pierre');
+        const nb       = btn.data('nb');
+        const long     = btn.data('long');
+        const larg     = btn.data('larg');
+        const prix     = btn.data('prix');
+        const poids    = btn.data('poids');
+        const epaisseur = btn.data('epaisseur');
+        const specs    = btn.data('specs'); // tableau JSON
+
+        // Remplir les champs
+        $('#display_id').text(id);
+        $('#editForm').attr('action', '/devis/' + id);
+        $('#edit_pierre').val(pierre);
+        $('#edit_nb').val(nb);
+        $('#edit_long').val(long);
+        $('#edit_larg').val(larg);
+        $('#edit_prix').val(prix);
+        $('#edit_poids').val(poids);
+        $('#edit_epaisseur').val(epaisseur);
+
+        // Vider et recharger les specs
+        $('#wrapper-specs-edit').empty();
+        if (specs && specs.length > 0) {
+            specs.forEach(function(spec) {
+                addSpecRow(spec.nom, spec.prix, spec.unite ?? 'u', spec.base_price ?? 0);
+            });
+        }
+
+        updateModalTotal();
+    });
+
     // Toggle dropdown téléchargement
     $(document).on('click', '.btn-dl-main', function(e) {
         e.stopPropagation();
