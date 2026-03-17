@@ -42,7 +42,18 @@
                     </div>
                 </a>
 
-                <a href="{{ route('poids.poids') }}" class="card-action poids-card">
+                <a href="{{ route("stocks.index") }}" class="card-action poids-card">
+                    <div class="card-icon">
+                        <span class="icon-bg">🪨</span>
+                    </div>
+                    <div class="card-content">
+                        <h3>Stocks de Pierre</h3>
+                        <p>Suivez les quantités disponibles par épaisseur et par finition en temps réel.</p>
+                        <span class="btn-discover">Gérer <i class="fas fa-chevron-right"></i></span>
+                    </div>
+                </a>
+
+                <a href="{{ route('poids.poids') }}" class="card-action tarifs-card">
                     <div class="card-icon">
                         <span class="icon-bg">⚖️</span>
                     </div>
@@ -53,7 +64,7 @@
                     </div>
                 </a>
 
-                <a href="{{ route('emails.index') }}" class="card-action tarifs-card">
+                <a href="{{ route('emails.index') }}" class="card-action poids-card">
                 <div class="card-icon">
                         <span class="icon-bg">📧</span>
                     </div>
@@ -64,7 +75,7 @@
                     </div>
                 </a>
 
-                <a href="#" class="card-action poids-card">
+                <a href="#" class="card-action tarifs-card">
                     <div class="card-icon">
                         <span class="icon-bg">📊</span>
                     </div>

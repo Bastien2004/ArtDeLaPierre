@@ -3,8 +3,9 @@
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\PoidsController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DevisController; // Ne pas oublier l'import
-use App\Http\Controllers\TarifController; // Ne pas oublier l'import
+use App\Http\Controllers\DevisController;
+use App\Http\Controllers\StocksController;
+use App\Http\Controllers\TarifController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Page d'accueil publique
@@ -46,6 +47,12 @@ Route::middleware('auth')->group(function () {
 
     // poids
     Route::get('/poids', [PoidsController::class, 'index'])->name('poids.poids');
+
+    // Stocks
+    Route::get('/stocks', [StocksController::class, 'index'])->name('stocks.index');
+    Route::post('/stocks', [StocksController::class, 'store'])->name('stocks.store');
+    Route::put('/stocks/{id}', [StocksController::class, 'update'])->name('stocks.update');
+    Route::delete('/stocks/{id}', [StocksController::class, 'destroy'])->name('stocks.destroy');
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');
