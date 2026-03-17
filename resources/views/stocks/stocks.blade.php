@@ -8,22 +8,20 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset("css/stocks.css") }}" rel="stylesheet">
 
-    <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .btn-stone { background-color: #2c3e50; color: white; border-radius: 8px; }
-        .btn-stone:hover { background-color: #34495e; color: white; }
-        .table-dark-custom { background-color: #2c3e50; color: white; }
-        .modal-header { background-color: #2c3e50; color: white; }
-        .badge-dim { background-color: #e9ecef; color: #495057; font-weight: 500; }
-    </style>
+
 </head>
 <body>
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-layer-group me-2"></i>Gestion des Stocks de Pierres</h2>
+    <a href="{{ route('dashboard') }}" class="btn-back-stone mb-4">
+        <i class="fa fa-arrow-left"></i> Retour à l’accueil
+    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('stocks.pdf') }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf me-1"></i> PDF
+        </a>
         <button class="btn btn-stone" data-bs-toggle="modal" data-bs-target="#modalStock" id="btnAjouter">
             <i class="fa fa-plus-circle me-1"></i> Entrée de stock
         </button>
@@ -151,7 +149,7 @@
         const table = $('#tableStock').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
             pageLength: 25,
-            order: [[1, 'asc']] // Tri par défaut sur la "Matière" (désormais 2ème colonne, index 1)
+            order: [[3, 'asc']]//Index 3 donc 4 eme colonne
         });
 
         $('#btnAjouter').on('click', function() {

@@ -1,0 +1,151 @@
+:root {
+    --stone-medium: #7f8c8d;
+    --stone-dark: #2c3e50;
+    --stone-light: #ecf0f1;
+    --accent-blue: #3498db;
+    --success-green: #27ae60;
+    --danger-red: #e74c3c;
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Correction : body sans le point car c'est une balise HTML */
+body {
+    background-color: #f4f7f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding: 30px;
+    color: #334155;
+}
+
+/* Card Modernisée */
+.card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: var(--shadow-soft);
+    background: white;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* Titres */
+h2 {
+    font-weight: 700;
+    color: var(--stone-dark);
+    letter-spacing: -0.5px;
+}
+
+/* Bouton Principal (Ajouter) */
+.btn-stone {
+    background-color: var(--stone-dark);
+    color: white;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
+}
+
+.btn-stone:hover {
+    background-color: #1a252f;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(44, 62, 80, 0.3);
+    color: white;
+}
+
+/* Tableau Modernisé */
+#tableStock {
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Espacement entre les lignes */
+}
+
+#tableStock thead th {
+    background: transparent;
+    color: #64748b;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border: none;
+    padding: 15px;
+}
+
+#tableStock tbody tr {
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+#tableStock tbody td {
+    padding: 18px 15px;
+    vertical-align: middle;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+#tableStock tbody tr:hover {
+    background-color: #f8fafc;
+    transform: scale(1.005);
+    z-index: 10;
+}
+
+/* Badges de dimensions */
+.badge-dim {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Bouton de retour (déjà très bien, juste une touche de finition) */
+.btn-back-stone {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: var(--stone-medium) !important;
+    border: 1px solid #e2e8f0;
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    margin-bottom: 25px;
+}
+
+.btn-back-stone:hover {
+    border-color: var(--stone-dark);
+    color: var(--stone-dark) !important;
+    background: #f8fafc;
+}
+
+/* Modals */
+.modal-content {
+    border-radius: 24px;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    background-color: var(--stone-dark);
+    color: white;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 20px 30px;
+}
+
+/* Inputs de formulaire */
+.form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--stone-dark);
+    box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}

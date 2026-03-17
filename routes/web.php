@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/stocks', [StocksController::class, 'store'])->name('stocks.store');
     Route::put('/stocks/{id}', [StocksController::class, 'update'])->name('stocks.update');
     Route::delete('/stocks/{id}', [StocksController::class, 'destroy'])->name('stocks.destroy');
+    Route::get('/stocks/export-pdf', [App\Http\Controllers\StocksController::class, 'exportPdf'])->name('stocks.pdf');
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');

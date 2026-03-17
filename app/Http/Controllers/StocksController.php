@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Stocks;
 use Illuminate\Http\Request;
-
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 class StocksController extends Controller
 {
     // Afficher la liste
@@ -54,5 +54,20 @@ class StocksController extends Controller
         $stock->delete();
 
         return redirect()->back()->with('success', 'Ligne supprimée.');
+    }
+
+    public function exportPdf()
+    {
+        // Tri par matière alphabétique, puis par épaisseur croissante
+        $stocks = Stocks::orderBy('matiere', 'asc')
+            ->orderBy('epaisseur', 'asc')
+            ->get();
+
+        // Groupement par matière
+        $stocksGroupes = $stocks->groupBy('epaisseur');
+
+        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes'));
+
+        return $pdf->download('etat_stock_pierres.pdf');
     }
 }
