@@ -58,16 +58,10 @@ class StocksController extends Controller
 
     public function exportPdf()
     {
-        // Tri par matière alphabétique, puis par épaisseur croissante
-        $stocks = Stocks::orderBy('matiere', 'asc')
-            ->orderBy('epaisseur', 'asc')
-            ->get();
-
-        // Groupement par matière
+        $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $stocksGroupes = $stocks->groupBy('epaisseur');
-
         $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes'));
 
-        return $pdf->download('etat_stock_pierres.pdf');
+        return $pdf->download('inventaire_art_de_la_pierre.pdf');
     }
 }
