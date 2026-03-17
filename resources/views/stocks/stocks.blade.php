@@ -33,10 +33,10 @@
         <table id="tableStock" class="display table table-striped" style="width:100%">
             <thead>
             <tr>
-                <th>Matière</th>
-                <th>Épaisseur</th>
-                <th>Dimensions (L x l)</th>
                 <th>Quantité</th>
+                <th>Matière</th>
+                <th>Dimensions (L x l)</th>
+                <th>Épaisseur</th>
                 <th>Surface Totale</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -45,18 +45,23 @@
             @isset($stocks)
                 @foreach($stocks as $item)
                     <tr>
-                        <td><strong>{{ $item->matiere }}</strong></td>
-                        <td>{{ $item->epaisseur }} cm</td>
-                        <td><span class="badge badge-dim">{{ $item->longueur }}m x {{ $item->largeur }}m</span></td>
                         <td>{{ $item->quantite }}</td>
-                        <td>{{ number_format($item->longueur * $item->largeur * $item->quantite, 2) }} m²</td>
+
+                        <td><strong>{{ $item->matiere }}</strong></td>
+
+                        <td><span class="badge badge-dim">{{ $item->longueur }}m x {{ $item->largeur }}m</span></td>
+
+                        <td>{{ $item->epaisseur }} cm</td>
+
+                        <td>{{ number_format($item->longueur * $item->largeur * $item->quantite, 2, ',', ' ') }} m²</td>
+
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-primary btn-edit"
                                     data-id="{{ $item->id }}"
-                                    data-matiere="{{ $item->matiere }}"
                                     data-qte="{{ $item->quantite }}"
                                     data-long="{{ $item->longueur }}"
                                     data-larg="{{ $item->largeur }}"
+                                    data-matiere="{{ $item->matiere }}"
                                     data-epais="{{ $item->epaisseur }}">
                                 <i class="fa fa-edit"></i>
                             </button>
@@ -143,14 +148,12 @@
 
 <script>
     $(document).ready(function() {
-        // Initialisation DataTable
         const table = $('#tableStock').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
             pageLength: 25,
-            order: [[0, 'asc']]
+            order: [[1, 'asc']] // Tri par défaut sur la "Matière" (désormais 2ème colonne, index 1)
         });
 
-        // --- LOGIQUE AJOUT ---
         $('#btnAjouter').on('click', function() {
             $('#formStock')[0].reset();
             $('#modalTitle').text('Nouvelle Pierre');
@@ -158,12 +161,10 @@
             $('#formStock').attr('action', "{{ route('stocks.store') }}");
         });
 
-        // --- LOGIQUE MODIFICATION ---
         $('#tableStock').on('click', '.btn-edit', function() {
             const btn = $(this);
             $('#modalTitle').text('Modifier la pierre');
 
-            // Remplissage des inputs
             $('#stock_id').val(btn.data('id'));
             $('#matiere').val(btn.data('matiere'));
             $('#quantite').val(btn.data('qte'));
@@ -171,15 +172,13 @@
             $('#largeur').val(btn.data('larg'));
             $('#epaisseur').val(btn.data('epais'));
 
-            // Ajustement de la route pour Laravel (Update)
             let id = btn.data('id');
             $('#formStock').attr('action', "/stocks/" + id);
-            $('#formMethod').val('PUT'); // Pour que Laravel comprenne que c'est une modification
+            $('#formMethod').val('PUT');
 
             $('#modalStock').modal('show');
         });
 
-        // --- LOGIQUE SUPPRESSION ---
         $('#tableStock').on('click', '.btn-delete', function() {
             const id = $(this).data('id');
             $('#formDelete').attr('action', "/stocks/" + id);
