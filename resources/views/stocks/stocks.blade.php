@@ -28,30 +28,77 @@
         </div>
     </div>
 
-    <div class="card">
+    @php
+        // Grille tarifaire (Choix Déclassé & Standard)
+        $tarifs = [
+        // Choix declassé
+        2  => 33.25,
+        3  => 44.00,
+        4  => 50.50,
+        5  => 51.50,
+        6  => 60.75,
+        8  => 70.75,
+        10 => 83.75,
+        12 => 100.75,
+        15 => 135.75,
+        //Choix superieur
+        16 => 362.75,
+        18 => 414.25,
+        20 => 466.75,
+        22 => 503.25,
+        24 => 569.75,
+        25 => 599.75,
+        28 => 685.00,
+        30 => 739.00
+    ];
+        ksort($tarifs); // Tri par épaisseur
+    @endphp
+
+    <div class="card shadow-sm border-0 p-4">
         <h2 class="mb-4"><i class="fa-solid fa-layer-group me-2" style="color: var(--stone-gold);"></i>Inventaire des Stocks</h2>
 
-        <table id="tableStock" class="display table" style="width:100%">
+        <table id="tableStock" class="display table table-hover" style="width:100%">
             <thead>
             <tr>
                 <th>Quantité</th>
                 <th>Matière</th>
-                <th>Dimensions (L x l)</th>
+                <th>Dimensions</th>
                 <th>Épaisseur</th>
-                <th>Surface Totale</th>
+                <th>Surface</th>
+                <th>Valeur Est.</th>
                 <th class="text-center">Actions</th>
             </tr>
             </thead>
             <tbody>
             @isset($stocks)
                 @foreach($stocks as $item)
+                    @php
+                        $surface = $item->longueur * $item->largeur * $item->quantite;
+                        $prixM2 = 0;
+
+                        // Logique de recherche du palier
+                        foreach($tarifs as $seuil => $prix) {
+                            if ($seuil >= $item->epaisseur) {
+                                $prixM2 = $prix;
+                                break;
+                            }
+                        }
+
+                        if ($prixM2 > 0) {
+                            $valeurTotale = $surface * $prixM2;
+                        } else {
+                            // Formule pour > 30cm
+                            $valeurTotale = ($item->longueur * $item->largeur * ($item->epaisseur / 100) * 2500) * $item->quantite;
+                        }
+                    @endphp
                     <tr>
                         <td class="fw-bold">{{ $item->quantite }} pcs</td>
-                        <td><span class="text-uppercase fw-bold" style="letter-spacing: 0.5px;">{{ $item->matiere }}</span></td>
-                        <td><span class="badge-dim">{{ number_format($item->longueur, 2) }}m x {{ number_format($item->largeur, 2) }}m</span></td>
+                        <td><span class="text-uppercase fw-bold">{{ $item->matiere }}</span></td>
+                        <td><small>{{ number_format($item->longueur, 2) }} x {{ number_format($item->largeur, 2) }}m</small></td>
                         <td><span class="badge bg-dark px-3 py-2">{{ $item->epaisseur }} cm</span></td>
-                        <td class="fw-bold text-dark">
-                            {{ number_format($item->longueur * $item->largeur * $item->quantite, 2, ',', ' ') }} m²
+                        <td class="fw-bold">{{ number_format($surface, 2, ',', ' ') }} m²</td>
+                        <td class="text-success fw-bold">
+                            {{ number_format($valeurTotale, 2, ',', ' ') }} €
                         </td>
                         <td class="text-center">
                             <div class="btn-group gap-2">
@@ -64,7 +111,8 @@
                                         data-epais="{{ $item->epaisseur }}">
                                     <i class="fa fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger border-0 btn-delete" data-id="{{ $item->id }}">
+                                <button class="btn btn-sm btn-outline-danger border-0 btn-delete"
+                                        data-id="{{ $item->id }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -77,72 +125,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalStock" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form id="formStock" action="{{ route('stocks.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="_method" id="formMethod" value="POST">
-                <input type="hidden" name="id" id="stock_id">
 
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-gem me-2"></i><span id="modalTitle">Nouvelle Pierre</span></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Désignation de la Matière</label>
-                        <input type="text" name="matiere" id="matiere" class="form-control" placeholder="ex: Granit Noir, Marbre Blanc..." required>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Quantité (Unités)</label>
-                            <input type="number" name="quantite" id="quantite" class="form-control" min="1" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Épaisseur (cm)</label>
-                            <input type="number" name="epaisseur" id="epaisseur" class="form-control" min="1" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Longueur (m)</label>
-                            <input type="number" step="0.01" name="longueur" id="longueur" class="form-control" placeholder="0.00" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Largeur (m)</label>
-                            <input type="number" step="0.01" name="largeur" id="largeur" class="form-control" placeholder="0.00" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-stone px-4">Confirmer l'entrée</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content text-center p-3 border-top border-danger border-4">
-            <div class="modal-body">
-                <div class="mb-3 text-danger">
-                    <i class="fa-solid fa-circle-exclamation fa-4x"></i>
-                </div>
-                <h5 class="fw-bold">Confirmer la suppression ?</h5>
-                <p class="text-muted small">Cette donnée sera définitivement retirée de l'inventaire.</p>
-            </div>
-            <form id="formDelete" method="POST">
-                @csrf
-                @method('DELETE')
-                <div class="d-flex justify-content-center gap-3 mb-2">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-danger px-4">Supprimer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -159,6 +142,7 @@
             }
         });
 
+        // Gestion Ajout
         $('#btnAjouter').on('click', function() {
             $('#formStock')[0].reset();
             $('#modalTitle').text('Nouvelle Pierre');
@@ -166,6 +150,7 @@
             $('#formStock').attr('action', "{{ route('stocks.store') }}");
         });
 
+        // Gestion Edition
         $('#tableStock').on('click', '.btn-edit', function() {
             const btn = $(this);
             $('#modalTitle').text('Modifier la pierre');
@@ -181,6 +166,7 @@
             $('#modalStock').modal('show');
         });
 
+        // Gestion Suppression
         $('#tableStock').on('click', '.btn-delete', function() {
             const id = $(this).data('id');
             $('#formDelete').attr('action', "/stocks/" + id);
@@ -188,6 +174,8 @@
         });
     });
 </script>
+
+@include('partials.modals-stock')
 
 </body>
 </html>

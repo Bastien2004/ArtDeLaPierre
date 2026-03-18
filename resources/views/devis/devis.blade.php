@@ -402,6 +402,7 @@
         $('#livraison_input').val(btn.data('current'));
         $('#modalLivraison').modal('show');
     });
-</script>@include('partials.modals-devis')
+</script>
+@include('partials.modals-devis')
 </body>
 </html>
