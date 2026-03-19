@@ -707,6 +707,184 @@ input[type="date"]:disabled {
     animation: dateFieldIn 0.3s ease forwards;
 }
 
+/* ══════════════════════════════════════════════════
+   MODAL CARNET EMAILS
+══════════════════════════════════════════════════ */
+
+/* Overlay */
+#modal-emails-overlay {
+    animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Carte modale */
+#modal-emails-overlay > div {
+    animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Items de la liste */
+.email-carnet-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+}
+
+.email-carnet-item:hover {
+    background: #f8f4ef;
+    border-color: var(--stone-accent);
+    transform: translateX(3px);
+}
+
+.email-carnet-item:hover .email-carnet-chevron {
+    color: var(--stone-dark);
+    transform: translateX(3px);
+}
+
+/* Avatar icône */
+.email-carnet-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--stone-dark), #34495e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.email-carnet-item:hover .email-carnet-avatar {
+    background: linear-gradient(135deg, var(--stone-accent), #b8a892);
+}
+
+.email-carnet-avatar i {
+    color: var(--stone-accent);
+    font-size: 0.75rem;
+    transition: color 0.2s;
+}
+
+.email-carnet-item:hover .email-carnet-avatar i {
+    color: var(--stone-dark);
+}
+
+/* Texte adresse */
+.email-carnet-adresse {
+    font-size: 0.88rem;
+    color: var(--stone-dark);
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Chevron */
+.email-carnet-chevron {
+    color: #c5b9a5;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Barre de recherche focus */
+#modal-email-search:focus {
+    outline: none;
+    border-color: var(--stone-dark) !important;
+    box-shadow: 0 0 0 4px rgba(26, 37, 47, 0.06);
+}
+
+/* État vide */
+.email-carnet-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #95a5a6;
+}
+
+.email-carnet-empty i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+    opacity: 0.5;
+}
+
+.email-carnet-empty p {
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+/* Scrollbar custom dans la liste */
+#modal-emails-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--stone-accent) transparent;
+}
+
+#modal-emails-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#modal-emails-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#modal-emails-list::-webkit-scrollbar-thumb {
+    background: var(--stone-accent);
+    border-radius: 4px;
+}
+
+/* Bouton ouvre-carnet (à côté du champ email) */
+.btn-open-carnet {
+    padding: 12px 14px;
+    background: var(--stone-dark);
+    color: var(--stone-accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-open-carnet:hover {
+    background: var(--stone-accent);
+    color: var(--stone-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(197, 185, 165, 0.3);
+}
+
+/* Compteur dans le header de la modal */
+.email-carnet-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--stone-accent);
+    color: var(--stone-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    letter-spacing: 0.5px;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 800px) {
     input[type="date"] {

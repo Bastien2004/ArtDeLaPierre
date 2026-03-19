@@ -38,6 +38,8 @@ class DevisController extends Controller
         $allTarifs = \App\Models\Tarif::all();
 
         $livraisonPrefill = $request->query('livraison_prefill', '0.00');
+        // Si ça ne marche pas avec Email, essayez :
+        $emailsCarnet = \App\Models\email::orderBy('adresse')->get();
 
 
         // AJOUT de tarifsTravaux dans le compact
@@ -47,7 +49,8 @@ class DevisController extends Controller
             'timePrefill',
             'livraisonPrefill',
             'tarifsTravaux',
-            'allTarifs'
+            'allTarifs',
+            'emailsCarnet',
         ));    }
 
     public function store(Request $request)

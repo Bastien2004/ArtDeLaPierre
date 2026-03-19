@@ -6,6 +6,8 @@
     <title>Nouveau Devis - Art de la Pierre</title>
     <link rel="stylesheet" href="{{ asset('css/devisCreate.css') }}?v=2">
     <link rel="icon" href="{{ asset('LogoHead.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
 <body>
 <div class="container">
@@ -38,18 +40,24 @@
                 <input type="text" name="adresse" class="lock-on-add" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
             </div>
 
-            {{-- NOUVEAU : champ email avec autocomplete --}}
             <div class="form-group" style="position: relative;">
                 <label>Email du client</label>
-                <input
-                    type="text"
-                    id="email_destinataire"
-                    name="email_destinataire"
-                    class="lock-on-add"
-                    autocomplete="off"
-                    placeholder="email@exemple.com"
-                >
-                <ul id="email-suggestions"></ul>
+                <div style="display: flex; gap: 8px; align-items: flex-start;">
+                    <div style="flex: 1; position: relative;">
+                        <input
+                            type="text"
+                            id="email_destinataire"
+                            name="email_destinataire"
+                            class="lock-on-add"
+                            autocomplete="off"
+                            placeholder="email@exemple.com"
+                        >
+                        <ul id="email-suggestions"></ul>
+                    </div>
+                    <button type="button" onclick="ouvrirModalEmails()" class="btn-open-carnet">
+                        <i class="fa fa-address-book"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -453,6 +461,53 @@
         });
     })();
 
+
+    function ouvrirModalEmails() {
+        const overlay = document.getElementById('modal-emails-overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('modal-email-search').value = '';
+        filtrerEmails('');
+        setTimeout(() => document.getElementById('modal-email-search').focus(), 100);
+    }
+
+    function fermerModalEmails() {
+        document.getElementById('modal-emails-overlay').style.display = 'none';
+    }
+
+    function selectionnerEmail(adresse) {
+        document.getElementById('email_destinataire').value = adresse;
+        fermerModalEmails();
+    }
+
+    function filtrerEmails(recherche) {
+        const items = document.querySelectorAll('.email-carnet-item');
+        const q = recherche.toLowerCase().trim();
+        items.forEach(item => {
+            const email = item.dataset.email.toLowerCase();
+            item.style.display = email.includes(q) ? 'flex' : 'none';
+        });
+    }
+
+    // Hover CSS via JS (pas de fichier CSS externe nécessaire)
+    document.addEventListener('mouseover', function(e) {
+        const item = e.target.closest('.email-carnet-item');
+        if (item) item.style.background = '#f8f4ef';
+    });
+    document.addEventListener('mouseout', function(e) {
+        const item = e.target.closest('.email-carnet-item');
+        if (item) item.style.background = '';
+    });
+
+    // Fermer avec Échap
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') fermerModalEmails();
+    });
+
+    // Fermer en cliquant sur l'overlay
+    document.getElementById('modal-emails-overlay').addEventListener('click', function(e) {
+        if (e.target === this) fermerModalEmails();
+    });
 </script>
+@include('partials.modals-devis')
 </body>
 </html>
