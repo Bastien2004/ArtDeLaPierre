@@ -23,7 +23,7 @@
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold">Épaisseur (cm)</label>
-                            <input type="number" step="0.01" name="epaisseur" id="epaisseur" class="form-control" min="1" required>
+                            <input type="number" step="0.01" name="epaisseur" id="epaisseur" class="form-control" required>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold">Longueur (m)</label>
