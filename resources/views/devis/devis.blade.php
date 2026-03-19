@@ -17,9 +17,15 @@
 <div class="container-fluid">
     <a href="{{ url('/dashboard') }}" class="btn-back-stone">
         <i class="fa fa-arrow-left"></i> Retour à l’accueil
-    </a>    <div class="table-header-flex">
+    </a>
+    <div class="table-header-flex">
         <h1>Registre des Devis</h1>
-        <a href="{{ route('devis.create') }}" class="btn-new">+ Nouveau Devis</a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ route('devis.calendrier') }}" class="btn-calendrier">
+                <i class="fa-solid fa-calendar-days"></i> Calendrier
+            </a>
+            <a href="{{ route('devis.create') }}" class="btn-new">+ Nouveau Devis</a>
+        </div>
     </div>
 
     <table id="tableDevis" class="display" style="width:100%">

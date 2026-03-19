@@ -86,6 +86,7 @@ class DevisController extends Controller
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinal,
                 'livraison'    => $livraisonFixe,
+                'datefindevis' => $request->datefindevis,
             ]);
 
             $devis->created_at = $dateCreation;

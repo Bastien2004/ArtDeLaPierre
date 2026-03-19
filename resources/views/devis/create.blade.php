@@ -53,11 +53,16 @@
             </div>
         </div>
 
-        <h3 class="section-title">Informations Client</h3>
+        <h3 class="section-title">Livraison Client</h3>
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Frais de Livraison (€ HT)</label>
-                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">            </div>
+                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Date de livraison</label>
+                <input type="date" name="datefindevis" class="lock-on-add">
+            </div>
         </div>
 
         <h3 class="section-title">Pierres & Mesures</h3>

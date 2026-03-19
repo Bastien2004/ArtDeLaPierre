@@ -576,3 +576,141 @@ input[readonly] {
     background: #f5f0e8;
     color: #5a3e28;
 }
+
+/* ================================================
+   CHAMP DATE — CALENDRIER MODERNE "ART DE LA PIERRE"
+   À ajouter dans devisCreate.css
+   ================================================ */
+
+/* --- INPUT DATE DE BASE --- */
+input[type="date"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--stone-dark);
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2395a5a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    letter-spacing: 0.3px;
+}
+
+input[type="date"]:hover {
+    border-color: var(--stone-accent);
+    box-shadow: 0 3px 10px rgba(197, 185, 165, 0.15);
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: var(--stone-dark);
+    box-shadow: 0 0 0 4px rgba(26, 37, 47, 0.06);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231a252f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* Placeholder visuel quand vide */
+input[type="date"]:not([value]):not(:focus)::before,
+input[type="date"][value=""]:not(:focus)::before {
+    content: "JJ / MM / AAAA";
+    color: #b0bec5;
+    font-style: italic;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+/* --- WEBKIT — Personnalisation du picker natif (Chrome/Edge/Safari) --- */
+
+/* Supprimer le spinner natif */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 36px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+}
+
+/* Champ de saisie interne */
+input[type="date"]::-webkit-datetime-edit {
+    padding: 0;
+    color: var(--stone-dark);
+    font-family: 'Inter', sans-serif;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    color: var(--stone-accent);
+    font-weight: 700;
+    padding: 0 3px;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    color: var(--stone-dark);
+    border-radius: 4px;
+    padding: 1px 3px;
+    transition: background 0.15s;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+    background-color: var(--stone-dark);
+    color: white;
+    outline: none;
+}
+
+/* --- LABEL ASSOCIÉ (optionnel mais cohérent) --- */
+.form-group:has(input[type="date"]) label {
+    color: var(--stone-medium);
+}
+
+/* --- ÉTAT REMPLI — accent visuel discret --- */
+input[type="date"]:valid:not([value=""]) {
+    border-color: #a8d5b5;
+    background-color: #f7fcf9;
+}
+
+/* --- ÉTAT DÉSACTIVÉ --- */
+input[type="date"]:disabled {
+    background-color: #e9ecef;
+    color: #9aabba;
+    cursor: not-allowed;
+    border-color: #dde3e8;
+    border-style: dashed;
+}
+
+/* --- ANIMATION D'APPARITION (si ajouté dynamiquement) --- */
+@keyframes dateFieldIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-group:has(input[type="date"]) {
+    animation: dateFieldIn 0.3s ease forwards;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 800px) {
+    input[type="date"] {
+        font-size: 0.9rem;
+        padding: 11px 13px;
+    }
+}
