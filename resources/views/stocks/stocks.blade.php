@@ -54,6 +54,86 @@
         ksort($tarifs); // Tri par épaisseur
     @endphp
 
+    {{-- Barre de filtres --}}
+    <div class="card shadow-sm border-0 filtres-bar p-3 mb-3">
+        <div class="d-flex flex-wrap gap-3 align-items-end">
+
+            {{-- Matière --}}
+            <div style="flex:1; min-width:140px;">
+                <label class="form-label small text-muted mb-1">Matière</label>
+                <select id="filtreMatiere" class="form-select form-select-sm">
+                    <option value="">Toutes</option>
+                    @foreach($stocks->pluck('matiere')->unique()->sort() as $mat)
+                        <option value="{{ strtolower($mat) }}">{{ strtoupper($mat) }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Épaisseur --}}
+            <div style="flex:1; min-width:180px;">
+                <label class="form-label small text-muted mb-1">Épaisseur (cm)</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="filtreEpaisMin" class="form-control form-control-sm" placeholder="Min" min="0">
+                    <span class="text-muted">—</span>
+                    <input type="number" id="filtreEpaisMax" class="form-control form-control-sm" placeholder="Max" min="0">
+                </div>
+            </div>
+
+            {{-- Dimensions longueur --}}
+            <div style="flex:1; min-width:180px;">
+                <label class="form-label small text-muted mb-1">Longueur (m)</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="filtreLongMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
+                    <span class="text-muted">—</span>
+                    <input type="number" id="filtreLongMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
+                </div>
+            </div>
+
+            {{-- Dimensions largeur --}}
+            <div style="flex:1; min-width:180px;">
+                <label class="form-label small text-muted mb-1">Largeur (m)</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="filtreLargMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
+                    <span class="text-muted">—</span>
+                    <input type="number" id="filtreLargMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
+                </div>
+            </div>
+
+            {{-- Surface --}}
+            <div style="flex:1; min-width:180px;">
+                <label class="form-label small text-muted mb-1">Surface (m²)</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="filtreSurfMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
+                    <span class="text-muted">—</span>
+                    <input type="number" id="filtreSurfMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
+                </div>
+            </div>
+
+            {{-- Valeur estimée --}}
+            <div style="flex:1; min-width:180px;">
+                <label class="form-label small text-muted mb-1">Valeur est. (€)</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="filtreValMin" class="form-control form-control-sm" placeholder="Min" min="0">
+                    <span class="text-muted">—</span>
+                    <input type="number" id="filtreValMax" class="form-control form-control-sm" placeholder="Max" min="0">
+                </div>
+            </div>
+
+            {{-- Boutons --}}
+            <div class="d-flex gap-2 align-self-end">
+                <button id="btnFiltrer" class="btn btn-filtrer">
+                    <i class="fa fa-filter me-1"></i>Filtrer
+                </button>
+                <button id="btnReset" class="btn btn-reset">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- Tags des filtres actifs --}}
+        <div id="filtresActifs" class="mt-2 d-flex flex-wrap gap-2" style="display:none !important;"></div>
+    </div>
+
     <div class="card shadow-sm border-0 p-4">
         <h2 class="mb-4"><i class="fa-solid fa-layer-group me-2" style="color: var(--stone-gold);"></i>Inventaire des Stocks</h2>
 
@@ -131,18 +211,24 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     $(document).ready(function() {
+
+        // ── Init DataTable ───────────────────────────────────────────────────
         const table = $('#tableStock').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
             pageLength: 25,
-            order: [[3, 'asc']], // Tri par épaisseur par défaut
+            order: [[3, 'asc']],
             drawCallback: function() {
                 $('.dataTables_paginate > .pagination').addClass('pagination-sm');
             }
         });
 
-        // Gestion Ajout
+        // ── Gestion Ajout ────────────────────────────────────────────────────
         $('#btnAjouter').on('click', function() {
             $('#formStock')[0].reset();
             $('#modalTitle').text('Nouvelle Pierre');
@@ -150,7 +236,7 @@
             $('#formStock').attr('action', "{{ route('stocks.store') }}");
         });
 
-        // Gestion Edition
+        // ── Gestion Edition ──────────────────────────────────────────────────
         $('#tableStock').on('click', '.btn-edit', function() {
             const btn = $(this);
             $('#modalTitle').text('Modifier la pierre');
@@ -160,19 +246,137 @@
             $('#longueur').val(btn.data('long'));
             $('#largeur').val(btn.data('larg'));
             $('#epaisseur').val(btn.data('epais'));
-
             $('#formStock').attr('action', "/stocks/" + btn.data('id'));
             $('#formMethod').val('PUT');
             $('#modalStock').modal('show');
         });
 
-        // Gestion Suppression
+        // ── Gestion Suppression ──────────────────────────────────────────────
         $('#tableStock').on('click', '.btn-delete', function() {
             const id = $(this).data('id');
             $('#formDelete').attr('action', "/stocks/" + id);
             $('#modalDelete').modal('show');
         });
-    });
+
+        // ── Helper : lire la valeur brute d'une cellule via data-order ───────
+        function colRaw(rowNode, colIndex) {
+            const cell = $(rowNode).find('td').eq(colIndex);
+            const raw = cell.data('order');
+            if (raw !== undefined) return parseFloat(raw) || 0;
+            return parseFloat(cell.text().replace(/[^\d.,-]/g, '').replace(',', '.')) || 0;
+        }
+
+        // ── Filtre Épaisseur (col 3) ─────────────────────────────────────────
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            const min = parseFloat($('#filtreEpaisMin').val());
+            const max = parseFloat($('#filtreEpaisMax').val());
+            const val = colRaw(table.row(dataIndex).node(), 3);
+            if (!isNaN(min) && val < min) return false;
+            if (!isNaN(max) && val > max) return false;
+            return true;
+        });
+
+        // ── Filtre Surface (col 4) ───────────────────────────────────────────
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            const min = parseFloat($('#filtreSurfMin').val());
+            const max = parseFloat($('#filtreSurfMax').val());
+            const val = colRaw(table.row(dataIndex).node(), 4);
+            if (!isNaN(min) && val < min) return false;
+            if (!isNaN(max) && val > max) return false;
+            return true;
+        });
+
+        // ── Filtre Valeur (col 5) ────────────────────────────────────────────
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            const min = parseFloat($('#filtreValMin').val());
+            const max = parseFloat($('#filtreValMax').val());
+            const val = colRaw(table.row(dataIndex).node(), 5);
+            if (!isNaN(min) && val < min) return false;
+            if (!isNaN(max) && val > max) return false;
+            return true;
+        });
+
+        // ── Filtre Longueur & Largeur (col 2 via data-*) ─────────────────────
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            const longMin = parseFloat($('#filtreLongMin').val());
+            const longMax = parseFloat($('#filtreLongMax').val());
+            const largMin = parseFloat($('#filtreLargMin').val());
+            const largMax = parseFloat($('#filtreLargMax').val());
+            const cell = $(table.row(dataIndex).node()).find('td').eq(2);
+            const long = parseFloat(cell.data('longueur'));
+            const larg = parseFloat(cell.data('largeur'));
+            if (!isNaN(longMin) && long < longMin) return false;
+            if (!isNaN(longMax) && long > longMax) return false;
+            if (!isNaN(largMin) && larg < largMin) return false;
+            if (!isNaN(largMax) && larg > largMax) return false;
+            return true;
+        });
+
+        // ── Bouton Filtrer ───────────────────────────────────────────────────
+        $('#btnFiltrer').on('click', function() {
+            table.column(1).search($('#filtreMatiere').val(), false, false).draw();
+
+            const tags = [];
+            const matVal = $('#filtreMatiere').val();
+            if (matVal) tags.push({ label: matVal.toUpperCase(), id: 'matiere' });
+
+            const epaisMin = $('#filtreEpaisMin').val(), epaisMax = $('#filtreEpaisMax').val();
+            if (epaisMin || epaisMax) tags.push({ label: `Épais : ${epaisMin||'0'}–${epaisMax||'∞'} cm`, id: 'epais' });
+
+            const longMin = $('#filtreLongMin').val(), longMax = $('#filtreLongMax').val();
+            if (longMin || longMax) tags.push({ label: `Long : ${longMin||'0'}–${longMax||'∞'} m`, id: 'long' });
+
+            const largMin = $('#filtreLargMin').val(), largMax = $('#filtreLargMax').val();
+            if (largMin || largMax) tags.push({ label: `Larg : ${largMin||'0'}–${largMax||'∞'} m`, id: 'larg' });
+
+            const surfMin = $('#filtreSurfMin').val(), surfMax = $('#filtreSurfMax').val();
+            if (surfMin || surfMax) tags.push({ label: `Surface : ${surfMin||'0'}–${surfMax||'∞'} m²`, id: 'surf' });
+
+            const valMin = $('#filtreValMin').val(), valMax = $('#filtreValMax').val();
+            if (valMin || valMax) tags.push({ label: `Valeur : ${valMin||'0'}–${valMax||'∞'} €`, id: 'val' });
+
+            const container = $('#filtresActifs');
+            container.empty();
+            if (tags.length) {
+                tags.forEach(t => container.append(
+                    `<span class="badge bg-secondary d-flex align-items-center gap-1">
+                    ${t.label}
+                    <i class="fa fa-times ms-1" style="cursor:pointer;" data-tag="${t.id}"></i>
+                </span>`
+                ));
+                container.css('display', 'flex');
+            } else {
+                container.hide();
+            }
+        });
+
+        // ── Suppression d'un tag individuel ─────────────────────────────────
+        $('#filtresActifs').on('click', '.fa-times', function() {
+            const tag = $(this).data('tag');
+            const map = {
+                matiere: ['#filtreMatiere'],
+                epais:   ['#filtreEpaisMin', '#filtreEpaisMax'],
+                long:    ['#filtreLongMin',  '#filtreLongMax'],
+                larg:    ['#filtreLargMin',  '#filtreLargMax'],
+                surf:    ['#filtreSurfMin',  '#filtreSurfMax'],
+                val:     ['#filtreValMin',   '#filtreValMax'],
+            };
+            (map[tag] || []).forEach(id => $(id).val(''));
+            $('#btnFiltrer').trigger('click');
+        });
+
+        // ── Bouton Réinitialiser ─────────────────────────────────────────────
+        $('#btnReset').on('click', function() {
+            $([
+                '#filtreMatiere','#filtreEpaisMin','#filtreEpaisMax',
+                '#filtreLongMin','#filtreLongMax','#filtreLargMin','#filtreLargMax',
+                '#filtreSurfMin','#filtreSurfMax','#filtreValMin','#filtreValMax'
+            ].join(',')).val('');
+            table.column(1).search('').draw();
+            $('#filtresActifs').empty().hide();
+        });
+
+    }); // fin document.ready
 </script>
 
 @include('partials.modals-stock')
