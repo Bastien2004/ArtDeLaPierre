@@ -65,7 +65,7 @@
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Frais de Livraison (€ HT)</label>
-                <input type="number" name="livraison" class="lock-on-add" step="0.01" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">
+                <input type="number" name="livraison" class="lock-on-add" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">
             </div>
             <div class="form-group">
                 <label>Date de livraison</label>
@@ -118,20 +118,20 @@
                     </div>
                     <div class="form-group">
                         <label>Long. (m)</label>
-                        <input type="number" step="0.001" name="lignes[0][longueurM]" placeholder="0.000" required>
+                        <input type="number" name="lignes[0][longueurM]" placeholder="0.000" required>
                     </div>
                     <div class="form-group">
                         <label>Larg. (m)</label>
-                        <input type="number" step="0.001" name="lignes[0][largeurM]" placeholder="0.000" required>
+                        <input type="number" name="lignes[0][largeurM]" placeholder="0.000" required>
                     </div>
                     <div class="form-group">
                         <label>Prix M² (€)</label>
-                        <input type="number" step="0.01" name="lignes[0][prixM2]" class="input-prix-m2" required>
+                        <input type="number" name="lignes[0][prixM2]" class="input-prix-m2" required>
                     </div>
 
                     <div class="form-group">
                         <label>Poids (kg)</label>
-                        <input type="number" step="0.01" name="lignes[0][poids]" class="input-poids" readonly style="background: #f1f1f1; font-weight: bold;">
+                        <input type="number" name="lignes[0][poids]" class="input-poids" readonly style="background: #f1f1f1; font-weight: bold;">
                     </div>
 
                 </div>
@@ -280,7 +280,7 @@
             <div class="ligne-spec">
                 <div class="form-grid-specs">
                     <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" placeholder="Ex: Rejingot">
-                    <input type="number" step="0.01" name="lignes[${pIdx}][specs][${sIdx}][prix]" placeholder="Prix">
+                    <input type="number" name="lignes[${pIdx}][specs][${sIdx}][prix]" placeholder="Prix">
                     <button type="button" class="remove-spec" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
             </div>`;
@@ -308,9 +308,9 @@
 
         const tailleField = nom.toLowerCase().includes('rejingot') ? `
             <div class="taille-rejingot-wrapper">
-                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMin]" value="2" min="0" step="0.1">
+                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMin]" value="2" min="0">
                 <span class="separator">/</span>
-                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMax]" value="3" min="0" step="0.1">
+                <input type="number" name="lignes[${pIdx}][specs][${sIdx}][tailleMax]" value="3" min="0">
                 <span class="unite-label">cm</span>
             </div>
         ` : '';
@@ -321,7 +321,7 @@
                     <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" value="${nom}" class="form-control" readonly>
                     ${tailleField}
                     <input type="hidden" name="lignes[${pIdx}][specs][${sIdx}][unite]" value="${unite}">
-                    <input type="number" step="0.1" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
+                    <input type="number" name="lignes[${pIdx}][specs][${sIdx}][prix]" value="${prixFinal.toFixed(2)}" class="form-control spec-prix-input" data-unite="${unite}" data-base-price="${prixUnitaire}">
                     <button type="button" class="remove-spec" onclick="this.parentElement.remove()">×</button>
                 </div>
             </div>`;
@@ -508,6 +508,5 @@
         if (e.target === this) fermerModalEmails();
     });
 </script>
-@include('partials.modals-devis')
 </body>
 </html>
