@@ -508,5 +508,6 @@
         if (e.target === this) fermerModalEmails();
     });
 </script>
+@include("partials.modals-mails")
 </body>
 </html>
