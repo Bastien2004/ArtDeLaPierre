@@ -217,7 +217,7 @@
                 @foreach($blocs as $bloc)
                     @php
                         $volume = ($bloc->hauteur) * ($bloc->largeur) * ($bloc->longueur);
-                        $prix   = $volume * 155.75;
+                        $prix   = $bloc->poids * 155.75;
                     @endphp
                     <tr>
                         <td class="fw-bold font-monospace">{{ $bloc->reference }}</td>
