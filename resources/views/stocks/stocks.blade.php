@@ -155,31 +155,22 @@
                     @php
                         $surface = $item->longueur * $item->largeur * $item->quantite;
                         $prixM2 = 0;
-
-                        // Logique de recherche du palier
                         foreach($tarifs as $seuil => $prix) {
-                            if ($seuil >= $item->epaisseur) {
-                                $prixM2 = $prix;
-                                break;
-                            }
+                            if ($seuil >= $item->epaisseur) { $prixM2 = $prix; break; }
                         }
-
-                        if ($prixM2 > 0) {
-                            $valeurTotale = $surface * $prixM2;
-                        } else {
-                            // Formule pour > 30cm
-                            $valeurTotale = ($item->longueur * $item->largeur * ($item->epaisseur / 100) * 2500) * $item->quantite;
-                        }
+                        $valeurTotale = $prixM2 > 0
+                            ? $surface * $prixM2
+                            : ($item->longueur * $item->largeur * ($item->epaisseur / 100) * 2500) * $item->quantite;
                     @endphp
                     <tr>
                         <td class="fw-bold">{{ $item->quantite }} pcs</td>
                         <td><span class="text-uppercase fw-bold">{{ $item->matiere }}</span></td>
-                        <td><small>{{ number_format($item->longueur, 2) }} x {{ number_format($item->largeur, 2) }}m</small></td>
+                        <td data-longueur="{{ $item->longueur }}" data-largeur="{{ $item->largeur }}">
+                            <small>{{ number_format($item->longueur, 2) }} x {{ number_format($item->largeur, 2) }}m</small>
+                        </td>
                         <td><span class="badge bg-dark px-3 py-2">{{ $item->epaisseur }} cm</span></td>
                         <td class="fw-bold">{{ number_format($surface, 2, ',', ' ') }} m²</td>
-                        <td class="text-success fw-bold">
-                            {{ number_format($valeurTotale, 2, ',', ' ') }} €
-                        </td>
+                        <td class="text-success fw-bold">{{ number_format($valeurTotale, 2, ',', ' ') }} €</td>
                         <td class="text-center">
                             <div class="btn-group gap-2">
                                 <button class="btn btn-sm btn-outline-primary border-0 btn-edit"
@@ -193,6 +184,74 @@
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger border-0 btn-delete"
                                         data-id="{{ $item->id }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            @endisset
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4 mt-4">
+        <h2 class="mb-4">
+            <i class="fa-solid fa-cube me-2" style="color: var(--stone-gold);"></i>Inventaire des Blocs
+        </h2>
+
+        <table id="tableBlocs" class="display table table-hover" style="width:100%">
+            <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Matière</th>
+                <th>Dimensions (cm)</th>
+                <th>Volume (m³)</th>
+                <th>Poids (t)</th>
+                <th>Prix Est.</th>
+                <th class="text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @isset($blocs)
+                @foreach($blocs as $bloc)
+                    @php
+                        $volume = ($bloc->hauteur) * ($bloc->largeur) * ($bloc->longueur);
+                        $prix   = $volume * 155.75;
+                    @endphp
+                    <tr>
+                        <td class="fw-bold font-monospace">{{ $bloc->reference }}</td>
+                        <td><span class="text-uppercase fw-bold">{{ $bloc->matiere }}</span></td>
+                        <td>
+                            <small>
+                                {{ number_format($bloc->longueur, 0) }}
+                                × {{ number_format($bloc->largeur, 0) }}
+                                × {{ number_format($bloc->hauteur, 0) }} m
+                            </small>
+                        </td>
+                        <td class="fw-bold">{{ number_format($volume, 3, ',', ' ') }} m³</td>
+                        <td>
+                        <span class="badge bg-secondary px-3 py-2">
+                            {{ number_format($bloc->poids, 3, ',', ' ') }} t
+                        </span>
+                        </td>
+                        <td class="text-success fw-bold">
+                            {{ number_format($prix, 2, ',', ' ') }} €
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group gap-2">
+                                <button class="btn btn-sm btn-outline-primary border-0 btn-edit-bloc"
+                                        data-id="{{ $bloc->id }}"
+                                        data-reference="{{ $bloc->reference }}"
+                                        data-matiere="{{ $bloc->matiere }}"
+                                        data-hauteur="{{ $bloc->hauteur }}"
+                                        data-largeur="{{ $bloc->largeur }}"
+                                        data-longueur="{{ $bloc->longueur }}"
+                                        data-poids="{{ $bloc->poids }}">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger border-0 btn-delete-bloc"
+                                        data-id="{{ $bloc->id }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -376,7 +435,20 @@
             $('#filtresActifs').empty().hide();
         });
 
-    }); // fin document.ready
+    });
+
+
+    $(document).ready(function() {
+        // ── Init DataTable Blocs ─────────────────────────────────────────────────
+        $('#tableBlocs').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
+            pageLength: 25,
+            order: [[0, 'asc']], // tri par référence
+            drawCallback: function() {
+                $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+            }
+        });
+    });
 </script>
 
 @include('partials.modals-stock')
