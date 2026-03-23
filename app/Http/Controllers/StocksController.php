@@ -105,7 +105,8 @@ class StocksController extends Controller
     {
         $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $stocksGroupes = $stocks->groupBy('epaisseur');
-        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes'));
+        $blocs = StockBloc::orderBy('reference', 'asc')->get();
+        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs'));
 
         return $pdf->download('inventaire_art_de_la_pierre.pdf');
     }

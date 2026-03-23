@@ -94,6 +94,55 @@
     </div>
 @endforeach
 
+{{-- ── Section Blocs ─────────────────────────────────────────────────────── --}}
+@if(isset($blocs) && $blocs->count())
+    @php
+        $totalVolumeBlocs = 0;
+        $totalValeurBlocs = 0;
+    @endphp
+
+    <div class="epaisseur-section" style="margin-top: 40px;">
+        <div class="epaisseur-badge" style="background: #7f8c8d;">BLOCS</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Matière</th>
+                <th>Dimensions (m)</th>
+                <th class="txt-right">Volume (m³)</th>
+                <th class="txt-right">Poids (t)</th>
+                <th class="txt-right">Prix Est.</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($blocs as $bloc)
+                @php
+                    $volume = $bloc->hauteur * $bloc->largeur * $bloc->longueur;
+                    $prix   = $volume * 155.75;
+                    $totalVolumeBlocs += $volume;
+                    $totalValeurBlocs += $prix;
+                @endphp
+                <tr>
+                    <td><strong>{{ $bloc->reference ?? '—' }}</strong></td>
+                    <td>{{ $bloc->matiere }}</td>
+                    <td>{{ number_format($bloc->longueur,2) }} × {{ number_format($bloc->largeur,2) }} × {{ number_format($bloc->hauteur,2) }} m</td>
+                    <td class="txt-right">{{ number_format($volume, 3, ',', ' ') }} m³</td>
+                    <td class="txt-right">{{ number_format($bloc->poids, 3, ',', ' ') }} t</td>
+                    <td class="txt-right">{{ number_format($prix, 2, ',', ' ') }} €</td>
+                </tr>
+            @endforeach
+            <tr class="subtotal-row">
+                <td colspan="3" class="txt-right">TOTAL BLOCS</td>
+                <td class="txt-right">{{ number_format($totalVolumeBlocs, 3, ',', ' ') }} m³</td>
+                <td></td>
+                <td class="txt-right">{{ number_format($totalValeurBlocs, 2, ',', ' ') }} €</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    @php $totalValeurGlobale += $totalValeurBlocs; @endphp
+@endif
+
 <div class="grand-total-box">
     <table style="color: white; margin: 0; width: 100%;">
         <tr>
