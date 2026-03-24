@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockBloc;
+use App\Models\StockCasson;
 use App\Models\Stocks;
 use Illuminate\Http\Request;
 use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
@@ -11,9 +12,14 @@ class StocksController extends Controller
     // Afficher la liste
     public function index()
     {
-        $stocks = Stocks::orderBy('created_at', 'desc')->get();
+        $stocks = Stocks::orderBy('epaisseur', 'asc')
+            ->orderBy('matiere', 'asc')
+            ->get();
         $blocs = StockBloc::orderBy('reference', 'asc')->get();
-        return view('stocks.stocks', compact('stocks', 'blocs'));
+        $cassons = StockCasson::orderBy('epaisseur', 'asc')
+            ->orderBy('matiere', 'asc')
+            ->get();
+        return view('stocks.stocks', compact('stocks', 'blocs','cassons'));
     }
 
     // Ajouter ou Modifier (Le formulaire gère les deux via les routes)
@@ -100,13 +106,53 @@ class StocksController extends Controller
         return redirect()->back()->with('success', 'Bloc supprimé.');
     }
 
+    public function storeCasson(Request $request)
+    {
+        $data = $request->validate([
+            'matiere'   => 'required|string|max:255',
+            'longueur'  => 'required|numeric|min:0',
+            'largeur'   => 'required|numeric|min:0',
+            'epaisseur' => 'required|integer|min:1',
+        ]);
+
+        StockCasson::create($data);
+
+        return redirect()->back()->with('success', 'Casson ajouté au stock !');
+    }
+
+    public function updateCasson(Request $request, $id)
+    {
+        $casson = StockCasson::findOrFail($id);
+
+        $data = $request->validate([
+            'matiere'   => 'required|string|max:255',
+            'longueur'  => 'required|numeric|min:0',
+            'largeur'   => 'required|numeric|min:0',
+            'epaisseur' => 'required|integer|min:1',
+        ]);
+
+        $casson->update($data);
+
+        return redirect()->back()->with('success', 'Casson mis à jour !');
+    }
+
+    public function destroyCasson($id)
+    {
+        $casson = StockCasson::findOrFail($id);
+        $casson->delete();
+
+        return redirect()->back()->with('success', 'Casson supprimé.');
+    }
+
 
     public function exportPdf()
     {
         $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $stocksGroupes = $stocks->groupBy('epaisseur');
         $blocs = StockBloc::orderBy('reference', 'asc')->get();
-        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs'));
+        $cassons       = StockCasson::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
+
+        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs', 'cassons'));
 
         return $pdf->download('inventaire_art_de_la_pierre.pdf');
     }

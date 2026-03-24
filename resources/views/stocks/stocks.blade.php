@@ -17,7 +17,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <a href="{{ route('dashboard') }}" class="btn-back-stone">
-            <i class="fa fa-arrow-left"></i> Retour à l’accueil
+            <i class="fa fa-arrow-left"></i> Retour à l'accueil
         </a>
 
         <div class="d-flex gap-3">
@@ -33,27 +33,27 @@
     @php
         // Grille tarifaire (Choix Déclassé & Standard)
         $tarifs = [
-        // Choix declassé
-        2  => 33.25,
-        3  => 44.00,
-        4  => 50.50,
-        5  => 51.50,
-        6  => 60.75,
-        8  => 70.75,
-        10 => 83.75,
-        12 => 100.75,
-        15 => 135.75,
-        //Choix superieur
-        16 => 362.75,
-        18 => 414.25,
-        20 => 466.75,
-        22 => 503.25,
-        24 => 569.75,
-        25 => 599.75,
-        28 => 685.00,
-        30 => 739.00
-    ];
-        ksort($tarifs); // Tri par épaisseur
+            // Choix déclassé
+            2  => 33.25,
+            3  => 44.00,
+            4  => 50.50,
+            5  => 51.50,
+            6  => 60.75,
+            8  => 70.75,
+            10 => 83.75,
+            12 => 100.75,
+            15 => 135.75,
+            // Choix supérieur
+            16 => 362.75,
+            18 => 414.25,
+            20 => 466.75,
+            22 => 503.25,
+            24 => 569.75,
+            25 => 599.75,
+            28 => 685.00,
+            30 => 739.00
+        ];
+        ksort($tarifs);
     @endphp
 
     {{-- Barre de filtres --}}
@@ -81,7 +81,7 @@
                 </div>
             </div>
 
-            {{-- Dimensions longueur --}}
+            {{-- Longueur --}}
             <div style="flex:1; min-width:180px;">
                 <label class="form-label small text-muted mb-1">Longueur (m)</label>
                 <div class="d-flex gap-2 align-items-center">
@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            {{-- Dimensions largeur --}}
+            {{-- Largeur --}}
             <div style="flex:1; min-width:180px;">
                 <label class="form-label small text-muted mb-1">Largeur (m)</label>
                 <div class="d-flex gap-2 align-items-center">
@@ -136,8 +136,11 @@
         <div id="filtresActifs" class="mt-2 d-flex flex-wrap gap-2" style="display:none !important;"></div>
     </div>
 
+    {{-- ── Inventaire des Stocks ─────────────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4">
-        <h2 class="mb-4"><i class="fa-solid fa-layer-group me-2" style="color: var(--stone-gold);"></i>Inventaire des Stocks</h2>
+        <h2 class="mb-4">
+            <i class="fa-solid fa-layer-group me-2" style="color: var(--stone-gold);"></i>Inventaire des Stocks
+        </h2>
 
         <table id="tableStock" class="display table table-hover" style="width:100%">
             <thead>
@@ -170,8 +173,9 @@
                         <td data-longueur="{{ $item->longueur }}" data-largeur="{{ $item->largeur }}">
                             <small>{{ number_format($item->longueur, 2) }} x {{ number_format($item->largeur, 2) }}m</small>
                         </td>
-                        <td><span class="badge bg-dark px-3 py-2">{{ $item->epaisseur }} cm</span></td>
-                        <td class="fw-bold">{{ number_format($surface, 2, ',', ' ') }} m²</td>
+                        <td data-order="{{ $item->epaisseur }}">
+                            <span class="badge bg-dark px-3 py-2">{{ $item->epaisseur }} cm</span>
+                        </td>                        <td class="fw-bold">{{ number_format($surface, 2, ',', ' ') }} m²</td>
                         <td class="text-success fw-bold">{{ number_format($valeurTotale, 2, ',', ' ') }} €</td>
                         <td class="text-center">
                             <div class="btn-group gap-2">
@@ -197,6 +201,7 @@
         </table>
     </div>
 
+    {{-- ── Inventaire des Blocs ──────────────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4 mt-4">
         <h2 class="mb-4">
             <i class="fa-solid fa-cube me-2" style="color: var(--stone-gold);"></i>Inventaire des Blocs
@@ -207,7 +212,7 @@
             <tr>
                 <th>Référence</th>
                 <th>Matière</th>
-                <th>Dimensions (cm)</th>
+                <th>Dimensions (m)</th>
                 <th>Volume (m³)</th>
                 <th>Poids (t)</th>
                 <th>Prix Est.</th>
@@ -218,7 +223,7 @@
             @isset($blocs)
                 @foreach($blocs as $bloc)
                     @php
-                        $volume = ($bloc->hauteur) * ($bloc->largeur) * ($bloc->longueur);
+                        $volume = $bloc->hauteur * $bloc->largeur * $bloc->longueur;
                         $prix   = $bloc->poids * 155.75;
                     @endphp
                     <tr>
@@ -233,9 +238,9 @@
                         </td>
                         <td class="fw-bold">{{ number_format($volume, 3, ',', ' ') }} m³</td>
                         <td>
-                        <span class="badge bg-secondary px-3 py-2">
-                            {{ number_format($bloc->poids, 3, ',', ' ') }} t
-                        </span>
+                            <span class="badge bg-secondary px-3 py-2">
+                                {{ number_format($bloc->poids, 3, ',', ' ') }} t
+                            </span>
                         </td>
                         <td class="text-success fw-bold">
                             {{ number_format($prix, 2, ',', ' ') }} €
@@ -264,13 +269,61 @@
             </tbody>
         </table>
     </div>
-</div>
 
+    {{-- ── Inventaire des Cassons ────────────────────────────────────────── --}}
+    <div class="card shadow-sm border-0 p-4 mt-4">
+        <h2 class="mb-4">
+            <i class="fa-solid fa-puzzle-piece me-2" style="color: var(--stone-gold);"></i>Inventaire des Cassons
+        </h2>
 
+        <table id="tableCassons" class="display table table-hover" style="width:100%">
+            <thead>
+            <tr>
+                <th>Matière</th>
+                <th>Longueur (m)</th>
+                <th>Largeur (m)</th>
+                <th>Épaisseur (cm)</th>
+                <th>Valeur Est.</th>
+                <th class="text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @isset($cassons)
+                @foreach($cassons as $casson)
+                    @php
+                        $valeurCasson = $casson->largeur * $casson->longueur * ($casson->epaisseur / 100) * 2500;
+                    @endphp
+                    <tr>
+                        <td><span class="text-uppercase fw-bold">{{ $casson->matiere }}</span></td>
+                        <td>{{ number_format($casson->longueur, 2) }} m</td>
+                        <td>{{ number_format($casson->largeur, 2) }} m</td>
+                        <td><span class="badge bg-dark px-3 py-2">{{ $casson->epaisseur }} cm</span></td>
+                        <td class="text-success fw-bold">{{ number_format($valeurCasson, 2, ',', ' ') }} €</td>
+                        <td class="text-center">
+                            <div class="btn-group gap-2">
+                                <button class="btn btn-sm btn-outline-primary border-0 btn-edit-casson"
+                                        data-id="{{ $casson->id }}"
+                                        data-matiere="{{ $casson->matiere }}"
+                                        data-longueur="{{ $casson->longueur }}"
+                                        data-largeur="{{ $casson->largeur }}"
+                                        data-epaisseur="{{ $casson->epaisseur }}">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger border-0 btn-delete-casson"
+                                        data-id="{{ $casson->id }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            @endisset
+            </tbody>
+        </table>
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>{{-- fin container-fluid --}}
+
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -279,7 +332,7 @@
 <script>
     $(document).ready(function() {
 
-        // ── Init DataTable ───────────────────────────────────────────────────
+        // ── Init DataTable Stocks ────────────────────────────────────────────────
         const table = $('#tableStock').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
             pageLength: 25,
@@ -289,7 +342,27 @@
             }
         });
 
-        // ── Gestion Ajout ────────────────────────────────────────────────────
+        // ── Init DataTable Blocs ─────────────────────────────────────────────────
+        $('#tableBlocs').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
+            pageLength: 25,
+            order: [[0, 'asc']],
+            drawCallback: function() {
+                $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+            }
+        });
+
+        // ── Init DataTable Cassons ───────────────────────────────────────────────
+        $('#tableCassons').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
+            pageLength: 25,
+            order: [[3, 'asc']],
+            drawCallback: function() {
+                $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+            }
+        });
+
+        // ── Gestion Ajout Stock ──────────────────────────────────────────────────
         $('#btnAjouter').on('click', function() {
             $('#formStock')[0].reset();
             $('#modalTitle').text('Nouvelle Pierre');
@@ -297,7 +370,7 @@
             $('#formStock').attr('action', "{{ route('stocks.store') }}");
         });
 
-        // ── Gestion Edition ──────────────────────────────────────────────────
+        // ── Gestion Édition Stock ────────────────────────────────────────────────
         $('#tableStock').on('click', '.btn-edit', function() {
             const btn = $(this);
             $('#modalTitle').text('Modifier la pierre');
@@ -312,14 +385,51 @@
             $('#modalStock').modal('show');
         });
 
-        // ── Gestion Suppression ──────────────────────────────────────────────
+        // ── Gestion Suppression Stock ────────────────────────────────────────────
         $('#tableStock').on('click', '.btn-delete', function() {
             const id = $(this).data('id');
             $('#formDelete').attr('action', "/stocks/" + id);
             $('#modalDelete').modal('show');
         });
 
-        // ── Helper : lire la valeur brute d'une cellule via data-order ───────
+        // ── Gestion Édition Bloc ─────────────────────────────────────────────────
+        $('#tableBlocs').on('click', '.btn-edit-bloc', function() {
+            const btn = $(this);
+            $('#formBloc').attr('action', "/blocs/" + btn.data('id'));
+            $('#formBlocMethod').val('PUT');
+            // Remplir les champs du modal bloc selon votre modal existant
+            $('#modalBloc').modal('show');
+        });
+
+        // ── Gestion Suppression Bloc ─────────────────────────────────────────────
+        $('#tableBlocs').on('click', '.btn-delete-bloc', function() {
+            const id = $(this).data('id');
+            $('#formDeleteBloc').attr('action', "/blocs/" + id);
+            $('#modalDeleteBloc').modal('show');
+        });
+
+        // ── Gestion Édition Casson ───────────────────────────────────────────────
+        $('#tableCassons').on('click', '.btn-edit-casson', function() {
+            const btn = $(this);
+            $('#modalCassonTitle').text('Modifier le Casson');
+            $('#casson_id').val(btn.data('id'));
+            $('#casson_matiere').val(btn.data('matiere'));
+            $('#casson_longueur').val(btn.data('longueur'));
+            $('#casson_largeur').val(btn.data('largeur'));
+            $('#casson_epaisseur').val(btn.data('epaisseur'));
+            $('#formCasson').attr('action', '/cassons/' + btn.data('id'));
+            $('#formCassonMethod').val('PUT');
+            $('#modalCasson').modal('show');
+        });
+
+        // ── Gestion Suppression Casson ───────────────────────────────────────────
+        $('#tableCassons').on('click', '.btn-delete-casson', function() {
+            const id = $(this).data('id');
+            $('#formDeleteCasson').attr('action', '/cassons/' + id);
+            $('#modalDeleteCasson').modal('show');
+        });
+
+        // ── Helper : lire la valeur brute d'une cellule ──────────────────────────
         function colRaw(rowNode, colIndex) {
             const cell = $(rowNode).find('td').eq(colIndex);
             const raw = cell.data('order');
@@ -327,8 +437,9 @@
             return parseFloat(cell.text().replace(/[^\d.,-]/g, '').replace(',', '.')) || 0;
         }
 
-        // ── Filtre Épaisseur (col 3) ─────────────────────────────────────────
+        // ── Filtres Stocks ───────────────────────────────────────────────────────
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tableStock') return true;
             const min = parseFloat($('#filtreEpaisMin').val());
             const max = parseFloat($('#filtreEpaisMax').val());
             const val = colRaw(table.row(dataIndex).node(), 3);
@@ -337,8 +448,8 @@
             return true;
         });
 
-        // ── Filtre Surface (col 4) ───────────────────────────────────────────
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tableStock') return true;
             const min = parseFloat($('#filtreSurfMin').val());
             const max = parseFloat($('#filtreSurfMax').val());
             const val = colRaw(table.row(dataIndex).node(), 4);
@@ -347,8 +458,8 @@
             return true;
         });
 
-        // ── Filtre Valeur (col 5) ────────────────────────────────────────────
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tableStock') return true;
             const min = parseFloat($('#filtreValMin').val());
             const max = parseFloat($('#filtreValMax').val());
             const val = colRaw(table.row(dataIndex).node(), 5);
@@ -357,8 +468,8 @@
             return true;
         });
 
-        // ── Filtre Longueur & Largeur (col 2 via data-*) ─────────────────────
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tableStock') return true;
             const longMin = parseFloat($('#filtreLongMin').val());
             const longMax = parseFloat($('#filtreLongMax').val());
             const largMin = parseFloat($('#filtreLargMin').val());
@@ -373,7 +484,7 @@
             return true;
         });
 
-        // ── Bouton Filtrer ───────────────────────────────────────────────────
+        // ── Bouton Filtrer ───────────────────────────────────────────────────────
         $('#btnFiltrer').on('click', function() {
             table.column(1).search($('#filtreMatiere').val(), false, false).draw();
 
@@ -411,7 +522,7 @@
             }
         });
 
-        // ── Suppression d'un tag individuel ─────────────────────────────────
+        // ── Suppression d'un tag individuel ─────────────────────────────────────
         $('#filtresActifs').on('click', '.fa-times', function() {
             const tag = $(this).data('tag');
             const map = {
@@ -426,7 +537,7 @@
             $('#btnFiltrer').trigger('click');
         });
 
-        // ── Bouton Réinitialiser ─────────────────────────────────────────────
+        // ── Bouton Réinitialiser ─────────────────────────────────────────────────
         $('#btnReset').on('click', function() {
             $([
                 '#filtreMatiere','#filtreEpaisMin','#filtreEpaisMax',
@@ -437,19 +548,6 @@
             $('#filtresActifs').empty().hide();
         });
 
-    });
-
-
-    $(document).ready(function() {
-        // ── Init DataTable Blocs ─────────────────────────────────────────────────
-        $('#tableBlocs').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
-            pageLength: 25,
-            order: [[0, 'asc']], // tri par référence
-            drawCallback: function() {
-                $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-            }
-        });
     });
 </script>
 

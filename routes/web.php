@@ -61,7 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::post  ('/stocks/blocs',        [StocksController::class, 'storeBloc'])  ->name('stocks.blocs.store');
     Route::put   ('/stocks/blocs/{id}',   [StocksController::class, 'updateBloc']) ->name('stocks.blocs.update');
     Route::delete('/stocks/blocs/{id}',   [StocksController::class, 'destroyBloc'])->name('stocks.blocs.destroy');
-
+    //Cassons
+    Route::post  ('/stocks/cassons',        [StocksController::class, 'storeCasson'])  ->name('stocks.cassons.store');
+    Route::put   ('/stocks/cassons/{id}',   [StocksController::class, 'updateCasson']) ->name('stocks.cassons.update');
+    Route::delete('/stocks/cassons/{id}',   [StocksController::class, 'destroyCasson'])->name('stocks.cassons.destroy');
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');

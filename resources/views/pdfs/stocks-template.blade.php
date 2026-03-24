@@ -27,7 +27,7 @@
 
 @php
     $totalSurfaceGlobale = 0;
-    $totalValeurGlobale = 0;
+    $totalValeurGlobale  = 0;
 
     $tarifs = [
         2 => 33.25, 3 => 44.00, 4 => 50.50, 5 => 51.50, 6 => 60.75, 8 => 70.75, 10 => 83.75, 12 => 100.75, 15 => 135.75,
@@ -36,40 +36,39 @@
     ksort($tarifs);
 @endphp
 
+{{-- ── Section Pierres ──────────────────────────────────────────────────── --}}
 @foreach($stocksGroupes as $epaisseur => $items)
     @php
         $surfaceEpaisseur = $items->sum(fn($i) => $i->longueur * $i->largeur * $i->quantite);
-        $valeurEpaisseur = 0;
+        $valeurEpaisseur  = 0;
 
-        // Calcul de la valeur pour chaque item (car la formule >30cm dépend des dimensions de l'item)
         foreach($items as $item) {
             $surfaceItem = $item->longueur * $item->largeur * $item->quantite;
             $prixM2 = 0;
-
             foreach($tarifs as $seuil => $prix) {
-                if ($seuil >= $item->epaisseur) {
-                    $prixM2 = $prix;
-                    break;
-                }
+                if ($seuil >= $item->epaisseur) { $prixM2 = $prix; break; }
             }
-
             if ($prixM2 > 0) {
                 $valeurEpaisseur += $surfaceItem * $prixM2;
             } else {
-                // TA FORMULE : Longueur * Largeur * (Epaisseur/100) * 2500 * Quantité
                 $valeurEpaisseur += ($item->longueur * $item->largeur * ($item->epaisseur / 100) * 2500) * $item->quantite;
             }
         }
 
         $totalSurfaceGlobale += $surfaceEpaisseur;
-        $totalValeurGlobale += $valeurEpaisseur;
+        $totalValeurGlobale  += $valeurEpaisseur;
     @endphp
 
     <div class="epaisseur-section">
         <div class="epaisseur-badge">{{ $epaisseur }} CM</div>
         <table>
             <thead>
-            <tr><th>Matière</th><th>Quantité</th><th>Dimensions</th><th class="txt-right">Surface</th></tr>
+            <tr>
+                <th>Matière</th>
+                <th>Quantité</th>
+                <th>Dimensions</th>
+                <th class="txt-right">Surface</th>
+            </tr>
             </thead>
             <tbody>
             @foreach($items as $item)
@@ -118,7 +117,7 @@
             @foreach($blocs as $bloc)
                 @php
                     $volume = $bloc->hauteur * $bloc->largeur * $bloc->longueur;
-                    $prix   = $volume * 155.75;
+                    $prix   = $bloc->poids * 155.75;
                     $totalVolumeBlocs += $volume;
                     $totalValeurBlocs += $prix;
                 @endphp
@@ -143,10 +142,53 @@
     @php $totalValeurGlobale += $totalValeurBlocs; @endphp
 @endif
 
+{{-- ── Section Cassons ───────────────────────────────────────────────────── --}}
+@if(isset($cassons) && $cassons->count())
+    @php
+        $totalValeurCassons = 0;
+    @endphp
+
+    <div class="epaisseur-section" style="margin-top: 40px;">
+        <div class="epaisseur-badge" style="background: #5d6d7e;">CASSONS</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Matière</th>
+                <th>Longueur (m)</th>
+                <th>Largeur (m)</th>
+                <th class="txt-right">Épaisseur (cm)</th>
+                <th class="txt-right">Valeur Est.</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($cassons as $casson)
+                @php
+                    $valeurCasson        = $casson->largeur * $casson->longueur * ($casson->epaisseur / 100) * 2500;
+                    $totalValeurCassons += $valeurCasson;
+                @endphp
+                <tr>
+                    <td><strong>{{ $casson->matiere }}</strong></td>
+                    <td>{{ number_format($casson->longueur, 2) }} m</td>
+                    <td>{{ number_format($casson->largeur, 2) }} m</td>
+                    <td class="txt-right">{{ $casson->epaisseur }} cm</td>
+                    <td class="txt-right">{{ number_format($valeurCasson, 2, ',', ' ') }} €</td>
+                </tr>
+            @endforeach
+            <tr class="subtotal-row">
+                <td colspan="4" class="txt-right">TOTAL CASSONS</td>
+                <td class="txt-right">{{ number_format($totalValeurCassons, 2, ',', ' ') }} €</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    @php $totalValeurGlobale += $totalValeurCassons; @endphp
+@endif
+
+{{-- ── Totaux globaux ────────────────────────────────────────────────────── --}}
 <div class="grand-total-box">
     <table style="color: white; margin: 0; width: 100%;">
         <tr>
-            <td style="font-size: 14pt; border: none;">SURFACE TOTALE</td>
+            <td style="font-size: 14pt; border: none;">SURFACE TOTALE (PIERRES)</td>
             <td class="txt-right" style="font-size: 14pt; border: none;">{{ number_format($totalSurfaceGlobale, 2, ',', ' ') }} m²</td>
         </tr>
         <tr>
@@ -155,5 +197,6 @@
         </tr>
     </table>
 </div>
+
 </body>
 </html>
