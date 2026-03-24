@@ -113,6 +113,8 @@ class StocksController extends Controller
             'longueur'  => 'required|numeric|min:0',
             'largeur'   => 'required|numeric|min:0',
             'epaisseur' => 'required|integer|min:1',
+            'quantite' =>   'required|integer|min:1',
+
         ]);
 
         StockCasson::create($data);
@@ -129,6 +131,7 @@ class StocksController extends Controller
             'longueur'  => 'required|numeric|min:0',
             'largeur'   => 'required|numeric|min:0',
             'epaisseur' => 'required|integer|min:1',
+            'quantite' =>   'required|integer|min:1',
         ]);
 
         $casson->update($data);

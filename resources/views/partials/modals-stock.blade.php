@@ -127,17 +127,21 @@
                                 <input type="text" name="matiere" id="casson_matiere" class="form-control"
                                        value="Pierre Bleue" placeholder="ex: Calcaire, Grès…" required>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Quantité (Unités)</label>
+                                <input type="number" name="quantite" id="casson_quantite" class="form-control" required>
+                            </div>
+                            <div class="col-4">
                                 <label class="form-label fw-bold">Longueur (m)</label>
                                 <input type="number" step="0.01" name="longueur" id="casson_longueur"
                                        class="form-control" placeholder="0.00" min="0" required>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label class="form-label fw-bold">Largeur (m)</label>
                                 <input type="number" step="0.01" name="largeur" id="casson_largeur"
                                        class="form-control" placeholder="0.00" min="0" required>
                             </div>
-                            <div class="col-12">
+                            <div class="col-4">
                                 <label class="form-label fw-bold">Épaisseur (cm)</label>
                                 <input type="number" name="epaisseur" id="casson_epaisseur"
                                        class="form-control" min="1" required>
@@ -318,6 +322,8 @@
                 document.getElementById('casson_longueur').value = btnCasson.dataset.longueur;
                 document.getElementById('casson_largeur').value = btnCasson.dataset.largeur;
                 document.getElementById('casson_epaisseur').value = btnCasson.dataset.epaisseur;
+                document.getElementById('casson_quantite').value = btnCasson.dataset.quantite;
+
 
                 document.getElementById('formCassonMethod').value = 'PUT';
                 formCasson.action = '/stocks/cassons/' + btnCasson.dataset.id;

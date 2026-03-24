@@ -280,6 +280,7 @@
             <thead>
             <tr>
                 <th>Matière</th>
+                <th>Quantitée</th>
                 <th>Longueur (m)</th>
                 <th>Largeur (m)</th>
                 <th>Épaisseur (cm)</th>
@@ -295,6 +296,7 @@
                     @endphp
                     <tr>
                         <td><span class="text-uppercase fw-bold">{{ $casson->matiere }}</span></td>
+                        <td>{{ number_format(($casson->quantite)) }}</td>
                         <td>{{ number_format($casson->longueur, 2) }} m</td>
                         <td>{{ number_format($casson->largeur, 2) }} m</td>
                         <td><span class="badge bg-dark px-3 py-2">{{ $casson->epaisseur }} cm</span></td>
@@ -306,8 +308,8 @@
                                         data-matiere="{{ $casson->matiere }}"
                                         data-longueur="{{ $casson->longueur }}"
                                         data-largeur="{{ $casson->largeur }}"
-                                        data-epaisseur="{{ $casson->epaisseur }}">
-                                    <i class="fa fa-edit"></i>
+                                        data-epaisseur="{{ $casson->epaisseur }}"
+                                        data-quantite="{{ $casson->quantite }}"> <i class="fa fa-edit"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger border-0 btn-delete-casson"
                                         data-id="{{ $casson->id }}">

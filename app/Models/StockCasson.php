@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class StockCasson extends Model
 {
     protected $fillable = [
+        'quantite',
         'matiere',
         'longueur',
         'largeur',
