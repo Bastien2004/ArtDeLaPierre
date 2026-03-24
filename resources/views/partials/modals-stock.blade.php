@@ -220,15 +220,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const modalStock = document.getElementById('modalStock');
+        const bsModal = new bootstrap.Modal(modalStock);
 
         const typePierre = document.getElementById('typePierre');
         const typeBloc   = document.getElementById('typeBloc');
         const typeCasson = document.getElementById('typeCasson');
+
         const formStock  = document.getElementById('formStock');
         const formBloc   = document.getElementById('formBloc');
         const formCasson = document.getElementById('formCasson');
 
-        // ── Affiche le bon formulaire selon l'onglet sélectionné ────────────
         function switchType(type) {
             formStock.style.display  = type === 'pierre' ? '' : 'none';
             formBloc.style.display   = type === 'bloc'   ? '' : 'none';
@@ -239,126 +241,109 @@
         typeBloc.addEventListener('change',   () => switchType('bloc'));
         typeCasson.addEventListener('change', () => switchType('casson'));
 
-        // ── Réinitialiser à l'ouverture (sauf si édition) ───────────────────
-        document.getElementById('modalStock').addEventListener('show.bs.modal', function () {
-            if (!this.dataset.editing) {
-                typePierre.checked = true;
-                typeCasson.checked = false;
-                typeBloc.checked   = false;
-                switchType('pierre');
-            }
-            delete this.dataset.editing;
-        });
-
-        // ── Bouton Nouvelle Entrée (reset complet) ───────────────────────────
+        // --- BOUTON AJOUTER ---
         document.getElementById('btnAjouter').addEventListener('click', function () {
             formStock.reset();
             formBloc.reset();
             formCasson.reset();
-            document.getElementById('modalTitle').textContent   = 'Nouvelle Entrée';
-            document.getElementById('formMethod').value         = 'POST';
-            formStock.action                                     = "{{ route('stocks.store') }}";
-            document.getElementById('formBlocMethod').value     = 'POST';
-            formBloc.action                                      = "{{ route('stocks.blocs.store') }}";
-            document.getElementById('formCassonMethod').value   = 'POST';
-            formCasson.action                                    = "{{ route('stocks.cassons.store') }}";
-        });
 
-        // ── Édition Pierre ───────────────────────────────────────────────────
-        document.getElementById('tableStock')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-edit');
-            if (!btn) return;
+            document.getElementById('modalTitle').textContent = 'Nouvelle Entrée';
 
-            document.getElementById('modalStock').dataset.editing = '1';
-            typePierre.checked = true;
-            typeBloc.checked   = false;
-            typeCasson.checked = false;
+            // Reset Methods & Actions
+            document.getElementById('formMethod').value = 'POST';
+            formStock.action = "{{ route('stocks.store') }}";
+
+            document.getElementById('formBlocMethod').value = 'POST';
+            formBloc.action = "{{ route('stocks.blocs.store') }}";
+
+            document.getElementById('formCassonMethod').value = 'POST';
+            formCasson.action = "{{ route('stocks.cassons.store') }}";
+
             switchType('pierre');
-
-            document.getElementById('modalTitle').textContent = 'Modifier la pierre';
-            document.getElementById('stock_id').value         = btn.dataset.id;
-            document.getElementById('matiere').value          = btn.dataset.matiere;
-            document.getElementById('quantite').value         = btn.dataset.qte;
-            document.getElementById('longueur').value         = btn.dataset.long;
-            document.getElementById('largeur').value          = btn.dataset.larg;
-            document.getElementById('epaisseur').value        = btn.dataset.epais;
-            document.getElementById('formMethod').value       = 'PUT';
-            formStock.action = '/stocks/' + btn.dataset.id;
-
-            new bootstrap.Modal(document.getElementById('modalStock')).show();
+            typePierre.checked = true;
         });
 
-        // ── Suppression Pierre ───────────────────────────────────────────────
-        document.getElementById('tableStock')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-delete');
-            if (!btn) return;
-            document.getElementById('formDelete').action = '/stocks/' + btn.dataset.id;
-            new bootstrap.Modal(document.getElementById('modalDelete')).show();
+        // --- ÉDITION PIERRE ---
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-edit');
+            if (btn) {
+                modalStock.dataset.editing = '1';
+                switchType('pierre');
+                typePierre.checked = true;
+
+                document.getElementById('modalTitle').textContent = 'Modifier la pierre';
+                document.getElementById('stock_id').value = btn.dataset.id;
+                document.getElementById('matiere').value = btn.dataset.matiere;
+                document.getElementById('quantite').value = btn.dataset.qte;
+                document.getElementById('longueur').value = btn.dataset.long;
+                document.getElementById('largeur').value = btn.dataset.larg;
+                document.getElementById('epaisseur').value = btn.dataset.epais;
+
+                document.getElementById('formMethod').value = 'PUT';
+                formStock.action = '/stocks/' + btn.dataset.id;
+                bsModal.show();
+            }
+
+            // --- ÉDITION BLOC ---
+            const btnBloc = e.target.closest('.btn-edit-bloc');
+            if (btnBloc) {
+                modalStock.dataset.editing = '1';
+                switchType('bloc');
+                typeBloc.checked = true;
+
+                document.getElementById('modalTitle').textContent = 'Modifier le bloc';
+                document.getElementById('bloc_id').value = btnBloc.dataset.id;
+                document.getElementById('bloc_reference').value = btnBloc.dataset.reference;
+                document.getElementById('bloc_matiere').value = btnBloc.dataset.matiere;
+                document.getElementById('bloc_hauteur').value = btnBloc.dataset.hauteur;
+                document.getElementById('bloc_largeur').value = btnBloc.dataset.largeur;
+                document.getElementById('bloc_longueur').value = btnBloc.dataset.longueur;
+                document.getElementById('bloc_poids').value = btnBloc.dataset.poids;
+
+                document.getElementById('formBlocMethod').value = 'PUT';
+                formBloc.action = '/stocks/blocs/' + btnBloc.dataset.id;
+                bsModal.show();
+            }
+
+            // --- ÉDITION CASSON ---
+            const btnCasson = e.target.closest('.btn-edit-casson');
+            if (btnCasson) {
+                modalStock.dataset.editing = '1';
+                switchType('casson');
+                typeCasson.checked = true;
+
+                document.getElementById('modalTitle').textContent = 'Modifier le casson';
+                document.getElementById('casson_id').value = btnCasson.dataset.id;
+                document.getElementById('casson_matiere').value = btnCasson.dataset.matiere;
+                document.getElementById('casson_longueur').value = btnCasson.dataset.longueur;
+                document.getElementById('casson_largeur').value = btnCasson.dataset.largeur;
+                document.getElementById('casson_epaisseur').value = btnCasson.dataset.epaisseur;
+
+                document.getElementById('formCassonMethod').value = 'PUT';
+                formCasson.action = '/stocks/cassons/' + btnCasson.dataset.id;
+                bsModal.show();
+            }
         });
 
-        // ── Édition Bloc ─────────────────────────────────────────────────────
-        document.getElementById('tableBlocs')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-edit-bloc');
-            if (!btn) return;
+        // --- SUPPRESSIONS (Correction des URLs) ---
+        document.addEventListener('click', function(e) {
+            const delPierre = e.target.closest('.btn-delete');
+            if (delPierre) {
+                document.getElementById('formDelete').action = '/stocks/' + delPierre.dataset.id;
+                new bootstrap.Modal(document.getElementById('modalDelete')).show();
+            }
 
-            document.getElementById('modalStock').dataset.editing = '1';
-            typeBloc.checked   = true;
-            typePierre.checked = false;
-            typeCasson.checked = false;
-            switchType('bloc');
+            const delBloc = e.target.closest('.btn-delete-bloc');
+            if (delBloc) {
+                document.getElementById('formDeleteBloc').action = '/stocks/blocs/' + delBloc.dataset.id;
+                new bootstrap.Modal(document.getElementById('modalDeleteBloc')).show();
+            }
 
-            document.getElementById('modalTitle').textContent  = 'Modifier le bloc';
-            document.getElementById('bloc_id').value           = btn.dataset.id;
-            document.getElementById('bloc_reference').value    = btn.dataset.reference;
-            document.getElementById('bloc_matiere').value      = btn.dataset.matiere;
-            document.getElementById('bloc_hauteur').value      = btn.dataset.hauteur;
-            document.getElementById('bloc_largeur').value      = btn.dataset.largeur;
-            document.getElementById('bloc_longueur').value     = btn.dataset.longueur;
-            document.getElementById('bloc_poids').value        = btn.dataset.poids;
-            document.getElementById('formBlocMethod').value    = 'PUT';
-            formBloc.action = '/stocks/blocs/' + btn.dataset.id;
-
-            new bootstrap.Modal(document.getElementById('modalStock')).show();
+            const delCasson = e.target.closest('.btn-delete-casson');
+            if (delCasson) {
+                document.getElementById('formDeleteCasson').action = '/stocks/cassons/' + delCasson.dataset.id;
+                new bootstrap.Modal(document.getElementById('modalDeleteCasson')).show();
+            }
         });
-
-        // ── Suppression Bloc ─────────────────────────────────────────────────
-        document.getElementById('tableBlocs')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-delete-bloc');
-            if (!btn) return;
-            document.getElementById('formDeleteBloc').action = '/stocks/blocs/' + btn.dataset.id;
-            new bootstrap.Modal(document.getElementById('modalDeleteBloc')).show();
-        });
-
-        // ── Édition Casson ───────────────────────────────────────────────────
-        document.getElementById('tableCassons')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-edit-casson');
-            if (!btn) return;
-
-            document.getElementById('modalStock').dataset.editing = '1';
-            typeCasson.checked = true;
-            typePierre.checked = false;
-            typeBloc.checked   = false;
-            switchType('casson');
-
-            document.getElementById('modalTitle').textContent    = 'Modifier le casson';
-            document.getElementById('casson_id').value           = btn.dataset.id;
-            document.getElementById('casson_matiere').value      = btn.dataset.matiere;
-            document.getElementById('casson_longueur').value     = btn.dataset.longueur;
-            document.getElementById('casson_largeur').value      = btn.dataset.largeur;
-            document.getElementById('casson_epaisseur').value    = btn.dataset.epaisseur;
-            document.getElementById('formCassonMethod').value    = 'PUT';
-            formCasson.action = '/stocks/cassons/' + btn.dataset.id;
-
-            new bootstrap.Modal(document.getElementById('modalStock')).show();
-        });
-
-        // ── Suppression Casson ───────────────────────────────────────────────
-        document.getElementById('tableCassons')?.addEventListener('click', function (e) {
-            const btn = e.target.closest('.btn-delete-casson');
-            if (!btn) return;
-            document.getElementById('formDeleteCasson').action = '/stocks/cassons/' + btn.dataset.id;
-            new bootstrap.Modal(document.getElementById('modalDeleteCasson')).show();
-        });
-
     });
 </script>

@@ -404,7 +404,7 @@
         // ── Gestion Suppression Bloc ─────────────────────────────────────────────
         $('#tableBlocs').on('click', '.btn-delete-bloc', function() {
             const id = $(this).data('id');
-            $('#formDeleteBloc').attr('action', "/blocs/" + id);
+            $('#formDeleteBloc').attr('action', "/stocks/blocs/" + id);
             $('#modalDeleteBloc').modal('show');
         });
 
@@ -425,7 +425,7 @@
         // ── Gestion Suppression Casson ───────────────────────────────────────────
         $('#tableCassons').on('click', '.btn-delete-casson', function() {
             const id = $(this).data('id');
-            $('#formDeleteCasson').attr('action', '/cassons/' + id);
+            $('#formDeleteCasson').attr('action', '/stocks/cassons/' + id);
             $('#modalDeleteCasson').modal('show');
         });
 
