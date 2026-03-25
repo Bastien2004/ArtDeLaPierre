@@ -161,7 +161,21 @@
                 <input type="hidden" id="email_date">
                 <div class="mb-3">
                     <label class="form-label">Destinataire</label>
-                    <input type="email" id="email_destinataire" class="form-control" placeholder="client@exemple.com">
+                    <div style="display:flex; gap:8px; position:relative;">
+                        <input type="email" id="email_destinataire" class="form-control" autocomplete="off">
+                        <button type="button"
+                                onclick="ouvrirCarnetDevis()"
+                                class="btn btn-outline-secondary"
+                                title="Carnet d'adresses">
+                            <i class="fa fa-address-book"></i>
+                        </button>
+                        <ul id="email-suggestions-modal"
+                            style="display:none; position:absolute; top:100%; left:0;
+                   width:calc(100% - 50px); background:white; border:1px solid #ddd;
+                   border-radius:8px; list-style:none; margin:0; padding:4px 0;
+                   z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                        </ul>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Objet</label>

@@ -381,6 +381,41 @@
             $('#modalEmail').modal('show');
         });
 
+        $(document).on('input', '#email_destinataire', function() {
+            const q = $(this).val().trim();
+            $('#email-suggestions-modal').empty().hide();
+            if (q.length < 2) return;
+
+            fetch('/emails/search?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(function(emails) {
+                    if (!emails.length) return;
+                    emails.forEach(function(email) {
+                        $('<li></li>')
+                            .text(email)
+                            .css({ padding: '8px 14px', cursor: 'pointer', fontSize: '0.9em' })
+                            .hover(
+                                function() { $(this).css('background', '#f8f4ef'); },
+                                function() { $(this).css('background', 'white'); }
+                            )
+                            .on('mousedown', function(e) {
+                                e.preventDefault();
+                                $('#email_destinataire').val(email);
+                                $('#email-suggestions-modal').empty().hide();
+                            })
+                            .appendTo('#email-suggestions-modal');
+                    });
+                    $('#email-suggestions-modal').show();
+                });
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#email_destinataire, #email-suggestions-modal').length) {
+                $('#email-suggestions-modal').empty().hide();
+            }
+        });
+
+
         $(document).on('click', '#btn-send-email', function() {
             const btn = $(this);
             btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Envoi...');
@@ -428,6 +463,74 @@
         });
 
     });
+
+    function ouvrirCarnetDevis() {
+        $('#carnet-devis-overlay').remove();
+
+        fetch('/emails/search?q=')
+            .then(r => r.json())
+            .then(function(emails) {
+                if (!emails.length) {
+                    alert('Aucune adresse dans le carnet.');
+                    return;
+                }
+
+                let items = '';
+                emails.forEach(function(email) {
+                    items +=
+                        '<div onclick="choisirEmailDevis(\'' + email + '\')" ' +
+                        'style="padding:10px 16px;cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:0.9em;" ' +
+                        'onmouseover="this.style.background=\'#f8f4ef\'" ' +
+                        'onmouseout="this.style.background=\'white\'">' +
+                        '<i class="fa fa-envelope me-2" style="color:#d4af37"></i>' + email +
+                        '</div>';
+                });
+
+                const overlay =
+                    '<div id="carnet-devis-overlay" ' +
+                    'style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999999;' +
+                    'display:flex;align-items:center;justify-content:center;" ' +
+                    'onclick="if(event.target===this)$(\'#carnet-devis-overlay\').remove()">' +
+                    '<div style="background:white;border-radius:16px;width:420px;max-width:90vw;' +
+                    'max-height:70vh;display:flex;flex-direction:column;overflow:hidden;' +
+                    'box-shadow:0 20px 50px rgba(0,0,0,0.2)">' +
+                    '<div style="padding:16px 20px;border-bottom:1px solid #eee;' +
+                    'display:flex;justify-content:space-between;align-items:center">' +
+                    '<strong>Carnet d\'adresses</strong>' +
+                    '<button onclick="$(\'#carnet-devis-overlay\').remove()" ' +
+                    'style="border:none;background:none;font-size:1.2em;cursor:pointer">×</button>' +
+                    '</div>' +
+                    '<div style="padding:10px 16px;border-bottom:1px solid #eee">' +
+                    '<input type="text" placeholder="Rechercher..." ' +
+                    'oninput="filtrerCarnetDevis(this.value)" ' +
+                    'style="width:100%;padding:8px;border:1px solid #ddd;' +
+                    'border-radius:8px;box-sizing:border-box">' +
+                    '</div>' +
+                    '<div id="carnet-devis-liste" style="overflow-y:auto;flex:1">' +
+                    items +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                $('body').append(overlay);
+                // Focus sur la recherche
+                setTimeout(function() {
+                    $('#carnet-devis-overlay input').focus();
+                }, 100);
+            });
+    }
+
+    function choisirEmailDevis(email) {
+        $('#email_destinataire').val(email);
+        $('#carnet-devis-overlay').remove();
+    }
+
+    function filtrerCarnetDevis(q) {
+        $('#carnet-devis-liste > div').each(function() {
+            const email = $(this).text().trim().toLowerCase();
+            $(this).toggle(email.includes(q.toLowerCase()));
+        });
+    }
 </script>
 @include('partials.modals-devis')
 </body>
