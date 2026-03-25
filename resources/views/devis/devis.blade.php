@@ -173,41 +173,157 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    $(document).on('click', '.btn-edit-modal', function() {
-        const btn = $(this);
-        const id       = btn.data('id');
-        const pierre   = btn.data('pierre');
-        const nb       = btn.data('nb');
-        const long     = btn.data('long');
-        const larg     = btn.data('larg');
-        const prix     = btn.data('prix');
-        const poids    = btn.data('poids');
-        const epaisseur = btn.data('epaisseur');
-        const specs    = btn.data('specs'); // tableau JSON
+    // ============================================================
+    // FONCTIONS GLOBALES (hors document.ready)
+    // ============================================================
 
-        // Remplir les champs
+    function updateModalTotal() {
+        const totalPierre = (parseFloat($('#edit_long').val())||0)
+            * (parseFloat($('#edit_larg').val())||0)
+            * (parseFloat($('#edit_prix').val())||0)
+            * (parseFloat($('#edit_nb').val())||0);
+        let totalSpecs = 0;
+        $('.spec-prix-edit').each(function() {
+            totalSpecs += parseFloat($(this).val()) || 0;
+        });
+        // $('#total_ligne_edit').text((totalPierre + totalSpecs).toFixed(2));
+    }
+
+    function addSpecRow(nom, prix, unite, basePrice) {
+        nom       = nom       || '';
+        prix      = prix      || 0;
+        unite     = unite     || 'u';
+        basePrice = basePrice || 0;
+
+        const uniqueId  = 'spec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const isManual  = (parseFloat(basePrice) === 0);
+        const prixInput = parseFloat(prix).toFixed(2);
+
+        const readonlyAttr = isManual ? '' : 'readonly';
+        const bgStyle      = isManual ? '' : 'style="background:#f8f9fa"';
+
+        const html =
+            '<div class="row mb-2 align-items-center ligne-spec-edit" data-unite="' + unite + '" data-base-price="' + basePrice + '">' +
+            '<div class="col-5">' +
+            '<input type="text"' +
+            ' name="specs[' + uniqueId + '][nom]"' +
+            ' value="' + nom + '"' +
+            ' class="form-control form-control-sm spec-nom-edit"' +
+            ' placeholder="Nom de l\'option" required>' +
+            '</div>' +
+            '<div class="col-4">' +
+            '<div class="input-group input-group-sm">' +
+            '<input type="number" step="0.01"' +
+            ' name="specs[' + uniqueId + '][prix]"' +
+            ' value="' + prixInput + '"' +
+            ' class="form-control spec-prix-edit"' +
+            ' ' + readonlyAttr + ' ' + bgStyle + ' required>' +
+            '<span class="input-group-text">€</span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-2">' +
+            '<span class="badge bg-secondary" style="font-size:0.7em">' + unite + '</span>' +
+            '</div>' +
+            '<div class="col-1 text-end">' +
+            '<button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec">' +
+            '<i class="fa-solid fa-trash"></i>' +
+            '</button>' +
+            '</div>' +
+            '<input type="hidden" name="specs[' + uniqueId + '][base_price]" value="' + basePrice + '">' +
+            '<input type="hidden" name="specs[' + uniqueId + '][unite]" value="' + unite + '">' +
+            '</div>';
+
+        $('#wrapper-specs-edit').append(html);
+        updateModalTotal();
+    }
+
+    function addSpecToEdit(nom, prixUnitaire, unite) {
+        const long = parseFloat($('#edit_long').val()) || 0;
+        const qte  = parseFloat($('#edit_nb').val())   || 1;
+        let prixFinal;
+        if (unite === 'ml') {
+            const longEffective = (nom.toLowerCase().includes('rejingot') && long < 1 && long > 0) ? 1 : long;
+            prixFinal = prixUnitaire * longEffective * qte;
+        } else {
+            prixFinal = prixUnitaire * qte;
+        }
+        addSpecRow(nom, prixFinal, unite, prixUnitaire);
+    }
+
+    // ============================================================
+    // EVENTS (peuvent rester hors document.ready car délégués)
+    // ============================================================
+
+    $(document).on('click', '.btn-edit-modal', function() {
+        const btn      = $(this);
+        const id       = btn.data('id');
+        const specs    = btn.data('specs');
+
         $('#display_id').text(id);
         $('#editForm').attr('action', '/devis/' + id);
-        $('#edit_pierre').val(pierre);
-        $('#edit_nb').val(nb);
-        $('#edit_long').val(long);
-        $('#edit_larg').val(larg);
-        $('#edit_prix').val(prix);
-        $('#edit_poids').val(poids);
-        $('#edit_epaisseur').val(epaisseur);
+        $('#edit_pierre').val(btn.data('pierre'));
+        $('#edit_nb').val(btn.data('nb'));
+        $('#edit_long').val(btn.data('long'));
+        $('#edit_larg').val(btn.data('larg'));
+        $('#edit_prix').val(btn.data('prix'));
+        $('#edit_poids').val(btn.data('poids'));
+        $('#edit_epaisseur').val(btn.data('epaisseur'));
 
-        // Vider et recharger les specs
         $('#wrapper-specs-edit').empty();
         if (specs && specs.length > 0) {
             specs.forEach(function(spec) {
-                addSpecRow(spec.nom, spec.prix, spec.unite ?? 'u', spec.base_price ?? 0);
+                addSpecRow(
+                    spec.nom,
+                    spec.prix,
+                    spec.unite      || 'u',
+                    spec.base_price || 0
+                );
             });
         }
+        updateModalTotal();
+    });
+
+    $(document).on('click', '.btn-remove-spec', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).closest('.ligne-spec-edit').remove();
+        updateModalTotal();
+    });
+
+    $(document).on('click', '#add-spec-manual-edit', function() {
+        addSpecRow('', 0, 'u', 0);
+    });
+
+    $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix, #edit_epaisseur', function() {
+        const long   = parseFloat($('#edit_long').val())      || 0;
+        const larg   = parseFloat($('#edit_larg').val())      || 0;
+        const epais  = parseFloat($('#edit_epaisseur').val()) || 0;
+        const qte    = parseFloat($('#edit_nb').val())        || 0;
+        const prixM2 = parseFloat($('#edit_prix').val())      || 0;
+
+        const densite      = 2700;
+        const poidsCalcule = long * larg * (epais / 100) * densite * qte;
+        $('#edit_poids').val(poidsCalcule.toFixed(2));
+
+        $('.spec-prix-edit').each(function() {
+            const row     = $(this).closest('.ligne-spec-edit');
+            const base    = parseFloat(row.data('base-price')) || 0;
+            const unite   = row.data('unite');
+            const nomSpec = row.find('.spec-nom-edit').val().toLowerCase();
+
+            if (base === 0) return; // spec manuelle → ne pas toucher
+
+            if (unite === 'ml') {
+                const longEff = (nomSpec.includes('rejingot') && long < 1 && long > 0) ? 1 : long;
+                $(this).val((base * longEff * qte).toFixed(2));
+            } else {
+                $(this).val((base * qte).toFixed(2));
+            }
+        });
 
         updateModalTotal();
     });
 
-    // Toggle dropdown téléchargement
     $(document).on('click', '.btn-dl-main', function(e) {
         e.stopPropagation();
         const wrapper = $(this).closest('.dl-dropdown-wrapper');
@@ -215,19 +331,54 @@
         wrapper.toggleClass('open');
     });
 
-    // Fermer si clic ailleurs
     $(document).on('click', function() {
         $('.dl-dropdown-wrapper').removeClass('open');
     });
 
+    $(document).on('click', '.btn-edit-transport', function() {
+        const btn = $(this);
+        $('#livraison_client').val(btn.data('client'));
+        $('#livraison_date').val(btn.data('date'));
+        $('#livraison_input').val(btn.data('current'));
+        $('#modalLivraison').modal('show');
+    });
+
+    $(document).on('click', '.btn-delete-trigger', function() {
+        const id = $(this).data('id');
+        $('#delete_display_id').text(id);
+        $('#deleteForm').attr('action', '/devis/' + id);
+    });
+
+    // ============================================================
+    // DOCUMENT READY
+    // ============================================================
+
     $(document).ready(function() {
-        // 1. DataTable
-        const table = $('#tableDevis').DataTable({
+
+        $('#tableDevis').DataTable({
             responsive: true,
-            ordering: false,
+            ordering:   false,
             pageLength: 50,
-            dom: '<"top"f>rt<"bottom"lp><"clear">',
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
+            dom:        '<"top"f>rt<"bottom"lp><"clear">',
+            language:   { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
+        });
+
+        $(document).on('click', '.btn-email-devis', function() {
+            const client = $(this).data('client');
+            const date   = $(this).data('date');
+            const total  = $(this).data('total');
+
+            $('#email_destinataire').val('');
+            $('#email_objet').val('Votre devis – Art de la Pierre');
+            $('#email_message').val(
+                'Bonjour ' + client + ',\n\n' +
+                'Veuillez trouver ci-joint votre devis d\'un montant de ' + total + ' € HT.\n\n' +
+                'N\'hésitez pas à nous contacter pour toute question.\n\n' +
+                'Cordialement,\nL\'art de la Pierre'
+            );
+            $('#email_client').val(client);
+            $('#email_date').val(date);
+            $('#modalEmail').modal('show');
         });
 
         $(document).on('click', '#btn-send-email', function() {
@@ -235,10 +386,10 @@
             btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Envoi...');
 
             $.ajax({
-                url: '{{ route("devis.sendEmail") }}',
+                url:    '{{ route("devis.sendEmail") }}',
                 method: 'POST',
                 data: {
-                    _token: '{{ csrf_token() }}',
+                    _token:       '{{ csrf_token() }}',
                     destinataire: $('#email_destinataire').val(),
                     objet:        $('#email_objet').val(),
                     message:      $('#email_message').val(),
@@ -248,142 +399,17 @@
                 success: function() {
                     $('#modalEmail').modal('hide');
                     btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Envoyer');
-                    // Toast succès
                     $('body').append('<div class="toast-success">Mail envoyé ✓</div>');
                     setTimeout(() => $('.toast-success').remove(), 3000);
                 },
                 error: function(xhr) {
                     btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane me-1"></i> Envoyer');
-
-                    if (xhr.status === 422) {
-                        alert('Données invalides. Vérifiez le destinataire, l\'objet et le message.');
-                    } else if (xhr.status === 500) {
-                        alert('Erreur serveur : impossible d\'envoyer le mail. Vérifiez la configuration SMTP.');
-                    } else if (xhr.status === 0) {
-                        alert('Pas de connexion réseau. Vérifiez votre connexion internet.');
-                    } else {
-                        alert('Erreur inattendue (' + xhr.status + '). Réessayez.');
-                    }
+                    if      (xhr.status === 422) alert('Données invalides.');
+                    else if (xhr.status === 500) alert('Erreur serveur SMTP.');
+                    else if (xhr.status === 0)   alert('Pas de connexion réseau.');
+                    else                         alert('Erreur inattendue (' + xhr.status + ').');
                 }
             });
-        });
-
-        function updateMailtoLink() {
-            const dest  = encodeURIComponent($('#email_destinataire').val());
-            const objet = encodeURIComponent($('#email_objet').val());
-            const corps = encodeURIComponent($('#email_message').val());
-            $('#email_mailto_btn').attr('href', `mailto:${dest}?subject=${objet}&body=${corps}`);
-        }
-
-        $(document).on('input', '#email_destinataire, #email_objet, #email_message', updateMailtoLink);
-
-        // 2. MODAL MODIFICATION (Ouverture)
-        $(document).on('click', '.btn-email-devis', function() {
-            const client = $(this).data('client');
-            const date   = $(this).data('date');
-            const total  = $(this).data('total');
-
-            $('#email_destinataire').val('');
-            $('#email_objet').val('Votre devis – Art de la Pierre');
-            $('#email_message').val('Bonjour ' + client + ',\n\nVeuillez trouver ci-joint votre devis d\'un montant de ' + total + ' € HT.\n\nN\'hésitez pas à nous contacter pour toute question.\n\nCordialement,\nL\'art de la Pierre');
-            $('#email_client').val(client);  // ← champs cachés
-            $('#email_date').val(date);
-
-            $('#modalEmail').modal('show');
-        });
-
-
-        // 3. FONCTION AJOUT SPEC
-        function addSpecRow(nom = '', prix = 0, unite = 'u', basePrice = 0) {
-            const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
-            const html = `
-    <div class="row mb-2 spec-row-edit align-items-center ligne-spec-edit">
-        <div class="col-6">
-            <input type="text" name="specs[${uniqueId}][nom]" value="${nom}" class="form-control form-control-sm" placeholder="Nom de l'option" required>
-        </div>
-        <div class="col-4">
-            <div class="input-group input-group-sm">
-                <input type="number" step="0.01" name="specs[${uniqueId}][prix]" value="${parseFloat(prix).toFixed(2)}"
-                       class="form-control spec-prix-edit"
-                       data-unite="${unite}"
-                       data-base-price="${basePrice}" required>
-                <span class="input-group-text">€</span>
-            </div>
-        </div>
-        <div class="col-2 text-end">
-            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-spec"><i class="fa-solid fa-trash"></i></button>
-        </div>
-    </div>`;
-
-            $('#wrapper-specs-edit').append(html);
-            updateModalTotal();
-        }
-
-        // 4. BOUTONS SPEC (Action)
-        $(document).on('click', '#add-spec-manual-edit', () => addSpecRow());
-        $(document).on('click', '.btn-remove-spec', function() {
-            $(this).closest('.ligne-spec-edit').remove();
-            updateModalTotal();
-        });
-
-        window.addSpecToEdit = function(nom, prixUnitaire, unite) {
-            const long = parseFloat($('#edit_long').val()) || 0;
-            const qte = parseFloat($('#edit_nb').val()) || 1;
-            let prixFinal;
-            if (unite === 'ml') {
-                const longEffective = (nom.toLowerCase().includes('rejingot') && long < 1 && long > 0) ? 1 : long;
-                prixFinal = prixUnitaire * longEffective * qte;
-            } else {
-                prixFinal = prixUnitaire * qte;
-            }
-            addSpecRow(nom, prixFinal, unite, prixUnitaire);
-        };
-
-        // 5. CALCULS AUTO
-        $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix, #edit_epaisseur', function() {
-
-            // Récupération des valeurs
-            const long = parseFloat($('#edit_long').val()) || 0;
-            const larg = parseFloat($('#edit_larg').val()) || 0;
-            const epais = parseFloat($('#edit_epaisseur').val()) || 0;
-            const qte = parseFloat($('#edit_nb').val()) || 0;
-            const prixM2 = parseFloat($('#edit_prix').val()) || 0;
-
-            // Epaisseur est en cm, on divise par 100 pour l'avoir en mètres
-            // Densité moyenne de la pierre : 2500 kg/m3
-            const densite = 2700;
-            const poidsCalcule = long * larg * (epais / 100) * densite * qte;
-
-            // Mise à jour de la case grisée
-            $('#edit_poids').val(poidsCalcule.toFixed(2));
-
-            // MISE À JOUR DES OPTIONS
-            $('.spec-prix-edit').each(function() {
-                const base = parseFloat($(this).data('base-price')) || 0;
-                const nomSpec = $(this).closest('.ligne-spec-edit').find('input[type="text"]').val().toLowerCase();
-                if ($(this).data('unite') === 'ml') {
-                    const longEffective = (nomSpec.includes('rejingot') && long < 1 && long > 0) ? 1 : long;
-                    $(this).val((base * longEffective * qte).toFixed(2));
-                } else {
-                    $(this).val((base * qte).toFixed(2));
-                }
-            });
-
-            updateModalTotal();
-        });
-
-        function updateModalTotal() {
-            const totalPierre = (parseFloat($('#edit_long').val())||0) * (parseFloat($('#edit_larg').val())||0) * (parseFloat($('#edit_prix').val())||0) * (parseFloat($('#edit_nb').val())||0);
-            let totalSpecs = 0;
-            $('.spec-prix-edit').each(function() { totalSpecs += parseFloat($(this).val()) || 0; });
-            $('#total_ligne_edit').text((totalPierre + totalSpecs).toFixed(2));
-        }
-
-        // DELETE & PDF
-        $(document).on('click', '.btn-delete-trigger', function() {
-            const id = $(this).data('id');
-            $('#delete_display_id').text(id);
-            $('#deleteForm').attr('action', '/devis/' + id);
         });
 
         let currentPdfUrl = '';
@@ -395,17 +421,12 @@
 
         $(document).on('click', '#confirmDownload', function() {
             const ref = $('#custom_ref').val().trim();
-            window.location.href = currentPdfUrl + (ref ? (currentPdfUrl.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(ref) : '');
+            window.location.href = currentPdfUrl + (ref
+                ? (currentPdfUrl.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(ref)
+                : '');
             $('#pdfRefModal').modal('hide');
         });
-    });
 
-    $(document).on('click', '.btn-edit-transport', function() {
-        const btn = $(this);
-        $('#livraison_client').val(btn.data('client'));
-        $('#livraison_date').val(btn.data('date'));
-        $('#livraison_input').val(btn.data('current'));
-        $('#modalLivraison').modal('show');
     });
 </script>
 @include('partials.modals-devis')

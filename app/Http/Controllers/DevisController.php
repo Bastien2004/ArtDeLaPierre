@@ -132,15 +132,20 @@ class DevisController extends Controller
     public function update(Request $request, string $id)
     {
         $devis = Devis::findOrFail($id);
-        $devis->specificites()->delete();
 
+        $devis->specificites()->delete();
         $totalOptionsCumulees = 0; // On va stocker le TOTAL de toutes les options envoyées
-        if ($request->has('specs')) {
+
+        if ($request->has('specs') && is_array($request->specs)) {
             foreach ($request->specs as $specData) {
                 if (!empty($specData['nom'])) {
                     $devis->specificites()->create([
                         'nom' => $specData['nom'],
-                        'prix' => $specData['prix'] ?? 0
+                        'prix' => $specData['prix'] ?? 0,
+                        'base_price' => (float) ($specData['base_price'] ?? 0),
+                        'unite'      => $specData['unite'] ?? 'u',
+
+
                     ]);
                     // On additionne le prix tel quel (car le JS l'a déjà multiplié par la quantité)
                     $totalOptionsCumulees += (float) ($specData['prix'] ?? 0);

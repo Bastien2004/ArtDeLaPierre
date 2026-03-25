@@ -14,7 +14,9 @@ class Specificite extends Model
         'devis_id',
         'nom',
         'prix',
-        'tailleRejingot'
+        'tailleRejingot',
+        'base_price',
+        'unite',
     ];
 
     // Définir la relation inverse
