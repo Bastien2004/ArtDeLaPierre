@@ -29,13 +29,12 @@ Route::middleware('auth')->group(function () {
 
     // --- TES OUTILS MÉTIER ---
 
-    // Gestion des Devis*
-    Route::get('/devis/calendrier', [CalendrierController::class, 'index'])
-        ->name('devis.calendrier');
+    // Gestion des Devis
+    Route::get('/devis/calendrier', [CalendrierController::class, 'index'])->name('devis.calendrier');
     Route::post('/devis/send-email', [DevisController::class, 'sendEmail'])->name('devis.sendEmail');
     Route::resource('devis', DevisController::class);
-    Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])
-        ->name('devis.downloadPDF');
+    Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])->name('devis.downloadPDF');
+    Route::get('/devis/calendrier/pdf', [DevisController::class, 'downloadCalendrierPDF'])->name('devis.calendrierPDF');
     Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
     Route::get('/devis/atelier/{client}/{date}', [DevisController::class, 'downloadAtelierPDF'])->name('devis.downloadAtelierPDF');
     Route::get('/emails/search', [EmailController::class, 'search'])->name('emails.search');

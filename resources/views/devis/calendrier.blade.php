@@ -13,10 +13,6 @@
 <body>
 
 <div class="page-wrapper">
-
-    {{-- ═══════════════════════════════════════════
-         HEADER
-    ═══════════════════════════════════════════ --}}
     <header class="cal-header">
         <div class="header-left">
             <a href="{{ route('devis.index') }}" class="btn-back">
@@ -44,6 +40,10 @@
                     <i class="fa fa-calendar-week"></i> Semaine
                 </button>
             </div>
+            <button onclick="telechargerCalendrier()" class="btn-back" title="Télécharger en PDF"
+                    style="margin-left:10px;">
+                <i class="fa fa-file-pdf"></i>
+            </button>
         </div>
     </header>
 
@@ -129,15 +129,14 @@
 
 <script>
     const LIVRAISONS = {!! json_encode($livraisonsJson) !!};
+    let today     = new Date();
+    today.setHours(0, 0, 0, 0);
+    let cursor    = new Date(today);   // date de référence navigation
 
 
     (function () {
         'use strict';
 
-        /* ─── État global ──────────────────────────────── */
-        let today     = new Date();
-        today.setHours(0, 0, 0, 0);
-        let cursor    = new Date(today);   // date de référence navigation
         let activeView = 'month';          // 'month' | 'week'
 
         /* ─── Utilitaires date ─────────────────────────── */
@@ -432,6 +431,12 @@
         render();
 
     })();
+
+    function telechargerCalendrier() {
+        const mois  = cursor.getMonth() + 1;
+        const annee = cursor.getFullYear();
+        window.location.href = '/devis/calendrier/pdf?mois=' + mois + '&annee=' + annee;
+    }
 </script>
 </body>
 </html>

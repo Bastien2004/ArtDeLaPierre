@@ -362,4 +362,40 @@ class DevisController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
     }
+
+    public function downloadCalendrierPDF(Request $request)
+    {
+        $mois  = $request->query('mois',  now()->month);
+        $annee = $request->query('annee', now()->year);
+
+        $livraisons = Devis::whereNotNull('datefindevis')
+            ->whereMonth('datefindevis', $mois)
+            ->whereYear('datefindevis',  $annee)
+            ->orderBy('datefindevis')
+            ->get()
+            ->groupBy('datefindevis');
+
+        $nomMois = [
+            1=>'Janvier', 2=>'Février', 3=>'Mars', 4=>'Avril',
+            5=>'Mai', 6=>'Juin', 7=>'Juillet', 8=>'Août',
+            9=>'Septembre', 10=>'Octobre', 11=>'Novembre', 12=>'Décembre'
+        ][$mois];
+
+        $pdf = PDF::loadView('pdfs.calendrier_template', [
+            'livraisons' => $livraisons,
+            'mois'       => $mois,
+            'annee'      => $annee,
+            'nomMois'    => $nomMois,
+        ]);
+
+        return $pdf
+            ->setOption('page-size', 'A4')
+            ->setOption('orientation', 'Landscape')
+            ->setOption('margin-top',    '10mm')
+            ->setOption('margin-bottom', '10mm')
+            ->setOption('margin-left',   '10mm')
+            ->setOption('margin-right',  '10mm')
+            ->setOption('disable-smart-shrinking', true)
+            ->download("Calendrier_{$nomMois}_{$annee}.pdf");
+    }
 }
