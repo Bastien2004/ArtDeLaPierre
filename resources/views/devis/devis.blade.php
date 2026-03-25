@@ -87,9 +87,19 @@
                                       data-client="{{ $p->client }}"
                                       data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
                                       data-current="{{ $fraisPort }}">
-                                <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
-                                <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
-                            </span>
+                                      <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
+                                      <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
+                                </span>
+                                <button type="button"
+                                        class="btn btn-edit-groupe-trigger"
+                                        style="background-color: #d4af37; color: #fff; border: none; padding: 2px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold; transition: transform 0.2s; margin-left: 10px"
+                                        onmouseover="this.style.transform='scale(1.05)'"
+                                        onmouseout="this.style.transform='scale(1)'"
+                                        data-client="{{ $p->client }}"
+                                        data-adresse="{{ $p->adresse }}"
+                                        data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
+                                        data-livraison="{{ $p->datefindevis }}"> <i class="fa-solid fa-pen-to-square"></i> MODIFIER DEVIS
+                                </button>
                             @endif
                         </div>
 
@@ -174,9 +184,6 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ============================================================
-    // FONCTIONS GLOBALES (hors document.ready)
-    // ============================================================
 
     function updateModalTotal() {
         const totalPierre = (parseFloat($('#edit_long').val())||0)
@@ -532,6 +539,30 @@
             $(this).toggle(email.includes(q.toLowerCase()));
         });
     }
+
+    $(document).on('click', '.btn-edit-groupe-trigger', function() {
+        const btn = $(this);
+        const client = btn.data('client');
+        const adresse = btn.data('adresse');
+        const dateRaw = btn.data('date');
+        const dateLivraison = btn.data('livraison');
+
+        // On remplit les champs cachés pour le WHERE
+        $('#old_client').val(client);
+        $('#old_date').val(dateRaw);
+
+        // On remplit les champs visibles
+        $('#edit_groupe_client').val(client);
+        $('#edit_groupe_adresse').val(adresse);
+
+        if(dateLivraison) {
+            $('#edit_groupe_date').val(dateLivraison.substring(0, 10));
+        } else {
+            $('#edit_groupe_date').val('');
+        }
+
+        $('#modalEditGroupe').modal('show');
+    });
 </script>
 @include('partials.modals-devis')
 </body>

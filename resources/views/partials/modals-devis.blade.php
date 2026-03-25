@@ -195,3 +195,39 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="modalEditGroupe" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formEditGroupe" method="POST" action="{{ route('devis.updateGroupe') }}">
+                @csrf
+                <input type="hidden" name="old_client" id="old_client">
+                <input type="hidden" name="old_date" id="old_date">
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Modifier les informations du devis</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nom du Client</label>
+                        <input type="text" name="new_client" id="edit_groupe_client" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Adresse</label>
+                        <input type="text" name="new_adresse" id="edit_groupe_adresse" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date de livraison prévue</label>
+                        <input type="date" name="new_date" id="edit_groupe_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

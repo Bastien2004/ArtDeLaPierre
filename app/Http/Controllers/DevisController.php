@@ -398,4 +398,22 @@ class DevisController extends Controller
             ->setOption('disable-smart-shrinking', true)
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
+
+    public function updateGroupe(Request $request)
+    {
+        $request->validate([
+            'new_client' => 'required',
+            'new_date'   => 'required',
+        ]);
+
+        \App\Models\Devis::where('client', $request->old_client)
+            ->where('created_at', $request->old_date)
+            ->update([
+                'client'       => $request->new_client,
+                'adresse'      => $request->new_adresse,
+                'datefindevis' => $request->new_date,
+            ]);
+
+        return redirect()->back()->with('success', 'Informations de livraison mises à jour !');
+    }
 }

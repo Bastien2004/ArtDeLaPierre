@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     // --- TES OUTILS MÉTIER ---
 
     // Gestion des Devis
+    Route::post('/devis/update-groupe', [DevisController::class, 'updateGroupe'])->name('devis.updateGroupe');
     Route::get('/devis/calendrier', [CalendrierController::class, 'index'])->name('devis.calendrier');
     Route::post('/devis/send-email', [DevisController::class, 'sendEmail'])->name('devis.sendEmail');
     Route::resource('devis', DevisController::class);
