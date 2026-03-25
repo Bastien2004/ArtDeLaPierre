@@ -138,7 +138,7 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="custom_ref" class="form-label fw-bold">Entrez la référence :</label>
-                    <input type="text" id="custom_ref" class="form-control" placeholder="Ex: REF Lambert rue des clematites 62940 haillicourt" required>
+                    <input type="text" id="custom_ref" class="form-control" required>
                 </div>
             </div>
             <div class="modal-footer">
