@@ -212,7 +212,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nom du Client</label>
-                        <input type="text" name="new_client" id="edit_groupe_client" class="form-control">
+                        <input type="text" name="new_client" id="edit_groupe_client" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Adresse</label>

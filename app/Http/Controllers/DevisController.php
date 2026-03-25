@@ -399,21 +399,24 @@ class DevisController extends Controller
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
 
-    public function updateGroupe(Request $request)
-    {
+    public function updateGroupe(Request $request) {
         $request->validate([
+            'old_client' => 'required',
+            'old_date'   => 'required',
             'new_client' => 'required',
-            'new_date'   => 'required',
+            'new_adresse'=> 'nullable',
+            'new_date'   => 'nullable'
         ]);
 
+        // On écrase avec la valeur saisie, même si c'est vide (null)
         \App\Models\Devis::where('client', $request->old_client)
             ->where('created_at', $request->old_date)
             ->update([
                 'client'       => $request->new_client,
-                'adresse'      => $request->new_adresse,
+                'adresse'      => $request->new_adresse ?? '',
                 'datefindevis' => $request->new_date,
             ]);
 
-        return redirect()->back()->with('success', 'Informations de livraison mises à jour !');
+        return redirect()->back()->with('success', 'Mise à jour réussie');
     }
 }
