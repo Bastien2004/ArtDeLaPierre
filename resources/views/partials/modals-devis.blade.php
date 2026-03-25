@@ -212,7 +212,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nom du Client</label>
-                        <input type="text" name="new_client" id="edit_groupe_client" class="form-control" required>
+                        <input type="text" name="new_client" id="edit_groupe_client" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Adresse</label>
@@ -220,7 +220,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Date de livraison prévue</label>
-                        <input type="date" name="new_date" id="edit_groupe_date" class="form-control" required>
+                        <input type="date" name="new_date" id="edit_groupe_date" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
