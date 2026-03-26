@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PrixManuel;
 use App\Models\StockAutre;
 use App\Models\StockBloc;
 use App\Models\StockCasson;
@@ -13,15 +14,12 @@ class StocksController extends Controller
     // Afficher la liste
     public function index()
     {
-        $stocks = Stocks::orderBy('epaisseur', 'asc')
-            ->orderBy('matiere', 'asc')
-            ->get();
+        $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $blocs = StockBloc::orderBy('reference', 'asc')->get();
-        $cassons = StockCasson::orderBy('epaisseur', 'asc')
-            ->orderBy('matiere', 'asc')
-            ->get();
+        $cassons = StockCasson::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $autres = StockAutre::orderBy('matiere', 'asc')->get();
-        return view('stocks.stocks', compact('stocks', 'blocs','cassons', 'autres'));
+        $prixManuels = PrixManuel::orderBy('nom', 'asc')->get();
+        return view('stocks.stocks', compact('stocks', 'blocs','cassons', 'autres', 'prixManuels'));
     }
 
     // Ajouter ou Modifier (Le formulaire gère les deux via les routes)
@@ -209,5 +207,38 @@ class StocksController extends Controller
         $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs', 'cassons', 'autres'));
 
         return $pdf->download('inventaire_art_de_la_pierre.pdf');
+    }
+
+
+
+    public function storePrixManuel(Request $request)
+    {
+        $data = $request->validate([
+            'nom'  => 'required|string|max:255',
+            'prix' => 'required|numeric|min:0',
+        ]);
+
+        PrixManuel::create($data);
+
+        return redirect()->back()->with('success', 'Prix ajouté !');
+    }
+
+    public function updatePrixManuel(Request $request, $id)
+    {
+        $item = PrixManuel::findOrFail($id);
+        $data = $request->validate([
+            'nom'  => 'required|string|max:255',
+            'prix' => 'required|numeric|min:0',
+        ]);
+
+        $item->update($data);
+
+        return redirect()->back()->with('success', 'Prix mis à jour !');
+    }
+
+    public function destroyPrixManuel($id)
+    {
+        PrixManuel::findOrFail($id)->delete();
+        return redirect()->back()->with('success', 'Prix supprimé.');
     }
 }
