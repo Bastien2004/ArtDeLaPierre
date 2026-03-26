@@ -419,28 +419,28 @@
 
         const table = $('#tableStock').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
-            pageLength: 25,
+            pageLength: 10,
             order: [[3, 'asc']],
             drawCallback: function () { $('.dataTables_paginate > .pagination').addClass('pagination-sm'); }
         });
 
         $('#tableBlocs').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
-            pageLength: 25,
+            pageLength: 10,
             order: [[0, 'asc']],
             drawCallback: function () { $('.dataTables_paginate > .pagination').addClass('pagination-sm'); }
         });
 
         $('#tableCassons').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
-            pageLength: 25,
+            pageLength: 10,
             order: [[0, 'asc']],
             drawCallback: function () { $('.dataTables_paginate > .pagination').addClass('pagination-sm'); }
         });
 
         $('#tableAutres').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
-            pageLength: 25,
+            pageLength: 10,
             order: [[0, 'asc']],
             drawCallback: function () { $('.dataTables_paginate > .pagination').addClass('pagination-sm'); }
         });
