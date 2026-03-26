@@ -127,7 +127,7 @@
                     <div class="p-4">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Désignation / Nom</label>
-                            <input type="text" name="nom" id="prix_nom" class="form-control" placeholder="ex: Transport" required>
+                            <input type="text" name="nom" id="prix_nom" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Prix (€)</label>
