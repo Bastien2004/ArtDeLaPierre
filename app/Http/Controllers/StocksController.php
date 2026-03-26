@@ -200,11 +200,20 @@ class StocksController extends Controller
     {
         $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $stocksGroupes = $stocks->groupBy('epaisseur');
+
         $blocs = StockBloc::orderBy('reference', 'asc')->get();
         $cassons = StockCasson::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
-        $autres = StockAutre::orderBy('matiere', 'asc')->get(); // AJOUT
+        $autres = StockAutre::orderBy('matiere', 'asc')->get();
 
-        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs', 'cassons', 'autres'));
+        $prixManuels = PrixManuel::orderBy('nom', 'asc')->get();
+
+        $pdf = PDF::loadView('pdfs.stocks-template', compact(
+            'stocksGroupes',
+            'blocs',
+            'cassons',
+            'autres',
+            'prixManuels'
+        ));
 
         return $pdf->download('inventaire_art_de_la_pierre.pdf');
     }
