@@ -1,3 +1,6 @@
+Modals stock.blade · PHP
+Copier
+
 <div class="modal fade" id="modalStock" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -12,7 +15,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                {{-- Toggle Pierre / Bloc / Casson --}}
+                {{-- Toggle Pierre / Bloc / Casson / Autre --}}
                 <div class="btn-group w-100 mb-1" role="group" id="typeToggle">
                     <input type="radio" class="btn-check" name="entreeType" id="typePierre" value="pierre" checked autocomplete="off">
                     <label class="btn btn-outline-secondary" for="typePierre">
@@ -27,6 +30,11 @@
                     <input type="radio" class="btn-check" name="entreeType" id="typeCasson" value="casson" autocomplete="off">
                     <label class="btn btn-outline-secondary" for="typeCasson">
                         <i class="fa-solid fa-puzzle-piece me-1"></i> Casson
+                    </label>
+
+                    <input type="radio" class="btn-check" name="entreeType" id="typeAutre" value="autre" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="typeAutre">
+                        <i class="fa-solid fa-boxes-stacked me-1"></i> Autre
                     </label>
                 </div>
             </div>
@@ -155,6 +163,70 @@
                 </div>
             </form>
 
+            {{-- ── Formulaire Autre Pierre ────────────────────────────────── --}}
+            <form id="formAutre" action="{{ route('stocks.autres.store') }}" method="POST" style="display:none;">
+                @csrf
+                <input type="hidden" name="_method" id="formAutreMethod" value="POST">
+                <input type="hidden" name="id" id="autre_id">
+
+                <div id="panelAutre">
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Désignation de la Matière</label>
+                                <input type="text" name="matiere" id="autre_matiere" class="form-control"
+                                       placeholder="ex: Calcaire, Grès, Ardoise…" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Quantité (Unités)</label>
+                                <input type="number" name="quantite" id="autre_quantite" class="form-control"
+                                       min="1" value="1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Épaisseur (cm)</label>
+                                <input type="number" step="0.01" name="epaisseur" id="autre_epaisseur"
+                                       class="form-control" placeholder="0.00" min="0" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Longueur (m)</label>
+                                <input type="number" step="0.01" name="longueur" id="autre_longueur"
+                                       class="form-control" placeholder="0.00" min="0" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Largeur (m)</label>
+                                <input type="number" step="0.01" name="largeur" id="autre_largeur"
+                                       class="form-control" placeholder="0.00" min="0" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Prix d'achat (€/m²)</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="prix_m2" id="autre_prix_m2"
+                                           class="form-control" placeholder="0.00" min="0" required>
+                                    <span class="input-group-text">€/m²</span>
+                                </div>
+                            </div>
+                            {{-- Aperçu valeur estimée --}}
+                            <div class="col-12">
+                                <div class="p-3 rounded" style="background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3);">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="small text-muted">Valeur estimée du lot :</span>
+                                        <span id="previewValeur" class="fw-bold text-success">— €</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="small text-muted">Surface totale :</span>
+                                        <span id="previewSurface" class="fw-bold">— m²</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-stone px-4">Enregistrer</button>
+                    </div>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
@@ -221,6 +293,28 @@
         </div>
     </div>
 </div>
+
+{{-- ── Modal Suppression Autre ──────────────────────────────────────────────── --}}
+<div class="modal fade" id="modalDeleteAutre" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content text-center p-3 border-top border-danger border-4">
+            <div class="modal-body">
+                <div class="mb-3 text-danger"><i class="fa-solid fa-triangle-exclamation fa-4x"></i></div>
+                <h5 class="fw-bold">Supprimer cette pierre ?</h5>
+                <p class="text-muted small">Cette action est irréversible.</p>
+            </div>
+            <form id="formDeleteAutre" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Non</button>
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

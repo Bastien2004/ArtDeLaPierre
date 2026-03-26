@@ -57,14 +57,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/stocks/{id}', [StocksController::class, 'update'])->name('stocks.update');
     Route::delete('/stocks/{id}', [StocksController::class, 'destroy'])->name('stocks.destroy');
     Route::get('/stocks/export-pdf', [App\Http\Controllers\StocksController::class, 'exportPdf'])->name('stocks.pdf');
-    //Blocs
+    // Blocs
     Route::post  ('/stocks/blocs',        [StocksController::class, 'storeBloc'])  ->name('stocks.blocs.store');
     Route::put   ('/stocks/blocs/{id}',   [StocksController::class, 'updateBloc']) ->name('stocks.blocs.update');
     Route::delete('/stocks/blocs/{id}',   [StocksController::class, 'destroyBloc'])->name('stocks.blocs.destroy');
-    //Cassons
+    // Cassons
     Route::post  ('/stocks/cassons',        [StocksController::class, 'storeCasson'])  ->name('stocks.cassons.store');
     Route::put   ('/stocks/cassons/{id}',   [StocksController::class, 'updateCasson']) ->name('stocks.cassons.update');
     Route::delete('/stocks/cassons/{id}',   [StocksController::class, 'destroyCasson'])->name('stocks.cassons.destroy');
+    // Autre
+    Route::post('/stocks/autres',          [StocksController::class, 'storeAutre'])->name('stocks.autres.store');
+    Route::put('/stocks/autres/{id}',      [StocksController::class, 'updateAutre'])->name('stocks.autres.update');
+    Route::delete('/stocks/autres/{id}',   [StocksController::class, 'destroyAutre'])->name('stocks.autres.destroy');
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockAutre;
 use App\Models\StockBloc;
 use App\Models\StockCasson;
 use App\Models\Stocks;
@@ -19,7 +20,8 @@ class StocksController extends Controller
         $cassons = StockCasson::orderBy('epaisseur', 'asc')
             ->orderBy('matiere', 'asc')
             ->get();
-        return view('stocks.stocks', compact('stocks', 'blocs','cassons'));
+        $autres = StockAutre::orderBy('matiere', 'asc')->get();
+        return view('stocks.stocks', compact('stocks', 'blocs','cassons', 'autres'));
     }
 
     // Ajouter ou Modifier (Le formulaire gère les deux via les routes)
@@ -147,15 +149,64 @@ class StocksController extends Controller
         return redirect()->back()->with('success', 'Casson supprimé.');
     }
 
+    public function storeAutre(Request $request)
+    {
+        $data = $request->validate([
+            'matiere'   => 'required|string|max:255',
+            'longueur'  => 'required|numeric|min:0',
+            'largeur'   => 'required|numeric|min:0',
+            'epaisseur' => 'required|numeric|min:0',
+            'quantite'  => 'required|integer|min:1',
+            'prix_m2'   => 'required|numeric|min:0',
+            'notes'     => 'nullable|string|max:500',
+        ]);
+
+        $data['nom'] = $data['matiere'];
+
+        StockAutre::create($data);
+
+        return redirect()->back()->with('success', 'Pierre ajoutée aux autres stocks !');
+    }
+
+    public function updateAutre(Request $request, $id)
+    {
+        $autre = StockAutre::findOrFail($id);
+
+        $data = $request->validate([
+            'matiere'   => 'required|string|max:255',
+            'longueur'  => 'required|numeric|min:0',
+            'largeur'   => 'required|numeric|min:0',
+            'epaisseur' => 'required|numeric|min:0',
+            'quantite'  => 'required|integer|min:1',
+            'prix_m2'   => 'required|numeric|min:0',
+        ]);
+
+        $data['nom'] = $data['matiere'];
+
+        $autre->update($data);
+
+        return redirect()->back()->with('success', 'Stock mis à jour !');
+    }
+
+    public function destroyAutre($id)
+    {
+        $autre = StockAutre::findOrFail($id);
+        $autre->delete();
+
+        return redirect()->back()->with('success', 'Pierre supprimée des autres stocks.');
+    }
+
+
 
     public function exportPdf()
     {
         $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
         $stocksGroupes = $stocks->groupBy('epaisseur');
         $blocs = StockBloc::orderBy('reference', 'asc')->get();
-        $cassons       = StockCasson::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
+        $cassons = StockCasson::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
+        $autres = StockAutre::orderBy('matiere', 'asc')->get(); // AJOUT
 
-        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs', 'cassons'));
+        $pdf = PDF::loadView('pdfs.stocks-template', compact('stocksGroupes', 'blocs', 'cassons', 'autres'));
 
         return $pdf->download('inventaire_art_de_la_pierre.pdf');
     }
