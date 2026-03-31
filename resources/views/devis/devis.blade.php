@@ -54,6 +54,12 @@
                 <td colspan="9">
                     <div class="group-content">
                         <div class="group-left">
+                            <button type="button" class="btn-send-tiime"
+                                    style="margin-right: 10px"
+                                    data-client="{{ $p->client }}"
+                                    data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}">
+                                <i class="fa-solid fa-paper-plane"></i> Tiime
+                            </button>
                             <div class="dl-dropdown-wrapper">
                                 <button type="button" class="btn-dl-main" data-client="{{ $p->client }}">
                                     <i class="fa-solid fa-download"></i>
@@ -562,6 +568,51 @@
         }
 
         $('#modalEditGroupe').modal('show');
+    });
+
+    $(document).on('click', '.btn-send-tiime', function() {
+        const btn    = $(this);
+        const client = btn.data('client');
+        const date   = btn.data('date');
+
+        // Remplir et ouvrir la modal
+        $('#tiime_client').val(client);
+        $('#tiime_date').val(date);
+        $('#tiime_reference').val('');
+        $('#modalTiime').modal('show');
+    });
+
+    $(document).on('click', '#btn-confirm-tiime', function() {
+        const btn      = $(this);
+        const client   = $('#tiime_client').val();
+        const date     = $('#tiime_date').val();
+        const reference = $('#tiime_reference').val().trim();
+
+        btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Envoi...');
+
+        $.ajax({
+            url:    '{{ route("devis.sendTiime") }}',
+            method: 'POST',
+            data:   {
+                _token:    '{{ csrf_token() }}',
+                client:    client,
+                date:      date,
+                reference: reference,
+            },
+            success: function(res) {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Envoyer');
+                $('#modalTiime').modal('hide');
+                const couleur = res.erreurs === 0 ? '#22c55e' : '#f59e0b';
+                $('body').append('<div class="toast-success" style="background:' + couleur + '">' + res.message + '</div>');
+                setTimeout(() => $('.toast-success').remove(), 4000);
+            },
+            error: function() {
+                btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Envoyer');
+                $('#modalTiime').modal('hide');
+                $('body').append('<div class="toast-success" style="background:#ef4444">Erreur lors de l\'envoi.</div>');
+                setTimeout(() => $('.toast-success').remove(), 4000);
+            }
+        });
     });
 </script>
 @include('partials.modals-devis')

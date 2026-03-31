@@ -231,3 +231,32 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="modalTiime" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-paper-plane me-2"></i> Envoyer à Tiime
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="tiime_client">
+                <input type="hidden" id="tiime_date">
+                <label class="form-label">Référence <small class="text-muted">(optionnel)</small></label>
+                <input type="text"
+                       id="tiime_reference"
+                       class="form-control">
+                <small class="text-muted mt-1 d-block">Apparaîtra sous le numéro de facture dans Tiime.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="btn-confirm-tiime">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

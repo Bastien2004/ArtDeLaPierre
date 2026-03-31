@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
 
     // --- TES OUTILS MÉTIER ---
 
+    //Tiime
+    Route::post('/devis/send-tiime', [DevisController::class, 'sendToTiime'])->name('devis.sendTiime');
+
     // Gestion des Devis
     Route::post('/devis/update-groupe', [DevisController::class, 'updateGroupe'])->name('devis.updateGroupe');
     Route::get('/devis/calendrier', [CalendrierController::class, 'index'])->name('devis.calendrier');
@@ -73,7 +76,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/stocks/prix', [StocksController::class, 'storePrixManuel'])->name('stocks.prix.store');
     Route::put('/stocks/prix/{id}', [StocksController::class, 'updatePrixManuel'])->name('stocks.prix.update');
     Route::delete('/stocks/prix/{id}', [StocksController::class, 'destroyPrixManuel'])->name('stocks.prix.delete');
-
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');

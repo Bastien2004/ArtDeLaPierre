@@ -58,11 +58,14 @@ class DevisController extends Controller
     {
         $dateCreation = $request->force_time ? \Carbon\Carbon::parse($request->force_time) : now();
         $livraisonFixe = (float) ($request->livraison ?? 0);
+        $lignesPourMake = [];
+        $totalGeneralHT = 0;
 
         foreach ($request->lignes as $index => $ligneData) {
             $quantite = (int) $ligneData['nombrePierre'];
             $matiereUnitaire = (float)$ligneData['longueurM'] * (float)$ligneData['largeurM'];
 
+            // Calcul du prix de base
             $prixTotalPierres = ($matiereUnitaire * (float)$ligneData['prixM2']) * $quantite;
 
             $totalOptionsLigne = 0;
@@ -74,9 +77,10 @@ class DevisController extends Controller
                 }
             }
 
-            $prixHTFinal = $prixTotalPierres + $totalOptionsLigne;
+            $prixHTFinalLigne = $prixTotalPierres + $totalOptionsLigne;
+            $totalGeneralHT += $prixHTFinalLigne;
 
-            // ✅ Plus de tailleRejingot ici, ça n'appartient pas au Devis
+            // 1. Sauvegarde en Base de Données
             $devis = new Devis([
                 'client'       => $request->client,
                 'adresse'      => $request->adresse ?? '',
@@ -88,7 +92,7 @@ class DevisController extends Controller
                 'matiere'      => $matiereUnitaire,
                 'poids'        => $ligneData['poids'] ?? 0,
                 'prixM2'       => $ligneData['prixM2'],
-                'prixHT'       => $prixHTFinal,
+                'prixHT'       => $prixHTFinalLigne,
                 'livraison'    => $livraisonFixe,
                 'datefindevis' => $request->datefindevis,
             ]);
@@ -99,7 +103,6 @@ class DevisController extends Controller
             if (isset($ligneData['specs'])) {
                 foreach ($ligneData['specs'] as $specData) {
                     if (!empty($specData['nom'])) {
-                        // ✅ Construction de la taille ici, dans la bonne boucle
                         $tailleMin = $specData['tailleMin'] ?? null;
                         $tailleMax = $specData['tailleMax'] ?? null;
                         $taille = ($tailleMin !== null && $tailleMax !== null)
@@ -116,13 +119,13 @@ class DevisController extends Controller
             }
         }
 
-        // Enregistrer l'email si fourni
         if (!empty($request->email_destinataire)) {
             \App\Models\Email::firstOrCreate(['adresse' => $request->email_destinataire]);
         }
 
-        return redirect()->route('devis.index')->with('success', 'Devis généré !');
+        return redirect()->route('devis.index')->with('success', 'Devis généré et envoyé à Tiime !');
     }
+
     public function edit(string $id)
     {
         $devis = Devis::with('specificites')->findOrFail($id);
@@ -176,6 +179,28 @@ class DevisController extends Controller
 
         return redirect()->route('devis.index')->with('success', 'Ligne mise à jour !');
     }
+
+    public function updateGroupe(Request $request) {
+        $request->validate([
+            'old_client' => 'required',
+            'old_date'   => 'required',
+            'new_client' => 'required',
+            'new_adresse'=> 'nullable',
+            'new_date'   => 'nullable'
+        ]);
+
+        // On écrase avec la valeur saisie, même si c'est vide (null)
+        \App\Models\Devis::where('client', $request->old_client)
+            ->where('created_at', $request->old_date)
+            ->update([
+                'client'       => $request->new_client,
+                'adresse'      => $request->new_adresse ?? '',
+                'datefindevis' => $request->new_date,
+            ]);
+
+        return redirect()->back()->with('success', 'Mise à jour réussie');
+    }
+
 
     public function updateLivraison(Request $request)
     {
@@ -399,24 +424,142 @@ class DevisController extends Controller
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
 
-    public function updateGroupe(Request $request) {
-        $request->validate([
-            'old_client' => 'required',
-            'old_date'   => 'required',
-            'new_client' => 'required',
-            'new_adresse'=> 'nullable',
-            'new_date'   => 'nullable'
+
+
+    public function sendToTiime(Request $request)
+    {
+        $request->validate(['client' => 'required', 'date' => 'required']);
+
+        $dateMinute = \Carbon\Carbon::parse($request->date)->format('Y-m-d H:i');
+        $lignes = Devis::with('specificites')
+            ->where('client', $request->client)
+            ->whereRaw("to_char(created_at, 'YYYY-MM-DD HH24:MI') = ?", [$dateMinute])
+            ->orderBy('id', 'asc')
+            ->get();
+
+        if ($lignes->isEmpty()) return response()->json(['message' => 'Vide', 'erreurs' => 1]);
+
+        $p = $lignes->first();
+        $lignesPourMake = [];
+        $totalHT = 0;
+
+        foreach ($lignes as $devis) {
+            $qte = max((int) $devis->nombrePierre, 1);
+
+            // Prix unitaire = prix d'UNE seule pierre (surface × prixM2)
+            $prixUnitaire = round((float)$devis->longueurM * (float)$devis->largeurM * (float)$devis->prixM2, 2);
+
+            // Libellé : type + épaisseur + noms des spécificités
+            $designation = trim($devis->typePierre ?? '');
+            if ($devis->epaisseur) {
+                $designation .= ($designation ? ', ' : '') . $devis->epaisseur . 'cm';
+            }
+            if ($devis->specificites->count() > 0) {
+                foreach ($devis->specificites as $spec) {
+                    $designation .= ', ' . $spec->nom;
+                }
+            }
+            // Dimensions en 2ème ligne
+            $designation .= "\n"
+                . number_format((float)$devis->longueurM, 2, '.', '')
+                . ' x '
+                . number_format((float)$devis->largeurM, 2, '.', '')
+                . ' x '
+                . $devis->epaisseur . 'cm'
+                . ' — Qté : ' . $qte;
+
+            // Prix total de la ligne = unitaire × qté + specs
+            $prixTotalSpecs = $devis->specificites->sum('prix');
+            $prixTotalLigne = ($prixUnitaire * $qte) + $prixTotalSpecs;
+
+            $lignesPourMake[] = [
+                'invoice_quantity'                      => $qte,
+                'invoice_quantity_unit_of_measure_code' => 'unit',
+                'invoiced_item_vat_category_code'       => 'S',
+                'item_attributes'                       => [[
+                    'item_attribute_name'  => 'Catégorie',
+                    'item_attribute_value' => 'sale',
+                ]],
+                'line_vat_information' => [
+                    'invoiced_item_vat_rate'          => 0.20,
+                    'invoiced_item_vat_category_code' => 'S',
+                ],
+                'price_details' => [
+                    'item_net_price' => round($prixTotalLigne / $qte, 2),
+                ],
+                'item_information' => [
+                    'item_name'       => $designation,
+                    'item_attributes' => [[
+                        'item_attribute_name'  => 'Catégorie',
+                        'item_attribute_value' => 'sale',
+                    ]],
+                ],
+            ];
+
+            $totalHT += $prixTotalLigne;
+        }
+
+        // Frais de livraison en dernière ligne
+        $livraison = (float) $lignes->avg('livraison');
+        if ($livraison > 0) {
+            $lignesPourMake[] = [
+                'invoice_quantity'                      => 1,
+                'invoice_quantity_unit_of_measure_code' => 'unit',
+                'invoiced_item_vat_category_code'       => 'S',
+                'item_attributes'                       => [[
+                    'item_attribute_name'  => 'Catégorie',
+                    'item_attribute_value' => 'sale',
+                ]],
+                'line_vat_information' => [
+                    'invoiced_item_vat_rate'          => 0.20,
+                    'invoiced_item_vat_category_code' => 'S',
+                ],
+                'price_details' => [
+                    'item_net_price' => round($livraison, 2),
+                ],
+                'item_information' => [
+                    'item_name'       => 'Frais de livraison',
+                    'item_attributes' => [[
+                        'item_attribute_name'  => 'Catégorie',
+                        'item_attribute_value' => 'sale',
+                    ]],
+                ],
+            ];
+            $totalHT += $livraison;
+        }
+
+        \Log::info('sendToTiime payload', [
+            'client'  => $p->client,
+            'date'    => $p->created_at->format('Y-m-d'),
+            'totalHT' => round($totalHT, 2),
+            'lignes'  => array_map(function($l) {
+                return [
+                    'nom'      => $l['item_information']['item_name'],
+                    'qte'      => $l['invoice_quantity'],
+                    'unitaire' => $l['price_details']['item_net_price'],
+                    'total'    => $l['invoice_quantity'] * $l['price_details']['item_net_price'],
+                ];
+            }, $lignesPourMake),
         ]);
 
-        // On écrase avec la valeur saisie, même si c'est vide (null)
-        \App\Models\Devis::where('client', $request->old_client)
-            ->where('created_at', $request->old_date)
-            ->update([
-                'client'       => $request->new_client,
-                'adresse'      => $request->new_adresse ?? '',
-                'datefindevis' => $request->new_date,
-            ]);
+        $response = Http::post("https://hook.eu1.make.com/pyok5idwiiatf8sqk5sbuipx889mhy9c", [
+            'client_nom'    => $p->client,
+            'client_adresse' => $p->adresse,
+            'date_emission' => $p->created_at->format('Y-m-d'),
+            'total_ht'      => round($totalHT, 2),
+            'lignes'        => $lignesPourMake,
+            'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
+            'reference' => $request->reference ?? '',
 
-        return redirect()->back()->with('success', 'Mise à jour réussie');
+        ]);
+
+        if ($response->failed()) {
+            \Log::error('sendToTiime HTTP error', ['status' => $response->status(), 'body' => $response->body()]);
+            return response()->json(['message' => 'Erreur envoi Make', 'erreurs' => 1]);
+        }
+
+        return response()->json(['message' => 'Envoyé à Tiime ✓', 'erreurs' => 0]);
     }
+
+
 }
