@@ -98,7 +98,7 @@
                                 </span>
                                 <button type="button"
                                         class="btn btn-edit-groupe-trigger"
-                                        style="background-color: #d4af37; color: #fff; border: none; padding: 2px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold; transition: transform 0.2s; margin-left: 10px"
+                                        style="background-color: #d4af37; color: #fff; border: none; padding: 2px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold; transition: transform 0.2s; margin-left: 10px; margin-right: 10px"
                                         onmouseover="this.style.transform='scale(1.05)'"
                                         onmouseout="this.style.transform='scale(1)'"
                                         data-client="{{ $p->client }}"
