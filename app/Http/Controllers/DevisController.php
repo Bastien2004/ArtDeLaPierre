@@ -474,17 +474,18 @@ class DevisController extends Controller
             $prixTotalSpecs = $devis->specificites->sum('prix');
             $prixTotalLigne = ($prixUnitaire * $qte) + $prixTotalSpecs;
 
+            // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
-                'invoice_quantity'                      => $qte,
-                'invoice_quantity_unit_of_measure_code' => 'unit',
-                'invoiced_item_vat_category_code'       => 'S',
+                'quote_quantity'                      => $qte, // <-- "quote" au lieu de "invoice"
+                'quote_quantity_unit_of_measure_code' => 'unit',
+                'quoted_item_vat_category_code'       => 'S',  // <-- "quoted" au lieu de "invoiced"
                 'item_attributes'                       => [[
                     'item_attribute_name'  => 'Catégorie',
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 0.20,
-                    'invoiced_item_vat_category_code' => 'S',
+                    'quoted_item_vat_rate'          => 0.20,
+                    'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
                     'item_net_price' => round($prixTotalLigne / $qte, 2),
@@ -505,16 +506,16 @@ class DevisController extends Controller
         $livraison = (float) $lignes->avg('livraison');
         if ($livraison > 0) {
             $lignesPourMake[] = [
-                'invoice_quantity'                      => 1,
-                'invoice_quantity_unit_of_measure_code' => 'unit',
-                'invoiced_item_vat_category_code'       => 'S',
+                'quote_quantity'                      => 1,
+                'quote_quantity_unit_of_measure_code' => 'unit',
+                'quoted_item_vat_category_code'       => 'S',
                 'item_attributes'                       => [[
                     'item_attribute_name'  => 'Catégorie',
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 0.20,
-                    'invoiced_item_vat_category_code' => 'S',
+                    'quoted_item_vat_rate'          => 0.20,
+                    'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
                     'item_net_price' => round($livraison, 2),
@@ -530,29 +531,27 @@ class DevisController extends Controller
             $totalHT += $livraison;
         }
 
+        // --- GESTION DES DATES ---
+        $dateEmission = $p->created_at;
+        // On clone la date d'émission et on ajoute 60 jours francs
+        $dateValidite = $dateEmission->copy()->addDays(60)->format('Y-m-d');
+
         \Log::info('sendToTiime payload', [
-            'client'  => $p->client,
-            'date'    => $p->created_at->format('Y-m-d'),
-            'totalHT' => round($totalHT, 2),
-            'lignes'  => array_map(function($l) {
-                return [
-                    'nom'      => $l['item_information']['item_name'],
-                    'qte'      => $l['invoice_quantity'],
-                    'unitaire' => $l['price_details']['item_net_price'],
-                    'total'    => $l['invoice_quantity'] * $l['price_details']['item_net_price'],
-                ];
-            }, $lignesPourMake),
+            'client'        => $p->client,
+            'date_emission' => $dateEmission->format('Y-m-d'),
+            'date_validite' => $dateValidite,
+            'totalHT'       => round($totalHT, 2),
         ]);
 
         $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", [
-            'client_nom'    => $p->client,
+            'client_nom'     => $p->client,
             'client_adresse' => $p->adresse,
-            'date_emission' => $p->created_at->format('Y-m-d'),
-            'total_ht'      => round($totalHT, 2),
-            'lignes'        => $lignesPourMake,
+            'date_emission'  => $dateEmission->format('Y-m-d'),
+            'date_validite'  => $dateValidite, // <-- AJOUTÉ ICI POUR ENVOI À MAKE
+            'total_ht'       => round($totalHT, 2),
+            'lignes'         => $lignesPourMake,
             'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
-            'reference' => $request->reference ?? '',
-
+            'reference'      => $request->reference ?? '',
         ]);
 
         if ($response->failed()) {
@@ -560,8 +559,7 @@ class DevisController extends Controller
             return response()->json(['message' => 'Erreur envoi Make', 'erreurs' => 1]);
         }
 
-        return response()->json(['message' => 'Envoyé à Tiime ✓', 'erreurs' => 0]);
+        return response()->json(['message' => 'Devis envoyé à Tiime ✓', 'erreurs' => 0]);
     }
-
 
 }
