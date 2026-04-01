@@ -885,6 +885,79 @@ input[type="date"]:disabled {
     letter-spacing: 0.5px;
 }
 
+/* --- CONTENEUR ÉPAISSEUR --- */
+.epaisseur-container {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    height: 46px;
+    width: 100%;
+}
+
+/* Style commun Select & Input */
+.select-visuel-epaisseur,
+.input-visuel-epaisseur {
+    /* On passe à un flex plus important pour qu'il "mange" l'espace disponible */
+    flex: 3;
+
+    /* On définit une largeur minimale plus confortable pour voir les chiffres + l'unité */
+    min-width: 100px;
+
+    padding: 10px 15px;
+    border: 1.5px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 1rem; /* On peut aussi augmenter légèrement la police si besoin */
+    color: var(--stone-dark);
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+/* Style spécifique au Select (Flèche personnalisée) */
+.btn-reset-epaisseur {
+    flex: 0 0 45px;
+    background-color: #fff1f0 !important;
+    color: var(--danger) !important;
+    border: 1.5px solid #ffccc7 !important;
+    border-radius: 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Style de l'input quand il est affiché en mode "Autre" */
+.input-visuel-epaisseur {
+    border-color: var(--stone-accent);
+    background-color: #fffdfa;
+    font-weight: 600;
+}
+
+.input-visuel-epaisseur:focus {
+    border-color: var(--stone-dark);
+    box-shadow: 0 0 0 4px rgba(26, 37, 47, 0.06);
+    outline: none;
+}
+
+/* Bouton Reset (X) */
+.btn-reset-epaisseur {
+    background-color: #fff1f0 !important;
+    color: var(--danger) !important;
+    border: 1.5px solid #ffccc7 !important;
+    border-radius: 10px !important;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-reset-epaisseur:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 800px) {
     input[type="date"] {

@@ -95,21 +95,28 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Épaisseur</label>
                         <div class="form-group">
                             <label>Épaisseur</label>
-                            <select name="lignes[0][epaisseur]" class="select-epaisseur" onchange="lookupPrice(this)">
-                                @php
-                                    // On récupère les épaisseurs uniques présentes dans la grille de tarifs
-                                    $epaisseursDisponibles = $allTarifs->pluck('epaisseur')->unique()->sort();
-                                @endphp
+                            <div class="epaisseur-container" style="display: flex; gap: 5px; align-items: stretch;">
 
-                                @foreach($epaisseursDisponibles as $ep)
-                                    <option value="{{ $ep }}" {{ $ep == 3 ? 'selected' : '' }}>
-                                        {{ $ep }} cm
-                                    </option>
-                                @endforeach
-                            </select>
+                                <input type="hidden" name="lignes[0][epaisseur]" class="select-epaisseur hidden-epaisseur-val" value="3">
+
+                                <select class="select-visuel-epaisseur" style="flex: 1;" onchange="changerEpaisseur(this)">
+                                    @php
+                                        $epaisseursDisponibles = $allTarifs->pluck('epaisseur')->unique()->sort();
+                                    @endphp
+                                    @foreach($epaisseursDisponibles as $ep)
+                                        <option value="{{ $ep }}" {{ $ep == 3 ? 'selected' : '' }}>
+                                            {{ $ep }} cm
+                                        </option>
+                                    @endforeach
+                                    <option value="custom">Autre (personnalisé)...</option>
+                                </select>
+
+                                <input type="number" step="0.01" class="input-visuel-epaisseur" style="display: none; flex: 1;" onchange="changerEpaisseur(this)">
+
+                                <button type="button" class="btn-reset-epaisseur" style="display: none; background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0 10px; cursor: pointer;" onclick="annulerEpaisseurCustom(this)" title="Revenir à la liste">✖</button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -507,6 +514,61 @@
     document.getElementById('modal-emails-overlay').addEventListener('click', function(e) {
         if (e.target === this) fermerModalEmails();
     });
+
+
+
+
+    function changerEpaisseur(element) {
+        const container = element.closest('.epaisseur-container');
+        const hiddenInput = container.querySelector('.hidden-epaisseur-val');
+        const selectVisuel = container.querySelector('.select-visuel-epaisseur');
+        const inputVisuel = container.querySelector('.input-visuel-epaisseur');
+        const btnReset = container.querySelector('.btn-reset-epaisseur');
+
+        if (element.tagName === 'SELECT') {
+            if (element.value === 'custom') {
+                // Mode "Autre" : on cache le select, on affiche l'input libre
+                selectVisuel.style.display = 'none';
+                inputVisuel.style.display = 'block';
+                btnReset.style.display = 'block';
+
+                inputVisuel.value = ''; // On vide pour la nouvelle saisie
+                inputVisuel.focus();
+                hiddenInput.value = ''; // On attend que le client tape son épaisseur
+                return; // On arrête là pour l'instant
+            } else {
+                // Choix normal dans la liste
+                hiddenInput.value = element.value;
+            }
+        } else if (element.tagName === 'INPUT') {
+            // L'utilisateur a tapé une valeur manuelle
+            hiddenInput.value = element.value;
+        }
+
+        // On force le recalcul du prix et du poids (tes fonctions JS existantes)
+        lookupPrice(hiddenInput);
+        calculerPoidsLigne(hiddenInput.closest('.ligne-pierre'));
+    }
+
+    function annulerEpaisseurCustom(btn) {
+        const container = btn.closest('.epaisseur-container');
+        const hiddenInput = container.querySelector('.hidden-epaisseur-val');
+        const selectVisuel = container.querySelector('.select-visuel-epaisseur');
+        const inputVisuel = container.querySelector('.input-visuel-epaisseur');
+
+        // On remet l'affichage normal
+        inputVisuel.style.display = 'none';
+        btn.style.display = 'none';
+        selectVisuel.style.display = 'block';
+
+        // On remet la valeur sélectionnée à celle de la première option valide
+        selectVisuel.selectedIndex = 0;
+        hiddenInput.value = selectVisuel.value;
+
+        // Recalculs
+        lookupPrice(hiddenInput);
+        calculerPoidsLigne(hiddenInput.closest('.ligne-pierre'));
+    }
 </script>
 @include("partials.modals-mails")
 </body>
