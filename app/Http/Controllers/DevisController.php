@@ -256,6 +256,7 @@ class DevisController extends Controller
         $lignes = Devis::where('client', $client)
             ->where('created_at', $dateSql)
             ->with('specificites')
+            ->orderBy('id', 'asc')
             ->get();
 
         if($lignes->isEmpty()) return "Aucune donnée trouvée.";
@@ -302,6 +303,7 @@ class DevisController extends Controller
         $lignes = Devis::where('client', $client)
             ->where('created_at', $dateSql)
             ->with('specificites')
+            ->orderBy('id', 'asc')
             ->get();
 
         // On récupère toutes les épaisseurs uniques présentes dans vos tarifs
