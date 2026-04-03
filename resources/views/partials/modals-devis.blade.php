@@ -54,10 +54,6 @@
                                        class="form-control"
                                        placeholder="Laissez vide = L × l × Prix/m²">
                                 <span class="input-group-text">€</span>
-                                <button type="button" class="btn btn-outline-secondary"
-                                        id="btn-clear-prix-manuel" title="Revenir au calcul automatique">
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                </button>
                             </div>
                             <small id="hint-prix-manuel" class="text-muted"></small>
                         </div>
