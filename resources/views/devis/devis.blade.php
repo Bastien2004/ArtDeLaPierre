@@ -614,6 +614,28 @@
             }
         });
     });
+
+
+    // Vider le champ manuel au reset
+    $(document).on('click', '#btn-clear-prix-manuel', function () {
+        $('#edit_prix_manuel').val('').trigger('input');
+    });
+
+    // Mettre à jour l'indice quand le champ manuel change
+    $(document).on('input', '#edit_prix_manuel', function () {
+        const val = parseFloat($(this).val());
+        const qte = parseFloat($('#edit_nb').val()) || 1;
+        if (val > 0) {
+            $('#hint-prix-manuel').html(
+                '<i class="fa-solid fa-circle-info"></i> Prix forcé : <strong>' +
+                val.toFixed(2) + ' €/pierre</strong> → total pierres = ' +
+                (val * qte).toFixed(2) + ' €'
+            );
+        } else {
+            $('#hint-prix-manuel').text('');
+        }
+        updateModalTotal();
+    });
 </script>
 @include('partials.modals-devis')
 </body>

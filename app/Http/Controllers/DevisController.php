@@ -160,7 +160,15 @@ class DevisController extends Controller
         $matiereParPierre = (float) $request->longueurM * (float) $request->largeurM;
 
         // Calcul du prix de la pierre seule (multiplié par quantité)
-        $prixTotalPierres = ($matiereParPierre * (float) $request->prixM2) * $quantite;
+        $prixManuelUnitaire = (float) $request->prix_manuel_unitaire;
+
+        if ($prixManuelUnitaire > 0) {
+            // Prix saisi manuellement : on prend directement unitaire × quantité
+            $prixTotalPierres = $prixManuelUnitaire * $quantite;
+        } else {
+            // Calcul automatique habituel
+            $prixTotalPierres = ($matiereParPierre * (float) $request->prixM2) * $quantite;
+        }
 
         // LE CALCUL FINAL : On ajoute les options qui sont déjà au bon montant global
         $prixHTFinal = $prixTotalPierres + $totalOptionsCumulees;
@@ -448,9 +456,6 @@ class DevisController extends Controller
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            // Prix unitaire = prix d'UNE seule pierre (surface × prixM2)
-            $prixUnitaire = round((float)$devis->longueurM * (float)$devis->largeurM * (float)$devis->prixM2, 2);
-
             // Libellé : type + épaisseur + noms des spécificités
             $designation = trim($devis->typePierre ?? '');
             if ($devis->epaisseur) {
@@ -472,7 +477,7 @@ class DevisController extends Controller
 
             // Prix total de la ligne = unitaire × qté + specs
             $prixTotalSpecs = $devis->specificites->sum('prix');
-            $prixTotalLigne = ($prixUnitaire * $qte) + $prixTotalSpecs;
+            $prixTotalLigne = (float) $devis->prixHT;
 
             // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
@@ -488,7 +493,7 @@ class DevisController extends Controller
                     'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
-                    'item_net_price' => round($prixTotalLigne / $qte, 2),
+                    'item_net_price' => round($prixTotalLigne / max($qte, 1), 2),
                 ],
                 'item_information' => [
                     'item_name'       => $designation,

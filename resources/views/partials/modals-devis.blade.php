@@ -40,6 +40,29 @@
                         </div>
                     </div>
 
+                    {{-- Prix manuel par pierre --}}
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">
+                                Prix manuel — 1 pierre (€)
+                                <small class="text-muted fw-normal ms-1">remplace le calcul auto</small>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0"
+                                       name="prix_manuel_unitaire"
+                                       id="edit_prix_manuel"
+                                       class="form-control"
+                                       placeholder="Laissez vide = L × l × Prix/m²">
+                                <span class="input-group-text">€</span>
+                                <button type="button" class="btn btn-outline-secondary"
+                                        id="btn-clear-prix-manuel" title="Revenir au calcul automatique">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </div>
+                            <small id="hint-prix-manuel" class="text-muted"></small>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Poids Total (kg)</label>
