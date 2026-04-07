@@ -47,6 +47,7 @@
                 $p = $lignes->first();
                 $totalGroupe = $lignes->sum('prixHT');
                 $fraisPort = $lignes->avg('livraison');
+                $prixPose = $lignes->avg('prixPose');
                 $poidsTotalGroupe = $lignes->sum('poids');
             @endphp
 
@@ -94,6 +95,7 @@
                                       data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
                                       data-current="{{ $fraisPort }}">
                                       <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
+                                      <i class="fa-solid fa-truck"> Pose : {{ number_format($prixPose, 2, ',', ' ') }} € </i>
                                       <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
                                 </span>
                                 <button type="button"
@@ -526,14 +528,13 @@
     function ouvrirCarnetDevis() {
         $('#carnet-devis-overlay').remove();
 
+        // ← DÉSACTIVE le piège focus de Bootstrap
+        $(document).off('focusin.bs.modal');
+
+
         fetch('/emails/search?q=')
             .then(r => r.json())
             .then(function(emails) {
-                if (!emails.length) {
-                    alert('Aucune adresse dans le carnet.');
-                    return;
-                }
-
                 let items = '';
                 emails.forEach(function(email) {
                     items +=
@@ -549,18 +550,18 @@
                     '<div id="carnet-devis-overlay" ' +
                     'style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999999;' +
                     'display:flex;align-items:center;justify-content:center;" ' +
-                    'onclick="if(event.target===this)$(\'#carnet-devis-overlay\').remove()">' +
+                    'onclick="if(event.target===this)fermerCarnetDevis()">' +
                     '<div style="background:white;border-radius:16px;width:420px;max-width:90vw;' +
                     'max-height:70vh;display:flex;flex-direction:column;overflow:hidden;' +
                     'box-shadow:0 20px 50px rgba(0,0,0,0.2)">' +
                     '<div style="padding:16px 20px;border-bottom:1px solid #eee;' +
                     'display:flex;justify-content:space-between;align-items:center">' +
                     '<strong>Carnet d\'adresses</strong>' +
-                    '<button onclick="$(\'#carnet-devis-overlay\').remove()" ' +
+                    '<button onclick="fermerCarnetDevis()" ' +
                     'style="border:none;background:none;font-size:1.2em;cursor:pointer">×</button>' +
                     '</div>' +
                     '<div style="padding:10px 16px;border-bottom:1px solid #eee">' +
-                    '<input type="text" placeholder="Rechercher..." ' +
+                    '<input id="carnet-search-input" type="text" placeholder="Rechercher..." ' +
                     'oninput="filtrerCarnetDevis(this.value)" ' +
                     'style="width:100%;padding:8px;border:1px solid #ddd;' +
                     'border-radius:8px;box-sizing:border-box">' +
@@ -572,16 +573,27 @@
                     '</div>';
 
                 $('body').append(overlay);
-                // Focus sur la recherche
+
                 setTimeout(function() {
-                    $('#carnet-devis-overlay input').focus();
+                    const input = document.getElementById('carnet-search-input');
+                    if (input) input.focus();
                 }, 100);
             });
     }
 
+    function fermerCarnetDevis() {
+        $('#carnet-devis-overlay').remove();
+        // ← RÉACTIVE le piège focus de Bootstrap
+        $('body').on('focusin.modal', '.modal', function(e) {
+            if (document.activeElement !== e.target) {
+                $(e.target).trigger('focus');
+            }
+        });
+    }
+
     function choisirEmailDevis(email) {
         $('#email_destinataire').val(email);
-        $('#carnet-devis-overlay').remove();
+        fermerCarnetDevis();
     }
 
     function filtrerCarnetDevis(q) {

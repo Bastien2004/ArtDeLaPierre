@@ -121,8 +121,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <label class="form-label">Montant HT (€)</label>
+                    <label class="form-label">Montant de livraison HT (€)</label>
                     <input type="number" step="0.01" name="montant" id="livraison_input" class="form-control form-control-lg">
+                    <label class="form-label">Montant de pose (€)</label>
+                    <input type="number" step="0.01" name="prixPose" id="prixPose_input" class="form-control form-control-lg">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary w-100">Mettre à jour</button>
@@ -131,7 +133,6 @@
         </div>
     </div>
 </div>
-
 
 
 
@@ -192,7 +193,7 @@
                 <div class="mb-3">
                     <label class="form-label">Destinataire</label>
                     <div style="display:flex; gap:8px; position:relative;">
-                        <input type="email" id="email_destinataire" class="form-control" autocomplete="off">
+                        <input type="email" id="email_destinataire" class="form-control">
                         <button type="button"
                                 onclick="ouvrirCarnetDevis()"
                                 class="btn btn-outline-secondary"
@@ -201,9 +202,9 @@
                         </button>
                         <ul id="email-suggestions-modal"
                             style="display:none; position:absolute; top:100%; left:0;
-                   width:calc(100% - 50px); background:white; border:1px solid #ddd;
-                   border-radius:8px; list-style:none; margin:0; padding:4px 0;
-                   z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                            width:calc(100% - 50px); background:white; border:1px solid #ddd;
+                            border-radius:8px; list-style:none; margin:0; padding:4px 0;
+                            z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
                         </ul>
                     </div>
                 </div>

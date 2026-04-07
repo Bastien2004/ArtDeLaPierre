@@ -68,6 +68,10 @@
                 <input type="number" name="livraison" class="lock-on-add" step="0.001" value="{{ $livraisonPrefill ?? '0.00' }}" placeholder="0.00">
             </div>
             <div class="form-group">
+                <label>Montant de pose</label>
+                <input type="number" name="prixPose" class="lock-on-add" step="0.001">
+            </div>
+            <div class="form-group">
                 <label>Date de livraison</label>
                 <input type="date" name="datefindevis" class="lock-on-add">
             </div>
@@ -360,7 +364,8 @@
             'select[name="type_client_global"]',
             'input[name="client"]',
             'input[name="adresse"]',
-            'input[name="livraison"]'
+            'input[name="livraison"]',
+            'input[name="prixPose"]'
         ];
 
         selectors.forEach(sel => {

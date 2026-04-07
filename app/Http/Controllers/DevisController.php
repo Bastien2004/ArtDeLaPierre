@@ -61,6 +61,7 @@ class DevisController extends Controller
         $livraisonFixe = (float) ($request->livraison ?? 0);
         $lignesPourMake = [];
         $totalGeneralHT = 0;
+        $montantPose = (float) ($request->prixPose ?? 0);
 
         foreach ($request->lignes as $index => $ligneData) {
             $quantite = (int) $ligneData['nombrePierre'];
@@ -95,6 +96,7 @@ class DevisController extends Controller
                 'prixM2'       => $ligneData['prixM2'],
                 'prixHT'       => $prixHTFinalLigne,
                 'livraison'    => $livraisonFixe,
+                'prixPose'     => $montantPose,
                 'datefindevis' => $request->datefindevis,
             ]);
 
@@ -216,8 +218,12 @@ class DevisController extends Controller
     {
         // On met à jour TOUTES les lignes avec le même montant
         Devis::where('client', $request->client)
-            ->where('created_at', $request->date)
-            ->update(['livraison' => (float)$request->montant]);
+            ->whereDate('created_at', $request->date)
+            ->update([
+                'livraison' => (float) $request->montant,
+                'prixPose' => (float) $request->prixPose
+            ]);
+
 
         return redirect()->back()->with('success', 'Frais de livraison mis à jour !');
     }

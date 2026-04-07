@@ -22,7 +22,8 @@ class Devis extends Model
         'epaisseur',
         'poids',
         'livraison',
-        'datefindevis'
+        'datefindevis',
+        'prixPose'
     ];
 
     public function specificites()
