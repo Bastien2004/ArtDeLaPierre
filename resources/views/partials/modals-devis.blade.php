@@ -14,6 +14,17 @@
                         <input type="text" name="typePierre" id="edit_pierre" class="form-control">
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Finition</label>
+                        <select id="edit_finition" class="form-control">
+                            <option value="">-- Choisir --</option>
+                            <option value="Adoucie P40">Adoucie P40</option>
+                            <option value="Brut de sciage">Brut de sciage</option>
+                            <option value="Adoucie Foncé">Adoucie Foncé</option>
+                            <option value="Ciselé">Ciselé</option>
+                        </select>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Longueur (m)</label>

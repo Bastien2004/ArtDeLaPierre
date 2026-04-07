@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Devis;
 use App\Models\Specificite;
+use App\Models\Tarif;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
@@ -21,11 +22,11 @@ class DevisController extends Controller
                 return $item->client . $item->created_at->format('Y-m-d H:i');
             });
 
-        // 2. RÉCUPÉRER LES TARIFS (C'est ce qui manquait)
+        $allTarifs = Tarif::all();
         $tarifsTravaux = \App\Models\TravailTarif::all();
 
         // 3. Envoyer les deux variables à la vue
-        return view('devis.devis', compact('devisGroupes', 'tarifsTravaux'));
+        return view('devis.devis', compact('devisGroupes', 'tarifsTravaux', 'allTarifs'));
     }
 
     public function create(Request $request) {
@@ -129,7 +130,8 @@ class DevisController extends Controller
     public function edit(string $id)
     {
         $devis = Devis::with('specificites')->findOrFail($id);
-        return view('devis.edit', compact('devis'));
+        $allTarifs = \App\Models\Tarif::all();
+        return view('devis.edit', compact('devis', 'allTarifs'));
     }
 
     public function update(Request $request, string $id)

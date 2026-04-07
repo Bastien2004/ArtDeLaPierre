@@ -166,7 +166,9 @@
                     <td class="col-prix">{{ number_format($d->prixM2, 2, ',', ' ') }}€</td>
                     <td class="col-total-ligne">{{ number_format($d->prixHT, 2, ',', ' ') }}€</td>
                     <td class="col-actions">
-                        <button class="btn-edit-modal" data-bs-toggle="modal" data-bs-target="#modificationModal"
+                        <button class="btn-edit-modal"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modificationModal"
                                 data-id="{{ $d->id }}"
                                 data-pierre="{{ $d->typePierre }}"
                                 data-nb="{{ $d->nombrePierre }}"
@@ -175,7 +177,8 @@
                                 data-prix="{{ $d->prixM2 }}"
                                 data-poids="{{ $d->poids }}"
                                 data-epaisseur="{{ $d->epaisseur }}"
-                                data-specs="{{ $d->specificites->toJson() }}">✏️
+                                data-specs="{{ $d->specificites->toJson() }}"
+                                data-type-client="{{ $p->type_client_global ?? 'Entreprise' }}">✏️
                         </button>
                         <button class="btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-id="{{ $d->id }}">❌</button>
                     </td>
@@ -190,6 +193,35 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+    const grilleTarifs = @json($allTarifs);
+    let currentTypeClient = "Entreprise";
+
+    // Déclenche la recherche de prix quand l'épaisseur change dans la modal
+    $(document).on('input change', '#edit_epaisseur, #edit_pierre', function() {
+        lookupPriceForModal();
+    });
+
+
+    function lookupPriceForModal() {
+        const finition   = $('#edit_finition').val();   // ← utilise le select
+        const epaisseur  = parseFloat($('#edit_epaisseur').val());
+        const typeClient = currentTypeClient;
+
+        if (!finition || !epaisseur || !grilleTarifs) return;
+
+        const tarifTrouve = grilleTarifs.find(t =>
+            t.type_client === typeClient &&
+            parseFloat(t.epaisseur) === epaisseur &&
+            t.finition === finition
+        );
+
+        if (tarifTrouve) {
+            $('#edit_prix').val(tarifTrouve.prix_m2);
+            $('#edit_prix').trigger('input');
+        }
+    }
+
 
     function updateModalTotal() {
         const totalPierre = (parseFloat($('#edit_long').val())||0)
@@ -272,6 +304,9 @@
         const btn      = $(this);
         const id       = btn.data('id');
         const specs    = btn.data('specs');
+
+        // 3. CAPTURE DU TYPE DE CLIENT DEPUIS LE BOUTON
+        currentTypeClient = btn.data('type-client') || "Entreprise";
 
         $('#display_id').text(id);
         $('#editForm').attr('action', '/devis/' + id);
@@ -368,6 +403,16 @@
     // ============================================================
 
     $(document).ready(function() {
+
+        // Quand on change l'épaisseur manuellement dans la modale
+        $(document).on('input', '#edit_epaisseur', function() {
+            lookupPriceForModal();
+        });
+
+        // Quand on change le nom de la pierre (au cas où on change de finition)
+        $(document).on('input', '#edit_pierre', function() {
+            lookupPriceForModal();
+        });
 
         $('#tableDevis').DataTable({
             responsive: true,
