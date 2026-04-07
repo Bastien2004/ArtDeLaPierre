@@ -282,7 +282,8 @@ class DevisController extends Controller
 
         $totalHT = $lignes->sum('prixHT');
         $montantLivraison = $lignes->avg('livraison');
-        $totalHTAvecLivraison = $totalHT + $montantLivraison;
+        $montantPose = $lignes->avg('prixPose');
+        $totalHTAvecLivraison = $totalHT + $montantLivraison + $montantPose;
 
         $poids = $lignes->sum('poids');
 

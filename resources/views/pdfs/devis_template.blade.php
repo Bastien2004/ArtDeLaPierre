@@ -113,6 +113,10 @@
             </tbody>
         </table>
 
+        @php
+        $montantPose = $lignes->avg('prixPose');
+        @endphp
+
         <div class="totals">
             <div class="total-line">Sous-total HT : {{ number_format($totalHT, 2, ',', ' ') }} €</div>
 
@@ -120,8 +124,18 @@
                 <div class="total-line">Frais de livraison : {{ number_format($montantLivraison, 2, ',', ' ') }} €</div>
             @endif
 
-            <div class="total-line"><strong>Total HT : {{ number_format($totalHTAvecLivraison, 2, ',', ' ') }} €</strong></div>
-            <div class="total-line">TVA 20% : {{ number_format($totalHTAvecLivraison * 0.2, 2, ',', ' ') }} €</div>
+            @if($montantPose > 0)
+                <div class="total-line">Frais de pose : {{ number_format($montantPose, 2, ',', ' ') }} €</div>
+            @endif
+
+            <div class="total-line">
+                <strong>Total HT : {{ number_format($totalHTAvecLivraison, 2, ',', ' ') }} €</strong>
+            </div>
+
+            <div class="total-line">
+                TVA 20% : {{ number_format($totalHTAvecLivraison * 0.2, 2, ',', ' ') }} €
+            </div>
+
             <div class="total-ttc">
                 Total TTC : {{ number_format($totalHTAvecLivraison * 1.2, 2, ',', ' ') }} €
             </div>
@@ -135,11 +149,19 @@
         <div class="legal-notices">
             Acompte de 40% à la signature du devis.<br>
 
-            @if($montantLivraison > 0)
+            @if($montantLivraison > 0 && $montantPose > 0)
+                DEVIS LIVRAISON ET POSE INCLUSES<br>
+
+            @elseif($montantLivraison > 0)
                 DEVIS HORS POSE, LIVRAISON INCLUSE<br>
+
+            @elseif($montantPose > 0)
+                DEVIS HORS LIVRAISON, POSE INCLUSE<br>
+
             @else
                 DEVIS HORS POSE, HORS LIVRAISON<br>
             @endif
+
 
             <br>
             <i style="color: #666; font-size: 10px;">Les Pierres Bleues de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures,

@@ -93,7 +93,8 @@
                                       class="btn-edit-transport"
                                       data-client="{{ $p->client }}"
                                       data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
-                                      data-current="{{ $fraisPort }}">
+                                      data-current="{{ $fraisPort }}"
+                                      data-pose="{{ $prixPose }}">
                                       <i class="fa-solid fa-truck"></i> Livraison : {{ number_format($fraisPort, 2, ',', ' ') }}€
                                       <i class="fa-solid fa-truck"> Pose : {{ number_format($prixPose, 2, ',', ' ') }} € </i>
                                       <i class="fa-solid fa-pen-to-square ms-1" style="font-size: 0.8em; color: #666;"></i>
@@ -391,6 +392,7 @@
         $('#livraison_client').val(btn.data('client'));
         $('#livraison_date').val(btn.data('date'));
         $('#livraison_input').val(btn.data('current'));
+        $('#prixPose_input').val(btn.data('pose'));
         $('#modalLivraison').modal('show');
     });
 
