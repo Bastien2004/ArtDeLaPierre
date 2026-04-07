@@ -75,17 +75,6 @@
                     </div>
                 </a>
 
-                <a href="#" class="card-action tarifs-card">
-                    <div class="card-icon">
-                        <span class="icon-bg">📊</span>
-                    </div>
-                    <div class="card-content">
-                        <h3>Statistiques de l'entreprise</h3>
-                        <p>Visualisez les performances et les données clés de votre entreprise en temps réel.</p>
-                        <span class="btn-discover">Consulter <i class="fas fa-chevron-right"></i></span>
-                    </div>
-                </a>
-
             </div>
         </div>
     </div>
