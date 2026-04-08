@@ -125,7 +125,7 @@
             @endif
 
             @if($montantPose > 0)
-                <div class="total-line">Frais de pose : {{ number_format($montantPose, 2, ',', ' ') }} €</div>
+                <div class="total-line">Frais de pose + livraison : {{ number_format($montantPose, 2, ',', ' ') }} €</div>
             @endif
 
             <div class="total-line">
