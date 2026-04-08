@@ -156,7 +156,7 @@
                 DEVIS HORS POSE, LIVRAISON INCLUSE<br>
 
             @elseif($montantPose > 0)
-                DEVIS HORS LIVRAISON, POSE INCLUSE<br>
+                DEVIS LIVRAISON ET POSE INCLUSE<br>
 
             @else
                 DEVIS HORS POSE, HORS LIVRAISON<br>
