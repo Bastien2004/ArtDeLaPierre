@@ -123,7 +123,7 @@
                 <div class="modal-body">
                     <label class="form-label">Montant de livraison HT (€)</label>
                     <input type="number" step="0.01" name="montant" id="livraison_input" class="form-control form-control-lg">
-                    <label class="form-label">Montant de pose + livraison (€)</label>
+                    <label class="form-label">Montant de pose (€)</label>
                     <input type="number" step="0.01" name="prixPose" id="prixPose_input" class="form-control form-control-lg">
                 </div>
                 <div class="modal-footer">
@@ -180,7 +180,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalEmail" tabindex="-1">
+<div class="modal fade" id="modalEmail" tabindex="-1" data-bs-focus="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

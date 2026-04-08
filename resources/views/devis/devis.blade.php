@@ -530,10 +530,6 @@
     function ouvrirCarnetDevis() {
         $('#carnet-devis-overlay').remove();
 
-        // ← DÉSACTIVE le piège focus de Bootstrap
-        $(document).off('focusin.bs.modal');
-
-
         fetch('/emails/search?q=')
             .then(r => r.json())
             .then(function(emails) {
@@ -585,12 +581,6 @@
 
     function fermerCarnetDevis() {
         $('#carnet-devis-overlay').remove();
-        // ← RÉACTIVE le piège focus de Bootstrap
-        $('body').on('focusin.modal', '.modal', function(e) {
-            if (document.activeElement !== e.target) {
-                $(e.target).trigger('focus');
-            }
-        });
     }
 
     function choisirEmailDevis(email) {
