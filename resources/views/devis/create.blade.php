@@ -33,11 +33,11 @@
             </div>
             <div class="form-group">
                 <label>Nom du Client</label>
-                <input type="text" name="client" class="lock-on-add" placeholder="Nom" value="{{ $clientPrefill ?? '' }}" required>
+                <input type="text" name="client" class="lock-on-add" value="{{ $clientPrefill ?? '' }}" required>
             </div>
             <div class="form-group">
                 <label>Adresse</label>
-                <input type="text" name="adresse" class="lock-on-add" placeholder="Adresse" value="{{ $adressePrefill ?? '' }}">
+                <input type="text" name="adresse" class="lock-on-add" value="{{ $adressePrefill ?? '' }}">
             </div>
 
             <div class="form-group" style="position: relative;">
@@ -50,7 +50,6 @@
                             name="email_destinataire"
                             class="lock-on-add"
                             autocomplete="off"
-                            placeholder="email@exemple.com"
                         >
                         <ul id="email-suggestions"></ul>
                     </div>
@@ -87,7 +86,7 @@
                     <div class="form-group">
                         <div class="form-group" style="grid-column: span 6; margin-top: 10px;">
                             <label>Désignation personnalisée</label>
-                            <input type="text" name="lignes[0][typePierre]" class="input-designation" placeholder="EX : Pierre Bleue">
+                            <input type="text" name="lignes[0][typePierre]" class="input-designation">
                         </div>
                         <label>Finition</label>
                         <select name="lignes[0][finition]" class="select-finition" onchange="lookupPrice(this)">
@@ -290,8 +289,8 @@
         const specHtml = `
             <div class="ligne-spec">
                 <div class="form-grid-specs">
-                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]" placeholder="Ex: Rejingot">
-                    <input type="number" step="0.001" name="lignes[${pIdx}][specs][${sIdx}][prix]" placeholder="Prix">
+                    <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]">
+                    <input type="number" step="0.001" name="lignes[${pIdx}][specs][${sIdx}][prix]">€
                     <button type="button" class="remove-spec" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
             </div>`;
