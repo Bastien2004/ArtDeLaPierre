@@ -363,7 +363,8 @@ class DevisController extends Controller
             $pays                 = $this->extrairePays($adresse);
             $totalHT              = $lignes->sum('prixHT');
             $montantLivraison     = $lignes->avg('livraison');
-            $totalHTAvecLivraison = $totalHT + $montantLivraison;
+            $prixPose             = $lignes->avg('prixPose');
+            $totalHTAvecLivraison = $totalHT + $montantLivraison + $prixPose;
             $poids                = $lignes->sum('poids');
 
             $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('pdfs.devis_template', [
@@ -378,6 +379,7 @@ class DevisController extends Controller
                 'id'                   => $lignes->first()->id,
                 'reference'            => null,
                 'poids'                => $poids,
+                'prixPose'             => $prixPose
             ])
                 ->setOption('page-size', 'A4')
                 ->setOption('margin-top', '0mm')
