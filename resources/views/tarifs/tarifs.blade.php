@@ -104,7 +104,7 @@
                 <div class="row align-items-end">
                     <div class="col-md-3">
                         <label class="small fw-bold text-muted text-uppercase">Valeur (cm)</label>
-                        <input type="number" name="new_epaisseur" class="form-control" placeholder="Ex: 6">
+                        <input type="number" name="new_epaisseur" class="form-control">
                     </div>
                     <div class="col-md-9">
                         <p class="small text-muted mb-0">Crée automatiquement la ligne pour Particuliers et Entreprises.</p>
@@ -150,7 +150,7 @@
                     @endforeach
 
                     <tr class="bg-white">
-                        <td class="p-2"><input type="text" name="new_travail_nom" class="form-control form-control-sm border-primary-subtle" placeholder="Ex: Polissage..."></td>
+                        <td class="p-2"><input type="text" name="new_travail_nom" class="form-control form-control-sm border-primary-subtle"></td>
                         <td class="p-2">
                             <select name="new_travail_unite" class="form-select form-select-sm border-primary-subtle">
                                 <option value="ml">Mètre linéaire (ml)</option>
@@ -159,7 +159,7 @@
                         </td>
                         <td class="p-2" colspan="2">
                             <div class="input-group input-group-sm">
-                                <input type="number" step="0.01" name="new_travail_prix" class="form-control border-primary-subtle" placeholder="0.00">
+                                <input type="number" step="0.01" name="new_travail_prix" class="form-control border-primary-subtle">
                                 <span class="input-group-text bg-primary-subtle border-primary-subtle">€</span>
                             </div>
                         </td>
