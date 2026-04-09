@@ -415,7 +415,9 @@
             document.getElementById('modal-client').textContent  = ev.client;
             document.getElementById('modal-adresse').textContent = ev.adresse || '—';
             document.getElementById('modal-montant').textContent = fmt.euro(ev.montant);
-            document.getElementById('modal-devis-link').href     = ev.url || '#';
+
+            const searchParam = encodeURIComponent(ev.client);
+            document.getElementById('modal-devis-link').href = (ev.url || '#') + '?search=' + searchParam;
             overlay.classList.add('open');
         }
 

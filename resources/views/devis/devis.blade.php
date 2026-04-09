@@ -418,13 +418,26 @@
             lookupPriceForModal();
         });
 
-        $('#tableDevis').DataTable({
+        const table = $('#tableDevis').DataTable({
             responsive: true,
             ordering:   false,
             pageLength: 50,
             dom:        '<"top"f>rt<"bottom"lp><"clear">',
             language:   { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' }
         });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchName = urlParams.get('search');
+
+        if (searchName) {
+            // On applique la recherche dans le champ DataTables
+            table.search(searchName).draw();
+
+            // Nettoyer l'URL sans recharger la page pour éviter
+            // que la recherche revienne si l'utilisateur rafraîchit
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
 
         $(document).on('click', '.btn-email-devis', function() {
             const client = $(this).data('client');
