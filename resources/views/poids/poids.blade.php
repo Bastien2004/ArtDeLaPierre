@@ -16,7 +16,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Épaisseur (en cm)</label>
-                        <input type="number" id="calc_cm" step="0.1" class="w-full rounded-lg border-gray-300 shadow-sm" placeholder="Ex: 3">
+                        <input type="number" id="calc_cm" step="0.1" class="w-full rounded-lg border-gray-300 shadow-sm">
                     </div>
 
                     <div>
