@@ -61,6 +61,13 @@
                                     data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}">
                                 <i class="fa-solid fa-paper-plane"></i> Tiime
                             </button>
+                            <a href="{{ route('devis.print', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
+                               target="_blank"
+                               onclick="printPdf(this.href); return false;"
+                               class="btn-print">
+                                <i class="fa fa-print"></i>
+                                <span>Imprimer</span>
+                            </a>
                             <div class="dl-dropdown-wrapper">
                                 <button type="button" class="btn-dl-main" data-client="{{ $p->client }}">
                                     <i class="fa-solid fa-download"></i>

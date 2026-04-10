@@ -790,6 +790,35 @@ h6 {
     cursor: not-allowed;
 }
 
+/* Style du bouton Imprimer */
+.btn-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #1e1e1e;
+    border: 1px solid #8f7652;
+    color: #f3bc66;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+    text-decoration: none;
+}
+
+.btn-print:hover {
+    background: #2a2a2a;
+    border-color: #8f7652;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    text-decoration: none;
+}
+
+/* Style de l'icône dans le bouton */
+.btn-print i {
+    font-size: 1.1em;
+}
+
 /* --- UTILS --- */
 .txt-right { text-align: right !important; }
 .txt-center { text-align: center !important; }

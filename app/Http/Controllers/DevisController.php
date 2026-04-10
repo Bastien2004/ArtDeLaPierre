@@ -313,6 +313,41 @@ class DevisController extends Controller
             ->download("Devis_{$client}.pdf");
     }
 
+    public function streamPDF(Request $request, $client, $date)
+    {
+        $dateSql = Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
+
+        $lignes = Devis::where('client', $client)
+            ->where('created_at', $dateSql)
+            ->with('specificites')
+            ->get();
+
+        if($lignes->isEmpty()) return "Aucune donnée trouvée.";
+
+        $pdf = PDF::loadView('pdfs.devis_template', [
+            'lignes' => $lignes,
+            'client' => $client,
+            'adresse' => $lignes->first()->adresse,
+            'pays' => $this->extrairePays($lignes->first()->adresse),
+            'montantLivraison' => $lignes->avg('livraison'),
+            'totalHTAvecLivraison' => $lignes->sum('prixHT') + $lignes->avg('livraison') + $lignes->avg('prixPose'),
+            'date' => $lignes->first()->created_at,
+            'totalHT'=> $lignes->sum('prixHT'),
+            'id'=> $lignes->first()->id,
+            'reference' => $request->query('ref'),
+            'poids' => $lignes->sum('poids'),
+        ]);
+
+        return $pdf
+            ->setOption('page-size', 'A4')
+            ->setOption('margin-top', '0mm')
+            ->setOption('margin-bottom', '0mm')
+            ->setOption('margin-left', '0mm')
+            ->setOption('margin-right', '0mm')
+            ->setOption('disable-smart-shrinking', true)
+            ->inline("Devis_{$client}.pdf");
+    }
+
     public function downloadAtelierPDF(Request $request, $client, $date)
     {
         $dateSql = \Carbon\Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');

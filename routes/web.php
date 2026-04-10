@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/devis/send-email', [DevisController::class, 'sendEmail'])->name('devis.sendEmail');
     Route::resource('devis', DevisController::class);
     Route::get('/devis-pdf/{client}/{date}', [DevisController::class, 'downloadPDF'])->name('devis.downloadPDF');
+    Route::get('/devis/print/{client}/{date}', [DevisController::class, 'streamPDF'])->name('devis.print');
     Route::get('/devis/calendrier/pdf', [DevisController::class, 'downloadCalendrierPDF'])->name('devis.calendrierPDF');
     Route::post('/devis/update-livraison', [App\Http\Controllers\DevisController::class, 'updateLivraison'])->name('devis.updateLivraison');
     Route::get('/devis/atelier/{client}/{date}', [DevisController::class, 'downloadAtelierPDF'])->name('devis.downloadAtelierPDF');
