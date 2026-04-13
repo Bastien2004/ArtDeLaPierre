@@ -4,7 +4,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/registreEmail.css') }}" rel="stylesheet">
 
-
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -29,8 +28,8 @@
                 </div>
             @endif
 
-                <div class="mail-card">
-                    <div class="mail-card-top-bar"></div>
+            <div class="mail-card">
+                <div class="mail-card-top-bar"></div>
 
                 {{-- En-tête --}}
                 <div class="mail-card-header">
@@ -38,15 +37,19 @@
                         <div class="mail-header-icon">📧</div>
                         <div>
                             <p class="mail-card-title">Carnet d'adresses</p>
-                            <p class="mail-card-subtitle">Enregistrées automatiquement à la création des devis</p>
+                            <div class="flex items-center gap-2">
+                                <span class="badge-count">{{ $emails->count() }} adresse(s)</span>
+                            </div>
                         </div>
                     </div>
-                    <span class="badge-count">{{ $emails->count() }} adresse(s)</span>
+                    {{-- BOUTON AJOUTER --}}
+                    <button onclick="openModal('add')" class="btn-add-mail">
+                        <i class="fas fa-plus"></i> Nouveau contact
+                    </button>
                 </div>
 
                 {{-- Corps --}}
                 <div class="mail-card-body">
-
                     @if($emails->isEmpty())
                         <div class="empty-state">
                             <div class="empty-state-icon">📭</div>
@@ -58,7 +61,7 @@
                             <tr>
                                 <th>Adresse email</th>
                                 <th style="width: 200px; text-align: center;">Enregistré le</th>
-                                <th style="width: 80px; text-align: center;">Action</th>
+                                <th style="width: 100px; text-align: center;">Actions</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -73,28 +76,58 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
-                                            <span class="date-badge">
-                                                {{ $email->created_at->format('d/m/Y à H:i') }}
-                                            </span>
+                                        <span class="date-badge">
+                                            {{ $email->created_at->format('d/m/Y à H:i') }}
+                                        </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <form action="{{ route('emails.destroy', $email->id) }}" method="POST"
-                                              onsubmit="return confirm('Supprimer {{ addslashes($email->adresse) }} ?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-delete-mail" title="Supprimer">
-                                                <i class="fas fa-trash-can"></i>
+                                        <div class="flex justify-center gap-2">
+                                            {{-- BOUTON MODIFIER --}}
+                                            <button onclick="openModal('edit', {{ $email->id }}, '{{ addslashes($email->adresse) }}')" class="btn-edit-mail" title="Modifier">
+                                                <i class="fas fa-pen-to-square"></i>
                                             </button>
-                                        </form>
+
+                                            {{-- BOUTON SUPPRIMER --}}
+                                            <form action="{{ route('emails.destroy', $email->id) }}" method="POST"
+                                                  onsubmit="return confirm('Supprimer {{ addslashes($email->adresse) }} ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-delete-mail" title="Supprimer">
+                                                    <i class="fas fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
                     @endif
-
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="emailModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle" class="modal-title">Ajouter un email</h3>
+                <button onclick="closeModal()" class="modal-close">&times;</button>
+            </div>
+            <form id="emailForm" method="POST">
+                @csrf
+                <div id="methodContainer"></div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="modalInput">Adresse Email</label>
+                        <input type="email" name="adresse" id="modalInput" required placeholder="exemple@domaine.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn-modal-cancel">Annuler</button>
+                    <button type="submit" class="btn-modal-save">Enregistrer</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -104,16 +137,41 @@
     <script>
         $(document).ready(function () {
             $('#emailsTable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
-                },
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
                 order: [[1, 'desc']],
-                columnDefs: [
-                    { orderable: false, targets: 2 }
-                ],
+                columnDefs: [{ orderable: false, targets: 2 }],
                 pageLength: 15,
             });
         });
-    </script>
 
+        function openModal(mode, id = null, email = '') {
+            const modal = $('#emailModal');
+            const form = $('#emailForm');
+            const title = $('#modalTitle');
+            const input = $('#modalInput');
+            const methodContainer = $('#methodContainer');
+
+            if (mode === 'edit') {
+                title.text('Modifier l\'adresse email');
+                form.attr('action', `/emails/${id}`);
+                methodContainer.html('@method("PUT")');
+                input.val(email);
+            } else {
+                title.text('Ajouter un nouveau contact');
+                form.attr('action', "{{ route('emails.storeManuel') }}");
+                methodContainer.html('');
+                input.val('');
+            }
+            modal.removeClass('hidden').addClass('flex');
+        }
+
+        function closeModal() {
+            $('#emailModal').addClass('hidden').removeClass('flex');
+        }
+
+        // Fermer au clic extérieur
+        $(window).on('click', function(e) {
+            if ($(e.target).hasClass('modal-overlay')) closeModal();
+        });
+    </script>
 </x-app-layout>

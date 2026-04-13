@@ -80,6 +80,9 @@ Route::middleware('auth')->group(function () {
 
     // Registre email
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');
+    Route::post('/emails/manuel', [EmailController::class, 'storeFromRegistre'])->name('emails.storeManuel');
+    Route::post('/emails', [EmailController::class, 'store'])->name('emails.store');
+    Route::put('/emails/{id}', [EmailController::class, 'update'])->name('emails.update');
     Route::delete('/emails/{id}', [EmailController::class, 'destroy'])->name('emails.destroy');
 });
 
