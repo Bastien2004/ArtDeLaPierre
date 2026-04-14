@@ -295,9 +295,6 @@
 
         if (isLinteau) {
             const typeLinteau = row.querySelector('.select-type-linteau').value;
-            const longueur = parseFloat(row.querySelector('input[name*="[longueurM]"]').value) || 0;
-            const largeur = parseFloat(row.querySelector('input[name*="[largeurM]"]').value) || 0;
-            const quantite = parseFloat(row.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
             let coefficient = 0;
             if (typeClient === 'Entreprise') {
@@ -306,10 +303,20 @@
                 coefficient = (typeLinteau === 'cisele_boucharde') ? 6800 : 4800;
             }
 
-            const prixTotal = (epaisseur / 100) * longueur * largeur * coefficient * quantite;
-            inputPrix.value = prixTotal.toFixed(3);
+            const prixM2Reel = coefficient * (epaisseur / 100);
+            inputPrix.value = prixM2Reel.toFixed(3);
             inputPrix.readOnly = true;
             inputPrix.style.backgroundColor = "#e9ecef";
+
+            let hiddenCalc = row.querySelector('.input-prix-m2-calcul');
+            if (!hiddenCalc) {
+                hiddenCalc = document.createElement('input');
+                hiddenCalc.type = 'hidden';
+                hiddenCalc.classList.add('input-prix-m2-calcul');
+                hiddenCalc.name = inputPrix.name.replace('[prixM2]', '[prix_m2_calcul]');
+                row.appendChild(hiddenCalc);
+            }
+            hiddenCalc.value = (coefficient * (epaisseur / 100)).toFixed(3);
         } else {
             inputPrix.readOnly = false;
             inputPrix.style.backgroundColor = "";
@@ -322,6 +329,7 @@
             );
             if (tarifTrouve) inputPrix.value = tarifTrouve.prix_m2;
         }
+
         inputPrix.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
