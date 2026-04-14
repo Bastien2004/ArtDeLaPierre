@@ -287,8 +287,8 @@
 
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
-        const hiddenType = document.getElementById('type_client_global_hidden');
-        const typeClient = hiddenType ? hiddenType.value : document.getElementById('type_client_global').value;        const isLinteau = row.querySelector('.is-linteau').checked;
+        const typeClient = document.getElementById('type_client_global').value;
+        const isLinteau = row.querySelector('.is-linteau').checked;
         const finition = row.querySelector('.select-finition').value;
         const epaisseur = parseFloat(row.querySelector('.hidden-epaisseur-val').value) || 0;
         const inputPrix = row.querySelector('.input-prix-m2');
