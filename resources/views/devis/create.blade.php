@@ -290,25 +290,27 @@
         const typeClient = document.getElementById('type_client_global').value;
         const isLinteau = row.querySelector('.is-linteau').checked;
         const finition = row.querySelector('.select-finition').value;
-        const epaisseur = parseFloat(row.querySelector('.select-epaisseur').value) || 0;
+        const epaisseur = parseFloat(row.querySelector('.hidden-epaisseur-val').value) || 0;
         const inputPrix = row.querySelector('.input-prix-m2');
 
         if (isLinteau) {
             const typeLinteau = row.querySelector('.select-type-linteau').value;
-            let prixM3 = 0;
+            const longueur = parseFloat(row.querySelector('input[name*="[longueurM]"]').value) || 0;
+            const largeur = parseFloat(row.querySelector('input[name*="[largeurM]"]').value) || 0;
+            const quantite = parseFloat(row.querySelector('input[name*="[nombrePierre]"]').value) || 1;
 
+            let coefficient = 0;
             if (typeClient === 'Entreprise') {
-                prixM3 = (typeLinteau === 'cisele_boucharde') ? 5800 : 4500;
+                coefficient = (typeLinteau === 'cisele_boucharde') ? 5800 : 4500;
             } else {
-                prixM3 = (typeLinteau === 'cisele_boucharde') ? 6800 : 4800;
+                coefficient = (typeLinteau === 'cisele_boucharde') ? 6800 : 4800;
             }
 
-            const prixM2Calcule = prixM3 * (epaisseur / 100);
-            inputPrix.value = prixM2Calcule.toFixed(3);
+            const prixTotal = (epaisseur / 100) * longueur * largeur * coefficient * quantite;
+            inputPrix.value = prixTotal.toFixed(3);
             inputPrix.readOnly = true;
             inputPrix.style.backgroundColor = "#e9ecef";
         } else {
-            // Logique standard
             inputPrix.readOnly = false;
             inputPrix.style.backgroundColor = "";
             if (!finition || !epaisseur) return;
@@ -412,25 +414,7 @@
         specsContainer.insertAdjacentHTML('beforeend', specHtml);
     }
 
-    document.addEventListener('input', function(e) {
-        if (e.target.name && (e.target.name.includes('[longueurM]') || e.target.name.includes('[nombrePierre]'))) {
-            const pierreRow = e.target.closest('.ligne-pierre');
-            const L = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
-            const Q = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
 
-            pierreRow.querySelectorAll('.spec-prix-input').forEach(input => {
-                const nom = input.closest('.form-grid-specs').querySelector('input[type="text"]').value;
-                const base = parseFloat(input.dataset.basePrice);
-
-                if (input.dataset.unite === 'ml') {
-                    let longueurEffective = (nom.toLowerCase().includes('rejingot') && L < 1 && L > 0) ? 1 : L;
-                    input.value = (base * longueurEffective * Q).toFixed(2);
-                } else {
-                    input.value = (base * Q).toFixed(2);
-                }
-            });
-        }
-    });
 
     function verrouillerInfosClient() {
         const selectors = [
@@ -478,9 +462,39 @@
     }
 
     document.addEventListener('input', function(e) {
-        const row = e.target.closest('.ligne-pierre');
-        if (row && (e.target.name.includes('longueurM') || e.target.name.includes('largeurM') || e.target.name.includes('nombrePierre'))) {
-            calculerPoidsLigne(row);
+        if (!e.target.name) return;
+        const nom = e.target.name;
+
+        if (nom.includes('[longueurM]') || nom.includes('[largeurM]') || nom.includes('[nombrePierre]')) {
+            const pierreRow = e.target.closest('.ligne-pierre');
+            if (!pierreRow) return;
+
+            // Recalcul poids
+            calculerPoidsLigne(pierreRow);
+
+            // Recalcul prix linteau si actif
+            const isLinteau = pierreRow.querySelector('.is-linteau');
+            if (isLinteau && isLinteau.checked) {
+                lookupPrice(isLinteau);
+            }
+
+            // Recalcul specs (longueur / quantité)
+            if (nom.includes('[longueurM]') || nom.includes('[nombrePierre]')) {
+                const L = parseFloat(pierreRow.querySelector('input[name*="[longueurM]"]').value) || 0;
+                const Q = parseFloat(pierreRow.querySelector('input[name*="[nombrePierre]"]').value) || 0;
+
+                pierreRow.querySelectorAll('.spec-prix-input').forEach(input => {
+                    const nomSpec = input.closest('.form-grid-specs').querySelector('input[type="text"]').value;
+                    const base = parseFloat(input.dataset.basePrice);
+
+                    if (input.dataset.unite === 'ml') {
+                        let longueurEffective = (nomSpec.toLowerCase().includes('rejingot') && L < 1 && L > 0) ? 1 : L;
+                        input.value = (base * longueurEffective * Q).toFixed(2);
+                    } else {
+                        input.value = (base * Q).toFixed(2);
+                    }
+                });
+            }
         }
     });
 
