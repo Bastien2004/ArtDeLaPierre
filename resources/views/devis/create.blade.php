@@ -84,10 +84,27 @@
 
                 <div class="form-grid" style="grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;">
                     <div class="form-group">
-                        <div class="form-group" style="grid-column: span 6; margin-top: 10px;">
-                            <label>Désignation personnalisée</label>
-                            <input type="text" name="lignes[0][typePierre]" class="input-designation">
+                        <div class="form-group" style="grid-column: span 6; margin-top: 10px; display: flex; align-items: flex-end; gap: 20px;">
+                            <div style="flex: 1;">
+                                <label>Désignation personnalisée</label>
+                                <input type="text" name="lignes[0][typePierre]" class="input-designation">
+                            </div>
+
+                            <div class="linteau-check-container">
+                                <input type="checkbox" name="lignes[0][is_linteau]" class="is-linteau" onchange="toggleLinteauUI(this)" id="linteau_0">
+                                <label for="linteau_0" style="margin-bottom: 0; cursor: pointer;">
+                                    <strong>Linteau</strong>
+                                </label>
+                            </div>
                         </div>
+                        <div class="linteau-select-wrapper" style="display: none; flex: 1;">
+                            <label>Type de Linteau</label>
+                            <select name="lignes[0][type_linteau]" class="select-type-linteau" onchange="lookupPrice(this)">
+                                <option value="lisse_adoucie">Adoucie</option>
+                                <option value="cisele_boucharde">Ciselé + Bouchardé</option>
+                            </select>
+                        </div><br>
+
                         <label>Finition</label>
                         <select name="lignes[0][finition]" class="select-finition" onchange="lookupPrice(this)">
                             <option value="">-- Choisir --</option>
@@ -136,7 +153,7 @@
                     </div>
                     <div class="form-group">
                         <label>Prix M² (€)</label>
-                        <input type="number" step="0.001" name="lignes[0][prixM2]" class="input-prix-m2" required>
+                        <input type="number" step="0.001" name="lignes[0][prixM2]" style="width: 110%" class="input-prix-m2" required>
                     </div>
 
                     <div class="form-group">
@@ -186,6 +203,16 @@
             verrouillerInfosClient();
         }
 
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('input-designation')) {
+                const row = e.target.closest('.ligne-pierre');
+                const selectFinition = row.querySelector('.select-finition');
+                if (selectFinition.value !== "") {
+                    lookupPrice(selectFinition);
+                }
+            }
+        });
+
         const btnAddLine = document.getElementById('add-line');
         if (btnAddLine) {
             btnAddLine.onclick = function() {
@@ -208,6 +235,12 @@
 
                 let clone = lastLine.cloneNode(true);
                 clone.dataset.index = pierreIdx;
+
+                let newCheckbox = clone.querySelector('.is-linteau');
+                if (newCheckbox) {
+                    newCheckbox.name = `lignes[${pierreIdx}][is_linteau]`;
+                    newCheckbox.checked = false;
+                }
 
                 clone.querySelectorAll('input').forEach(i => {
                     if (i.name) i.name = i.name.replace(/lignes\[\d+\]/, `lignes[${pierreIdx}]`);
@@ -255,22 +288,63 @@
     function lookupPrice(element) {
         const row = element.closest('.ligne-pierre');
         const typeClient = document.getElementById('type_client_global').value;
+        const isLinteau = row.querySelector('.is-linteau').checked;
         const finition = row.querySelector('.select-finition').value;
-        const epaisseur = row.querySelector('.select-epaisseur').value;
+        const epaisseur = parseFloat(row.querySelector('.select-epaisseur').value) || 0;
         const inputPrix = row.querySelector('.input-prix-m2');
 
-        if (!finition || !epaisseur) return;
+        if (isLinteau) {
+            const typeLinteau = row.querySelector('.select-type-linteau').value;
+            let prixM3 = 0;
 
-        const tarifTrouve = grilleTarifs.find(t =>
-            t.type_client === typeClient &&
-            t.finition === finition &&
-            t.epaisseur == epaisseur
-        );
+            if (typeClient === 'Entreprise') {
+                prixM3 = (typeLinteau === 'cisele_boucharde') ? 5800 : 4500;
+            } else {
+                prixM3 = (typeLinteau === 'cisele_boucharde') ? 6800 : 4800;
+            }
 
-        if (tarifTrouve) {
-            inputPrix.value = tarifTrouve.prix_m2;
-            inputPrix.dispatchEvent(new Event('input', { bubbles: true }));
+            const prixM2Calcule = prixM3 * (epaisseur / 100);
+            inputPrix.value = prixM2Calcule.toFixed(3);
+            inputPrix.readOnly = true;
+            inputPrix.style.backgroundColor = "#e9ecef";
+        } else {
+            // Logique standard
+            inputPrix.readOnly = false;
+            inputPrix.style.backgroundColor = "";
+            if (!finition || !epaisseur) return;
+
+            const tarifTrouve = grilleTarifs.find(t =>
+                t.type_client === typeClient &&
+                t.finition === finition &&
+                t.epaisseur == epaisseur
+            );
+            if (tarifTrouve) inputPrix.value = tarifTrouve.prix_m2;
         }
+        inputPrix.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function toggleLinteauUI(checkbox) {
+        const row = checkbox.closest('.ligne-pierre');
+        const linteauWrapper = row.querySelector('.linteau-select-wrapper');
+        const specsWrapper = row.querySelector('.specs-wrapper');
+        const finitionSelect = row.querySelector('.select-finition');
+
+        if (checkbox.checked) {
+            // On affiche le menu linteau et on cache les travaux
+            linteauWrapper.style.display = 'block';
+            specsWrapper.style.display = 'none';
+            finitionSelect.disabled = true; // La finition est gérée par le menu linteau
+            finitionSelect.style.backgroundColor = "#f1f1f1";
+        } else {
+            // On cache le menu linteau et on affiche les travaux
+            linteauWrapper.style.display = 'none';
+            specsWrapper.style.display = 'block';
+            finitionSelect.disabled = false;
+            finitionSelect.style.backgroundColor = "";
+        }
+
+        // On recalcule le prix immédiatement
+        lookupPrice(checkbox);
     }
 
     function updateAllPrices() {

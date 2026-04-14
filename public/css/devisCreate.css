@@ -332,7 +332,8 @@ input:focus {
 /* --- Style des Selects --- */
 select.form-control,
 .select-finition,
-.select-epaisseur {
+.select-epaisseur,
+select-type-linteau{
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -443,14 +444,9 @@ input[readonly] {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.input-designation {
-    width: 100%;
-    margin-top: 5px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fffde7; /* Une couleur très légère pour montrer que c'est auto-rempli */
-    font-style: italic;
+.is-linteau {
+    margin-top: 0 !important; /* Supprime le décalage */
+    height: 46px; /* Même hauteur que les autres champs */
 }
 
 /* --- BOUTON RETOUR "ART DE LA PIERRE" --- */
@@ -888,9 +884,13 @@ input[type="date"]:disabled {
 /* --- CONTENEUR ÉPAISSEUR --- */
 .epaisseur-container {
     display: flex;
-    gap: 8px;
-    align-items: stretch;
+    align-items: center;
     height: 46px;
+    min-width: 120px; /* Sécurité pour ne pas écraser le champ */
+}
+
+.select-visuel-epaisseur {
+    height: 100%;
     width: 100%;
 }
 
@@ -956,6 +956,210 @@ input[type="date"]:disabled {
     background-color: var(--danger) !important;
     color: white !important;
     border-color: var(--danger) !important;
+}
+
+/* ================================================
+   INTERFACE SPÉCIFIQUE "LINTEAUX"
+   ================================================ */
+
+/* Conteneur de la ligne Désignation + Checkbox + Select Linteau */
+.ligne-pierre .form-group[style*="grid-column: span 6"] {
+    display: flex !important;
+    align-items: flex-end !important; /* Aligne les bas des inputs */
+    gap: 15px;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    margin-bottom: 20px; /* Plus d'espace avec la ligne du dessous */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Le petit badge pour la Checkbox Linteau */
+.linteau-checkbox-wrapper {
+    height: 46px; /* Doit correspondre à la hauteur de vos inputs text */
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    white-space: nowrap; /* Empêche le texte de sauter à la ligne */
+}
+
+.linteau-checkbox-wrapper:has(input:checked) {
+    background: var(--stone-dark);
+    border-color: var(--stone-dark);
+}
+
+.linteau-checkbox-wrapper:has(input:checked) strong {
+    color: var(--stone-accent) !important;
+}
+
+/* Animation et style du menu déroulant Linteau */
+.linteau-select-wrapper {
+    flex: 1;
+    min-width: 200px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.select-type-linteau {
+    height: 46px;
+    border: 1.5px solid var(--stone-accent);
+}
+
+.select-type-linteau:focus {
+    border-color: var(--stone-dark);
+    outline: none;
+}
+
+/* Gestion de l'état désactivé (quand c'est un linteau, on grise la finition standard) */
+.select-finition:disabled {
+    background-color: #f1f1f1 !important;
+    color: #95a5a6;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+/* Masquage fluide des spécificités */
+.specs-wrapper {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* --- Ajustement du prix en mode auto --- */
+.input-prix-m2[readonly] {
+    background-color: #f4f7f6 !important;
+    border: 1.5px solid var(--stone-accent) !important;
+    color: var(--stone-dark);
+    font-size: 1.1rem;
+    text-align: right;
+    padding-right: 15px;
+}
+
+/* Container du select linteau */
+.linteau-select-wrapper {
+    background: #fdfbf9; /* Un ton très légèrement crème */
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px dashed var(--stone-accent); /* Rappel de la pierre */
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Style du select lui-même */
+.select-type-linteau {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--stone-dark);
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.select-type-linteau:focus {
+    border-color: var(--stone-accent);
+    box-shadow: 0 0 0 3px rgba(197, 185, 165, 0.2);
+}
+
+/* Animation douce à l'apparition */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style pour les labels dans cette zone */
+.linteau-select-wrapper label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #5d4037;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Container du bouton Linteau */
+.linteau-check-container {
+    background: #f8f4ef;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--stone-accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.linteau-check-container:hover {
+    background: #f0e9df;
+    border-color: var(--stone-dark);
+}
+
+/* On cache la checkbox native */
+.is-linteau {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--stone-accent);
+    border-radius: 4px;
+    background: white;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+}
+
+/* Style quand coché */
+.is-linteau:checked {
+    background-color: var(--stone-dark);
+    border-color: var(--stone-dark);
+}
+
+/* Le petit "V" blanc quand coché */
+.is-linteau:checked::after {
+    content: '\f00c'; /* Code FontAwesome Check */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Optionnel : Changement de style du texte quand coché */
+.linteau-check-container:has(.is-linteau:checked) {
+    background: var(--stone-dark);
+    color: white;
+}
+
+.linteau-check-container:has(.is-linteau:checked) strong {
+    color: var(--stone-accent) !important;
+}
+
+/* --- Responsive pour la barre de désignation --- */
+@media (max-width: 768px) {
+    .ligne-pierre .form-group[style*="grid-column: span 6"] {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .linteau-checkbox-wrapper {
+        justify-content: center;
+    }
 }
 
 /* --- RESPONSIVE --- */
