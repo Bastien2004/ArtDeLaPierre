@@ -18,10 +18,8 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
-                // On ajoute typeClient ici pour que le groupage reste unique
-                return $item->client . $item->typeClient . $item->created_at->format('Y-m-d H:i');
+                return $item->client . $item->created_at->format('Y-m-d H:i');
             });
-
         $allTarifs = Tarif::all();
         $tarifsTravaux = \App\Models\TravailTarif::all();
         return view('devis.devis', compact('devisGroupes', 'tarifsTravaux', 'allTarifs'));
