@@ -13,19 +13,17 @@ use Illuminate\Support\Facades\Http;
 class DevisController extends Controller
 {
     public function index() {
-        // 1. Récupérer les devis groupés
         $devisGroupes = Devis::with('specificites')
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
-                return $item->client . $item->created_at->format('Y-m-d H:i');
+                // On ajoute typeClient ici pour que le groupage reste unique
+                return $item->client . $item->typeClient . $item->created_at->format('Y-m-d H:i');
             });
 
         $allTarifs = Tarif::all();
         $tarifsTravaux = \App\Models\TravailTarif::all();
-
-        // 3. Envoyer les deux variables à la vue
         return view('devis.devis', compact('devisGroupes', 'tarifsTravaux', 'allTarifs'));
     }
 
@@ -96,6 +94,7 @@ class DevisController extends Controller
             // 1. Sauvegarde en Base de Données
             $devis = new Devis([
                 'client'       => $request->client,
+                'typeClient'   => $request->type_client_global,
                 'adresse'      => $request->adresse ?? '',
                 'typePierre'   => $ligneData['typePierre'] ?? '',
                 'epaisseur'    => $ligneData['epaisseur'] ?? 2,

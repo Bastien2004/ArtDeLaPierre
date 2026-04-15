@@ -8,6 +8,7 @@ class Devis extends Model
 {
     protected $fillable = [
         'client',
+        'typeClient',
         'adresse',
         'typePierre',
         'nombrePierre',

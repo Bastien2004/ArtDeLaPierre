@@ -120,7 +120,7 @@
                         </div>
 
                         <div class="group-right">
-                            <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison') , 'type_client_prefill' => $p->type_client_global]) }}" class="btn-add-line">
+                            <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison') , 'type_client_prefill' => $p->typeClient]) }}" class="btn-add-line">
                                 <i class="fa-solid fa-plus"></i> Ligne
                             </a>
 
