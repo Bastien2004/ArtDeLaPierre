@@ -18,8 +18,13 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
-                return $item->client . $item->created_at->format('Y-m-d H:i');
+                // On utilise l'opérateur ?? pour mettre 'Inconnu' ou 'Entreprise'
+                // si la colonne typeClient est vide (pour tes anciens devis)
+                $type = $item->typeClient ?? 'Ancien';
+
+                return $item->client . $type . $item->created_at->format('Y-m-d H:i');
             });
+
         $allTarifs = Tarif::all();
         $tarifsTravaux = \App\Models\TravailTarif::all();
         return view('devis.devis', compact('devisGroupes', 'tarifsTravaux', 'allTarifs'));
