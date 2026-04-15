@@ -27,8 +27,8 @@
             <div class="form-group">
                 <label>Type de Client</label>
                 <select name="type_client_global" id="type_client_global" class="form-control lock-on-add" required onchange="updateAllPrices()">
-                    <option value="Entreprise">Entreprise</option>
-                    <option value="Particulier">Particulier</option>
+                    <option value="Entreprise" {{ (isset($typeClientPrefill) && strtolower($typeClientPrefill) == 'entreprise') ? 'selected' : '' }}>Entreprise</option>
+                    <option value="Particulier" {{ (isset($typeClientPrefill) && strtolower($typeClientPrefill) == 'particulier') ? 'selected' : '' }}>Particulier</option>
                 </select>
             </div>
             <div class="form-group">

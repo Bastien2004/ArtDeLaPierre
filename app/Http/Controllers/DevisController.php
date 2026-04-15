@@ -41,7 +41,17 @@ class DevisController extends Controller
         $livraisonPrefill = $request->query('livraison_prefill', '0.00');
         // Si ça ne marche pas avec Email, essayez :
         $emailsCarnet = \App\Models\Email::orderBy('adresse')->get();
-
+        $typeRaw = $request->query('type_client_prefill');
+        if ($typeRaw) {
+            // Si c'est dans l'URL, on l'utilise
+            $typeClientPrefill = ucfirst(strtolower($typeRaw));
+        } elseif (strtolower($clientPrefill) == 'particulier') {
+            // Sinon, si le nom du client est "particulier", on force Particulier
+            $typeClientPrefill = 'Particulier';
+        } else {
+            // Par défaut
+            $typeClientPrefill = 'Entreprise';
+        }
 
         // AJOUT de tarifsTravaux dans le compact
         return view('devis.create', compact(
@@ -52,6 +62,7 @@ class DevisController extends Controller
             'tarifsTravaux',
             'allTarifs',
             'emailsCarnet',
+            'typeClientPrefill',
         ));
     }
 

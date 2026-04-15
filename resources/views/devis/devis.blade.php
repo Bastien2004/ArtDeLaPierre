@@ -120,7 +120,7 @@
                         </div>
 
                         <div class="group-right">
-                            <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison')]) }}" class="btn-add-line">
+                            <a href="{{ route('devis.create', ['client_prefill' => $p->client, 'adresse_prefill'  => $p->adresse, 'time_prefill' => $p->created_at->format('Y-m-d H:i:s'), 'livraison_prefill'=> $lignes->avg('livraison') , 'type_client_prefill' => $p->type_client_global]) }}" class="btn-add-line">
                                 <i class="fa-solid fa-plus"></i> Ligne
                             </a>
 
@@ -631,6 +631,7 @@
         // On remplit les champs visibles
         $('#edit_groupe_client').val(client);
         $('#edit_groupe_adresse').val(adresse);
+
 
         if(dateLivraison) {
             $('#edit_groupe_date').val(dateLivraison.substring(0, 10));
