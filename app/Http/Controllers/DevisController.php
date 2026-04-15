@@ -18,14 +18,14 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
-                // Si typeClient est vide en BDD, on utilise 'Entreprise' par défaut pour le groupage
+                // L'astuce est ici : si typeClient est vide, on dit que c'est 'Entreprise'
+                // pour que le groupage ne plante pas.
                 $type = $item->typeClient ?? 'Entreprise';
                 return $item->client . $type . $item->created_at->format('Y-m-d H:i');
             });
 
         $allTarifs = Tarif::all();
         $tarifsTravaux = \App\Models\TravailTarif::all();
-
         return view('devis.devis', compact('devisGroupes', 'tarifsTravaux', 'allTarifs'));
     }
 
