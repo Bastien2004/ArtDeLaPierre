@@ -202,6 +202,7 @@
                                 data-prix="{{ $d->prixM2 }}"
                                 data-poids="{{ $d->poids }}"
                                 data-epaisseur="{{ $d->epaisseur }}"
+                                data-prix-manuel="{{ $d->prixHT }}"
                                 data-specs="{{ $d->specificites->toJson() }}"
                                 data-type-client="{{ $p->type_client_global ?? 'Entreprise' }}">✏️
                         </button>
@@ -229,7 +230,7 @@
 
 
     function lookupPriceForModal() {
-        const finition   = $('#edit_finition').val();   // ← utilise le select
+        const finition   = $('#edit_finition').val();
         const epaisseur  = parseFloat($('#edit_epaisseur').val());
         const typeClient = currentTypeClient;
 
@@ -242,8 +243,8 @@
         );
 
         if (tarifTrouve) {
+            // On met à jour uniquement le prix au M2
             $('#edit_prix').val(tarifTrouve.prix_m2);
-            $('#edit_prix').trigger('input');
         }
     }
 
@@ -257,7 +258,6 @@
         $('.spec-prix-edit').each(function() {
             totalSpecs += parseFloat($(this).val()) || 0;
         });
-        // $('#total_ligne_edit').text((totalPierre + totalSpecs).toFixed(2));
     }
 
     function addSpecRow(nom, prix, unite, basePrice) {
@@ -330,7 +330,7 @@
         const id       = btn.data('id');
         const specs    = btn.data('specs');
 
-        // 3. CAPTURE DU TYPE DE CLIENT DEPUIS LE BOUTON
+        // CAPTURE DU TYPE DE CLIENT DEPUIS LE BOUTON
         currentTypeClient = btn.data('type-client') || "Entreprise";
 
         $('#display_id').text(id);
@@ -342,6 +342,24 @@
         $('#edit_prix').val(btn.data('prix'));
         $('#edit_poids').val(btn.data('poids'));
         $('#edit_epaisseur').val(btn.data('epaisseur'));
+
+        // --- LOGIQUE PRIX MANUEL FIXE ---
+        const inputPrixManuel = $('#edit_prix_manuel');
+        const prixManuelBDD   = btn.data('prix-manuel');
+
+        if (prixManuelBDD !== undefined && prixManuelBDD !== '' && parseFloat(prixManuelBDD) > 0) {
+            // On met les 23€ dans la case
+            inputPrixManuel.val(parseFloat(prixManuelBDD).toFixed(2));
+            // On marque le champ comme "manuel" pour bloquer le recalcul auto
+            inputPrixManuel.attr('data-is-manual', 'true');
+            $('#hint-prix-manuel').text("Prix manuel enregistré (Total HT).");
+        } else {
+            // Si vide, on calcule L x l x PrixM2
+            const calculAuto = (parseFloat(btn.data('long')) * parseFloat(btn.data('larg')) * parseFloat(btn.data('prix'))).toFixed(2);
+            inputPrixManuel.val(calculAuto);
+            inputPrixManuel.attr('data-is-manual', 'false');
+            $('#hint-prix-manuel').text("Calcul automatique (L × l × Prix M²)");
+        }
 
         $('#wrapper-specs-edit').empty();
         if (specs && specs.length > 0) {
@@ -368,17 +386,36 @@
         addSpecRow('', 0, 'u', 0);
     });
 
+    $(document).on('input', '#edit_prix_manuel', function() {
+        if ($(this).val() !== "") {
+            $(this).attr('data-is-manual', 'true');
+            $('#hint-prix-manuel').text("Prix forcé manuellement.");
+        } else {
+            // Si on vide le champ, on réautorise le calcul automatique
+            $(this).attr('data-is-manual', 'false');
+        }
+    });
+
     $(document).on('input', '#edit_long, #edit_nb, #edit_larg, #edit_prix, #edit_epaisseur', function() {
         const long   = parseFloat($('#edit_long').val())      || 0;
         const larg   = parseFloat($('#edit_larg').val())      || 0;
         const epais  = parseFloat($('#edit_epaisseur').val()) || 0;
         const qte    = parseFloat($('#edit_nb').val())        || 0;
         const prixM2 = parseFloat($('#edit_prix').val())      || 0;
+        const inputPrixManuel = $('#edit_prix_manuel');
 
         const densite      = 2700;
         const poidsCalcule = long * larg * (epais / 100) * densite * qte;
         $('#edit_poids').val(poidsCalcule.toFixed(2));
 
+        // --- AJOUT : Mise à jour du prix manuel modal modif ---
+        if (inputPrixManuel.attr('data-is-manual') !== 'true') {
+            const nouveauPrixAuto = (long * larg * prixM2).toFixed(2);
+            inputPrixManuel.val(nouveauPrixAuto);
+            $('#hint-prix-manuel').text("Mis à jour selon les dimensions.");
+        }
+
+        // Specificité
         $('.spec-prix-edit').each(function() {
             const row     = $(this).closest('.ligne-spec-edit');
             const base    = parseFloat(row.data('base-price')) || 0;
