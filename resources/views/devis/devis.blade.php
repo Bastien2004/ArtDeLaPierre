@@ -147,7 +147,7 @@
                                 <i class="fa-solid fa-ruler-combined"></i>
                                 {{ number_format($surfaceTotalGroupe, 2, ',', ' ') }} m²
                             </span>
-                            </div>="col-total-groupe">
+                                <span class="col-total-groupe">
                             {{ number_format($totalGroupe, 2, ',', ' ') }} €
                         </span>
                         </div>
