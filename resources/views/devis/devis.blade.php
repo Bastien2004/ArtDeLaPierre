@@ -49,6 +49,7 @@
                 $fraisPort = $lignes->avg('livraison');
                 $prixPose = $lignes->avg('prixPose');
                 $poidsTotalGroupe = $lignes->sum('poids');
+                $surfaceTotalGroupe = $lignes->sum('matiere')
             @endphp
 
             <tr class="group-header">
@@ -137,11 +138,16 @@
                                 <i class="fa-solid fa-envelope"></i>
                             </button>
 
-                            <span class="weight-badge-gold" style="color: #d4af37; font-weight: bold; font-size: 0.95em;">
+                            <div class="weight-badge-gold" style="color: #d4af37; font-weight: bold; display: inline-flex; flex-direction: column;">
+                            <span>
                                 <i class="fa-solid fa-weight-hanging"></i>
                                 {{ number_format($poidsTotalGroupe, 2, ',', ' ') }} kg
                             </span>
-                            <span class="col-total-groupe">
+                                <span style="font-size: 0.85em; opacity: 0.85;">
+                                <i class="fa-solid fa-ruler-combined"></i>
+                                {{ number_format($surfaceTotalGroupe, 2, ',', ' ') }} m²
+                            </span>
+                            </div>="col-total-groupe">
                             {{ number_format($totalGroupe, 2, ',', ' ') }} €
                         </span>
                         </div>
