@@ -94,8 +94,15 @@
                                     </a>
                                 </div>
                             </div>
+                            <button type="button" class="btn-email-devis"
+                                    data-client="{{ $p->client }}"
+                                    data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
+                                    data-total="{{ number_format($totalGroupe, 2, '.', '') }}"
+                                    style="margin-left: 10px">
+                                <i class="fa-solid fa-envelope"></i>
+                            </button>
                             <span class="client-name" style="margin-left: 10px">{{ $p->client }}</span>
-                            <span class="group-date">— {{ $p->created_at->format('d/m/Y H:i') }}</span>
+                            <span class="group-date">{{ $p->created_at->format('d/m/Y') }}</span>
                             @if($fraisPort >= 0)
                                 <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
                                       class="btn-edit-transport"
@@ -130,13 +137,6 @@
                                 ]) }}" class="btn-add-line">
                                 <i class="fa-solid fa-plus"></i> Ligne
                             </a>
-
-                            <button type="button" class="btn-email-devis"
-                                    data-client="{{ $p->client }}"
-                                    data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
-                                    data-total="{{ number_format($totalGroupe, 2, '.', '') }}">
-                                <i class="fa-solid fa-envelope"></i>
-                            </button>
 
                             <div class="weight-badge-gold" style="color: #d4af37; font-weight: bold; display: inline-flex; flex-direction: column;">
                                 <span>
