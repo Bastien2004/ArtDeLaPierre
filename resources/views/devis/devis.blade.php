@@ -139,16 +139,19 @@
                             </button>
 
                             <div class="weight-badge-gold" style="color: #d4af37; font-weight: bold; display: inline-flex; flex-direction: column;">
-                            <span>
-                                <i class="fa-solid fa-weight-hanging"></i>
-                                {{ number_format($poidsTotalGroupe, 2, ',', ' ') }} kg
-                            </span>
+                                <span>
+                                    <i class="fa-solid fa-weight-hanging"></i>
+                                    {{ number_format($poidsTotalGroupe, 2, ',', ' ') }} kg
+                                </span>
                                 <span style="font-size: 0.85em; opacity: 0.85;">
-                                <i class="fa-solid fa-ruler-combined"></i>
-                                {{ number_format($surfaceTotalGroupe, 2, ',', ' ') }} m²
-                            </span>
+                                    <i class="fa-solid fa-ruler-combined"></i>
+                                    {{ number_format($surfaceTotalGroupe, 2, ',', ' ') }} m²
+                                </span>
+                            <span class="col-total-groupe">
                                 <span class="col-total-groupe">
-                            {{ number_format($totalGroupe, 2, ',', ' ') }} €
+                                    <i class="fa-solid fa-euro-sign" style="font-size: 0.8em; margin-right: 4px; vertical-align: baseline;"></i>
+                                    {{ number_format($totalGroupe, 2, ',', ' ') }}
+                                </span>
                         </span>
                         </div>
                     </div>
