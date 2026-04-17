@@ -58,6 +58,11 @@
                     </button>
                 </div>
             </div>
+        </div><br>
+
+        <div class="form-group">
+            <label>Référence</label>
+            <input type="text" name="reference" class="lock-on-add" value="{{ $referencePrefill ?? '' }}">
         </div>
 
         <h3 class="section-title">Livraison Client</h3>
@@ -430,7 +435,8 @@
             'input[name="client"]',
             'input[name="adresse"]',
             'input[name="livraison"]',
-            'input[name="prixPose"]'
+            'input[name="prixPose"]',
+            'input[name="reference"]',
         ];
 
         selectors.forEach(sel => {

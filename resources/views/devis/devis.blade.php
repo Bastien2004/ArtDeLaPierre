@@ -62,7 +62,11 @@
                                     data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}">
                                 <i class="fa-solid fa-paper-plane"></i> Tiime
                             </button>
-                            <a href="{{ route('devis.print', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}"
+                            <a href="{{ route('devis.print', [
+                                'client' => $p->client,
+                                'date' => $p->created_at->format('Y-m-d-H-i-s'),
+                                'ref' => $p->reference  {{-- On ajoute la référence ici --}}
+                            ]) }}"
                                target="_blank"
                                onclick="printPdf(this.href); return false;"
                                class="btn-print">
@@ -76,16 +80,27 @@
                                     <i class="fa-solid fa-chevron-down dl-chevron"></i>
                                 </button>
                                 <div class="dl-menu">
+                                    {{-- Devis Client --}}
                                     <a class="dl-option btn-trigger-pdf"
-                                       data-url="{{ route('devis.downloadPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}">
+                                       data-url="{{ route('devis.downloadPDF', [
+                                           'client' => $p->client,
+                                           'date'   => $p->created_at->format('Y-m-d-H-i-s'),
+                                           'ref'    => $p->reference
+                                       ]) }}">
                                         <span class="dl-icon-wrap"><i class="fa-solid fa-file-invoice"></i></span>
                                         <div>
                                             <span class="dl-label">Devis client</span>
                                             <span class="dl-sub">Document commercial</span>
                                         </div>
                                     </a>
+
+                                    {{-- Bon Atelier --}}
                                     <a class="dl-option btn-trigger-pdf"
-                                       data-url="{{ route('devis.downloadAtelierPDF', ['client' => $p->client, 'date' => $p->created_at->format('Y-m-d-H-i-s')]) }}">
+                                       data-url="{{ route('devis.downloadAtelierPDF', [
+                                           'client' => $p->client,
+                                           'date'   => $p->created_at->format('Y-m-d-H-i-s'),
+                                           'ref'    => $p->reference
+                                       ]) }}">
                                         <span class="dl-icon-wrap"><i class="fa-solid fa-hammer"></i></span>
                                         <div>
                                             <span class="dl-label">Bon atelier</span>
@@ -121,6 +136,7 @@
                                         onmouseout="this.style.transform='scale(1)'"
                                         data-client="{{ $p->client }}"
                                         data-adresse="{{ $p->adresse }}"
+                                        data-reference="{{ $p->reference }}"
                                         data-date="{{ $p->created_at->format('Y-m-d H:i:s') }}"
                                         data-livraison="{{ $p->datefindevis }}"> <i class="fa-solid fa-pen-to-square"></i> MODIFIER DEVIS
                                 </button>
@@ -131,6 +147,7 @@
                             <a href="{{ route('devis.create', [
                                     'client_prefill' => $p->client,
                                     'adresse_prefill'  => $p->adresse,
+                                    'reference_prefill' => $lignes->first()->reference,
                                     'time_prefill' => $p->created_at->format('Y-m-d H:i:s'),
                                     'livraison_prefill'=> $lignes->avg('livraison'),
                                     'type_client_prefill' => $p->typeClient ?? 'Entreprise'
@@ -654,9 +671,19 @@
         let currentPdfUrl = '';
         $(document).on('click', '.btn-trigger-pdf', function(e) {
             e.preventDefault();
-            currentPdfUrl = $(this).attr('data-url');
-            $('#pdfRefModal').modal('show');
+            const url = $(this).attr('data-url');
+            window.location.href = url; // Téléchargement immédiat
         });
+
+        function printPdf(url) {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            iframe.onload = function() {
+                iframe.contentWindow.print();
+            };
+        }
 
         $(document).on('click', '#confirmDownload', function() {
             const ref = $('#custom_ref').val().trim();
@@ -742,22 +769,24 @@
         const adresse = btn.data('adresse');
         const dateRaw = btn.data('date');
         const dateLivraison = btn.data('livraison');
+        const ref = btn.data('reference'); // Assure-toi que data-reference existe sur le bouton
 
-        // On remplit les champs cachés pour le WHERE
+        // Champs cachés pour que le contrôleur sache quel groupe modifier
         $('#old_client').val(client);
         $('#old_date').val(dateRaw);
 
-        // On remplit les champs visibles
-        $('#edit_groupe_client').val(client);
+        // Remplissage des champs de la modal
+        $('#edit_groupe_nom_client').val(client); // Utilise un ID spécifique pour le NOM
         $('#edit_groupe_adresse').val(adresse);
+        $('#edit_groupe_reference').val(ref);     // Utilise un ID spécifique pour la REF
 
-
+        // Gestion de la date de livraison (ton if incomplet)
         if(dateLivraison) {
-            $('#edit_groupe_date').val(dateLivraison.substring(0, 10));
-        } else {
-            $('#edit_groupe_date').val('');
+            // On suppose que ton input date s'appelle #edit_groupe_date
+            $('#edit_groupe_date').val(dateLivraison);
         }
 
+        // Enfin, on ouvre la modal
         $('#modalEditGroupe').modal('show');
     });
 
@@ -777,7 +806,6 @@
         const btn      = $(this);
         const client   = $('#tiime_client').val();
         const date     = $('#tiime_date').val();
-        const reference = $('#tiime_reference').val().trim();
 
         btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Envoi...');
 
@@ -788,7 +816,6 @@
                 _token:    '{{ csrf_token() }}',
                 client:    client,
                 date:      date,
-                reference: reference,
             },
             success: function(res) {
                 btn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i> Envoyer');

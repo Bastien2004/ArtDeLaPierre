@@ -176,26 +176,29 @@
 </div>
 
 
-<div class="modal fade" id="pdfRefModal" tabindex="-1" aria-hidden="true">
+
+<div class="modal fade" id="modalTiime" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title">Référence du Devis</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title">Envoi vers Tiime</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="custom_ref" class="form-label fw-bold">Entrez la référence :</label>
-                    <input type="text" id="custom_ref" class="form-control" required>
-                </div>
+            <div class="modal-body text-center">
+                <input type="hidden" id="tiime_client">
+                <input type="hidden" id="tiime_date">
+
+                <p>Confirmez-vous l'envoi du devis de <strong id="display_tiime_client"></strong> à Tiime ?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" id="confirmDownload" class="btn btn-primary">Générer le PDF</button>
+                <button type="button" id="btn-confirm-tiime" class="btn btn-primary">Confirmer l'envoi</button>
             </div>
         </div>
     </div>
 </div>
+
+
 
 <div class="modal fade" id="modalEmail" tabindex="-1" data-bs-focus="false">
     <div class="modal-dialog modal-lg">
@@ -261,6 +264,10 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nom du Client</label>
                         <input type="text" name="new_client" id="edit_groupe_client" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Référence du client</label>
+                        <input type="text" id="edit_groupe_client" name="reference" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Adresse</label>

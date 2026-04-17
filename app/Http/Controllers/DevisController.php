@@ -34,6 +34,8 @@ class DevisController extends Controller
         $adressePrefill = $request->query('adresse_prefill');
         $timePrefill = $request->query('time_prefill');
 
+        $referencePrefill = $request->query('reference_prefill');
+
         // Récupération des tarifs pour les boutons d'ajout rapide
         $tarifsTravaux = \App\Models\TravailTarif::all();
         $allTarifs = \App\Models\Tarif::all();
@@ -57,6 +59,7 @@ class DevisController extends Controller
         return view('devis.create', compact(
             'clientPrefill',
             'adressePrefill',
+            'referencePrefill',
             'timePrefill',
             'livraisonPrefill',
             'tarifsTravaux',
@@ -100,6 +103,7 @@ class DevisController extends Controller
             // Sauvegarde en Base de Données
             $devis = new Devis([
                 'client'       => $request->client,
+                'reference'    => $request->reference,
                 'typeClient'   => $request->type_client_global,
                 'adresse'      => $request->adresse ?? '',
                 'typePierre'   => $ligneData['typePierre'] ?? '',
@@ -199,6 +203,7 @@ class DevisController extends Controller
 
         $devis->update([
             'typePierre'   => $request->typePierre,
+            'reference'    => $request->reference,
             'is_linteau'   => $isLinteau,
             'type_linteau' => $typeLinteau,
             'finition'     => $finition,
@@ -221,7 +226,8 @@ class DevisController extends Controller
             'old_date'   => 'required',
             'new_client' => 'required',
             'new_adresse'=> 'nullable',
-            'new_date'   => 'nullable'
+            'new_date'   => 'nullable',
+            'new_reference' => 'nullable',
         ]);
 
         // On écrase avec la valeur saisie, même si c'est vide (null)
@@ -229,6 +235,7 @@ class DevisController extends Controller
             ->where('created_at', $request->old_date)
             ->update([
                 'client'       => $request->new_client,
+                'reference' => $request->new_reference,
                 'adresse'      => $request->new_adresse ?? '',
                 'datefindevis' => $request->new_date,
             ]);
@@ -299,6 +306,8 @@ class DevisController extends Controller
             ->get();
 
         if($lignes->isEmpty()) return "Aucune donnée trouvée.";
+
+        $reference = $lignes->first()->reference ?? $request->query('ref');
 
         $adresse = $lignes->first()->adresse;
         $pays = $this->extrairePays($adresse);
@@ -621,7 +630,7 @@ class DevisController extends Controller
             'client_nom'     => $p->client,
             'client_adresse' => $p->adresse,
             'date_emission'  => $dateEmission->format('Y-m-d'),
-            'date_validite'  => $dateValidite, // <-- AJOUTÉ ICI POUR ENVOI À MAKE
+            'date_validite'  => $dateValidite,
             'total_ht'       => round($totalHT, 2),
             'lignes'         => $lignesPourMake,
             'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
