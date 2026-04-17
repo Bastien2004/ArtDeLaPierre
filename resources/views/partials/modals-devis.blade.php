@@ -23,6 +23,14 @@
                         </div>
                     </div>
 
+                    <div class="mb-3" id="edit_linteau_wrapper" style="display:none;">
+                        <label class="form-label">Type de Linteau</label>
+                        <select id="edit_type_linteau" name="type_linteau" class="form-control">
+                            <option value="lisse_adoucie">Adoucie</option>
+                            <option value="cisele_boucharde">Ciselé + Bouchardé</option>
+                        </select>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Finition</label>
                         <select id="edit_finition" class="form-control">

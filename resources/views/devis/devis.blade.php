@@ -192,18 +192,18 @@
                     <td class="col-total-ligne">{{ number_format($d->prixHT, 2, ',', ' ') }}€</td>
                     <td class="col-actions">
                         <button class="btn-edit-modal"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modificationModal"
+                                data-bs-toggle="modal" data-bs-target="#modificationModal"
                                 data-id="{{ $d->id }}"
                                 data-pierre="{{ $d->typePierre }}"
-                                data-linteau="{{ $d->is_linteau }}"
+                                data-linteau="{{ $d->is_linteau ? 'on' : '' }}"
+                                data-type-linteau="{{ $d->type_linteau }}"
                                 data-nb="{{ $d->nombrePierre }}"
                                 data-long="{{ $d->longueurM }}"
                                 data-larg="{{ $d->largeurM }}"
                                 data-prix="{{ $d->prixM2 }}"
                                 data-poids="{{ $d->poids }}"
                                 data-epaisseur="{{ $d->epaisseur }}"
-                                data-prix-manuel="{{ $d->prix_manuel_unitaire ?? '' }}"
+                                data-finition="{{ $d->finition }}"
                                 data-specs="{{ $d->specificites->toJson() }}"
                                 data-type-client="{{ $p->type_client_global ?? 'Entreprise' }}">✏️
                         </button>
@@ -225,17 +225,46 @@
     let currentTypeClient = "Entreprise";
 
     // Déclenche la recherche de prix quand l'épaisseur change dans la modal
-    $(document).on('input change', '#edit_epaisseur, #edit_pierre', function() {
+    $(document).on('input change', '#edit_epaisseur, #edit_pierre, #edit_finition, #edit_type_linteau', function() {
         lookupPriceForModal();
+        updateModalTotal();
+    });
+
+    $(document).on('change', '#edit_is_linteau', function() {
+        toggleLinteauUIEdit();
     });
 
 
     function lookupPriceForModal() {
-        const finition   = $('#edit_finition').val();
-        const epaisseur  = parseFloat($('#edit_epaisseur').val());
-        const typeClient = currentTypeClient;
+        const finition    = $('#edit_finition').val();
+        const epaisseur   = parseFloat($('#edit_epaisseur').val()) || 0;
+        const typeClient  = currentTypeClient;
+        const isLinteau   = $('#edit_is_linteau').is(':checked');
+        const typeLinteau = $('#edit_type_linteau').val();
 
-        if (!finition || !epaisseur || !grilleTarifs) return;
+        if (!epaisseur) return;
+
+        if (isLinteau) {
+            let coefficient = 0;
+
+            if (typeClient === 'Entreprise') {
+                coefficient = (typeLinteau === 'cisele_boucharde') ? 5800 : 4500;
+            } else {
+                coefficient = (typeLinteau === 'cisele_boucharde') ? 6800 : 4800;
+            }
+
+            const prixM2Reel = coefficient * (epaisseur / 100);
+
+            $('#edit_prix').val(prixM2Reel.toFixed(3));
+            $('#edit_prix').prop('readonly', true);
+            $('#edit_prix').css('background-color', '#e9ecef');
+            return;
+        }
+
+        $('#edit_prix').prop('readonly', false);
+        $('#edit_prix').css('background-color', '');
+
+        if (!finition || !grilleTarifs) return;
 
         const tarifTrouve = grilleTarifs.find(t =>
             t.type_client === typeClient &&
@@ -244,9 +273,29 @@
         );
 
         if (tarifTrouve) {
-            // On met à jour uniquement le prix au M2
             $('#edit_prix').val(tarifTrouve.prix_m2);
         }
+    }
+
+    function toggleLinteauUIEdit() {
+        const isLinteau = $('#edit_is_linteau').is(':checked');
+
+        if (isLinteau) {
+            $('#edit_linteau_wrapper').show();
+            $('#edit_finition').prop('disabled', true).css('background-color', '#f1f1f1');
+            $('.quick-specs-edit-wrapper').hide();
+            $('#wrapper-specs-edit').hide();
+            $('#add-spec-manual-edit').hide();
+        } else {
+            $('#edit_linteau_wrapper').hide();
+            $('#edit_finition').prop('disabled', false).css('background-color', '');
+            $('.quick-specs-edit-wrapper').show();
+            $('#wrapper-specs-edit').show();
+            $('#add-spec-manual-edit').show();
+        }
+
+        lookupPriceForModal();
+        updateModalTotal();
     }
 
 
@@ -355,7 +404,14 @@
         $('#edit_prix').val(btn.data('prix'));
         $('#edit_poids').val(btn.data('poids'));
         $('#edit_epaisseur').val(btn.data('epaisseur'));
-        $('#edit_is_linteau').prop('checked', btn.data('linteau') == 1);
+
+        const isLinteau = btn.data('linteau') === 'on' || btn.data('linteau') == 1 || btn.data('linteau') === true;
+        $('#edit_is_linteau').prop('checked', isLinteau);
+
+        $('#edit_finition').val(btn.data('finition') || '');
+        $('#edit_type_linteau').val(btn.data('type-linteau') || 'lisse_adoucie');
+
+        toggleLinteauUIEdit();
 
         // --- LOGIQUE PRIX MANUEL FIXE ---
         const inputPrixManuel = $('#edit_prix_manuel');
