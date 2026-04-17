@@ -11,7 +11,7 @@
             @csrf
 
             <div class="form-group">
-                <label for="email" class="section-title-small">Email Professionnel</label>
+                <label for="email" class="section-title-small">Email</label>
                 <input id="email" class="block mt-1 w-full custom-input" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
             </div>
