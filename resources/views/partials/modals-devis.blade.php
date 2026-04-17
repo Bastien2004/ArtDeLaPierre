@@ -267,7 +267,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Référence du client</label>
-                        <input type="text" id="edit_groupe_client" name="reference" class="form-control">
+                        <input type="text" id="edit_groupe_reference" name="reference" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Adresse</label>

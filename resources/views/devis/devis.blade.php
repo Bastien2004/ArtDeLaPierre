@@ -776,14 +776,14 @@
         $('#old_date').val(dateRaw);
 
         // Remplissage des champs de la modal
-        $('#edit_groupe_nom_client').val(client); // Utilise un ID spécifique pour le NOM
+        $('#edit_groupe_client').val(client);
         $('#edit_groupe_adresse').val(adresse);
-        $('#edit_groupe_reference').val(ref);     // Utilise un ID spécifique pour la REF
+        $('#edit_groupe_reference').val(ref);
 
         // Gestion de la date de livraison (ton if incomplet)
-        if(dateLivraison) {
-            // On suppose que ton input date s'appelle #edit_groupe_date
-            $('#edit_groupe_date').val(dateLivraison);
+        if (dateLivraison) {
+            const dateOnly = dateLivraison.split(' ')[0];
+            $('#edit_groupe_date').val(dateOnly);
         }
 
         // Enfin, on ouvre la modal
