@@ -49,7 +49,7 @@
                 $fraisPort = $lignes->avg('livraison');
                 $prixPose = $lignes->avg('prixPose');
                 $poidsTotalGroupe = $lignes->sum('poids');
-                $surfaceTotalGroupe = $lignes->sum('matiere')
+                $surfaceTotalGroupe = $lignes->sum('matiere');
             @endphp
 
             <tr class="group-header">
@@ -196,13 +196,14 @@
                                 data-bs-target="#modificationModal"
                                 data-id="{{ $d->id }}"
                                 data-pierre="{{ $d->typePierre }}"
+                                data-linteau="{{ $d->is_linteau }}"
                                 data-nb="{{ $d->nombrePierre }}"
                                 data-long="{{ $d->longueurM }}"
                                 data-larg="{{ $d->largeurM }}"
                                 data-prix="{{ $d->prixM2 }}"
                                 data-poids="{{ $d->poids }}"
                                 data-epaisseur="{{ $d->epaisseur }}"
-                                data-prix-manuel="{{ $d->prixHT }}"
+                                data-prix-manuel="{{ $d->prix_manuel_unitaire ?? '' }}"
                                 data-specs="{{ $d->specificites->toJson() }}"
                                 data-type-client="{{ $p->type_client_global ?? 'Entreprise' }}">✏️
                         </button>
@@ -250,14 +251,26 @@
 
 
     function updateModalTotal() {
-        const totalPierre = (parseFloat($('#edit_long').val())||0)
-            * (parseFloat($('#edit_larg').val())||0)
-            * (parseFloat($('#edit_prix').val())||0)
-            * (parseFloat($('#edit_nb').val())||0);
+        const long = parseFloat($('#edit_long').val()) || 0;
+        const larg = parseFloat($('#edit_larg').val()) || 0;
+        const prixM2 = parseFloat($('#edit_prix').val()) || 0;
+        const qte = parseFloat($('#edit_nb').val()) || 0;
+        const prixManuel = parseFloat($('#edit_prix_manuel').val()) || 0;
+        const isManual = $('#edit_prix_manuel').attr('data-is-manual') === 'true';
+
+        const totalPierre = isManual
+            ? prixManuel * qte
+            : long * larg * prixM2 * qte;
+
         let totalSpecs = 0;
         $('.spec-prix-edit').each(function() {
             totalSpecs += parseFloat($(this).val()) || 0;
         });
+
+        const totalHT = totalPierre + totalSpecs;
+
+        $('#hint-prix-manuel').attr('data-total-pierre', totalPierre.toFixed(2));
+        $('#hint-prix-manuel').attr('data-total-ht', totalHT.toFixed(2));
     }
 
     function addSpecRow(nom, prix, unite, basePrice) {
@@ -342,21 +355,19 @@
         $('#edit_prix').val(btn.data('prix'));
         $('#edit_poids').val(btn.data('poids'));
         $('#edit_epaisseur').val(btn.data('epaisseur'));
+        $('#edit_is_linteau').prop('checked', btn.data('linteau') == 1);
 
         // --- LOGIQUE PRIX MANUEL FIXE ---
         const inputPrixManuel = $('#edit_prix_manuel');
-        const prixManuelBDD   = btn.data('prix-manuel');
 
-        if (prixManuelBDD !== undefined && prixManuelBDD !== '' && parseFloat(prixManuelBDD) > 0) {
-            // On met les 23€ dans la case
+        const prixManuelBDD = btn.data('prix-manuel');
+
+        if (prixManuelBDD !== undefined && prixManuelBDD !== '' && !isNaN(parseFloat(prixManuelBDD)) && parseFloat(prixManuelBDD) > 0) {
             inputPrixManuel.val(parseFloat(prixManuelBDD).toFixed(2));
-            // On marque le champ comme "manuel" pour bloquer le recalcul auto
             inputPrixManuel.attr('data-is-manual', 'true');
-            $('#hint-prix-manuel').text("Prix manuel enregistré (Total HT).");
+            $('#hint-prix-manuel').text("Prix manuel enregistré (€/pierre).");
         } else {
-            // Si vide, on calcule L x l x PrixM2
-            const calculAuto = (parseFloat(btn.data('long')) * parseFloat(btn.data('larg')) * parseFloat(btn.data('prix'))).toFixed(2);
-            inputPrixManuel.val(calculAuto);
+            inputPrixManuel.val('');
             inputPrixManuel.attr('data-is-manual', 'false');
             $('#hint-prix-manuel').text("Calcul automatique (L × l × Prix M²)");
         }

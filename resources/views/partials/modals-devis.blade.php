@@ -14,6 +14,15 @@
                         <input type="text" name="typePierre" id="edit_pierre" class="form-control">
                     </div>
 
+                    <div class="mb-3 d-flex align-items-center gap-3">
+                        <div style="flex: 0 0 auto;">
+                            <input type="checkbox" id="edit_is_linteau" name="is_linteau" class="form-check-input">
+                            <label for="edit_is_linteau" class="form-check-label ms-2" style="cursor: pointer;">
+                                <strong>Linteau</strong>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Finition</label>
                         <select id="edit_finition" class="form-control">

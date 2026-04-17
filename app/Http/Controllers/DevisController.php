@@ -93,12 +93,19 @@ class DevisController extends Controller
             $prixHTFinalLigne = $prixTotalPierres + $totalOptionsLigne;
             $totalGeneralHT += $prixHTFinalLigne;
 
-            // 1. Sauvegarde en Base de Données
+            $isLinteau = isset($ligneData['is_linteau']) && $ligneData['is_linteau'] === 'on';
+            $typeLinteau = $isLinteau ? ($ligneData['type_linteau'] ?? 'lisse_adoucie') : null;
+            $finition = !$isLinteau ? ($ligneData['finition'] ?? '') : null;
+
+            // Sauvegarde en Base de Données
             $devis = new Devis([
                 'client'       => $request->client,
                 'typeClient'   => $request->type_client_global,
                 'adresse'      => $request->adresse ?? '',
                 'typePierre'   => $ligneData['typePierre'] ?? '',
+                'is_linteau'   => $isLinteau,
+                'type_linteau' => $typeLinteau,
+                'finition'     => $finition,
                 'epaisseur'    => $ligneData['epaisseur'] ?? 2,
                 'nombrePierre' => $quantite,
                 'longueurM'    => $ligneData['longueurM'],
@@ -153,7 +160,7 @@ class DevisController extends Controller
         $devis = Devis::findOrFail($id);
 
         $devis->specificites()->delete();
-        $totalOptionsCumulees = 0; // On va stocker le TOTAL de toutes les options envoyées
+        $totalOptionsCumulees = 0;
 
         if ($request->has('specs') && is_array($request->specs)) {
             foreach ($request->specs as $specData) {
@@ -174,9 +181,12 @@ class DevisController extends Controller
 
         $quantite = (int) $request->nombrePierre;
         $matiereParPierre = (float) $request->longueurM * (float) $request->largeurM;
-
-        // Calcul du prix de la pierre seule (multiplié par quantité)
         $prixManuelUnitaire = (float) $request->prix_manuel_unitaire;
+
+        // GESTION DU LINTEAU
+        $isLinteau = $request->has('is_linteau') && $request->is_linteau === 'on';
+        $typeLinteau = $isLinteau ? ($request->type_linteau ?? 'lisse_adoucie') : null;
+        $finition = !$isLinteau ? ($request->finition ?? '') : null;
 
         if ($prixManuelUnitaire > 0) {
             // Prix saisi manuellement : on prend directement unitaire × quantité
@@ -185,12 +195,13 @@ class DevisController extends Controller
             // Calcul automatique habituel
             $prixTotalPierres = ($matiereParPierre * (float) $request->prixM2) * $quantite;
         }
-
-        // LE CALCUL FINAL : On ajoute les options qui sont déjà au bon montant global
         $prixHTFinal = $prixTotalPierres + $totalOptionsCumulees;
 
         $devis->update([
             'typePierre'   => $request->typePierre,
+            'is_linteau'   => $isLinteau,
+            'type_linteau' => $typeLinteau,
+            'finition'     => $finition,
             'nombrePierre' => $quantite,
             'longueurM'    => $request->longueurM,
             'largeurM'     => $request->largeurM,

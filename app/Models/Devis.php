@@ -24,7 +24,10 @@ class Devis extends Model
         'poids',
         'livraison',
         'datefindevis',
-        'prixPose'
+        'prixPose',
+        'is_linteau',
+        'type_linteau',
+        'finition',
     ];
 
     public function specificites()
