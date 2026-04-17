@@ -17,7 +17,7 @@
 <div class="hero-card">
     <h1 class="hero-title">Art de la Pierre</h1>
     <div class="hero-divider"></div>
-    <p class="hero-subtitle">Logiciel de gestion technique & chiffrage</p>
+    <p class="hero-subtitle">Logiciel de gestion</p>
 
     <div class="hero-actions">
         @if (Route::has('login'))
@@ -42,7 +42,7 @@
     </div>
 
     <footer class="welcome-footer">
-        <p>&copy; {{ date('Y') }} — Atelier Art de la Pierre</p>
+        <p>&copy; {{ date('Y') }} — L'art de la Pierre</p>
     </footer>
 </div>
 
