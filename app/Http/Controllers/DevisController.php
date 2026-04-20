@@ -556,21 +556,23 @@ class DevisController extends Controller
             // Prix total de la ligne = unitaire × qté + specs
             $prixTotalSpecs = round($devis->specificites->sum('prix'), 2);
             $prixTotalLigne = round((float) $devis->prixHT, 2);
+
             // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
-                'quote_quantity'                      => $qte, // <-- "quote" au lieu de "invoice"
+                'quote_quantity'                      => $qte,
                 'quote_quantity_unit_of_measure_code' => 'unit',
-                'quoted_item_vat_category_code'       => 'S',  // <-- "quoted" au lieu de "invoiced"
+                'quoted_item_vat_category_code'       => 'S',
                 'item_attributes'                       => [[
                     'item_attribute_name'  => 'Catégorie',
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'quoted_item_vat_rate' => 20.00,
+                    'quoted_item_vat_rate' => '0.20',
                     'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
-                    'item_net_price' => number_format($prixTotalLigne / max($qte, 1), 2, '.', ''),                ],
+                    'item_net_price' => number_format($prixTotalLigne / max($qte, 1), 2, '.', ''),
+                ],
                 'item_information' => [
                     'item_name'       => $designation,
                     'item_attributes' => [[
@@ -595,11 +597,11 @@ class DevisController extends Controller
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'quoted_item_vat_rate'          => 0.20,
+                    'quoted_item_vat_rate' => '0.20',
                     'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
-                    'item_net_price' => round($livraison, 2),
+                    'item_net_price' => number_format($livraison, 2, '.', ''),
                 ],
                 'item_information' => [
                     'item_name'       => 'Frais de livraison',
@@ -629,7 +631,7 @@ class DevisController extends Controller
             'client_adresse' => $p->adresse,
             'date_emission'  => $dateEmission->format('Y-m-d'),
             'date_validite'  => $dateValidite,
-            'total_ht' => number_format($totalHT, 2, '.', ''),
+            'total_ht'       => number_format($totalHT, 2, '.', ''),
             'lignes'         => $lignesPourMake,
             'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
             'reference'      => $request->reference ?? '',
