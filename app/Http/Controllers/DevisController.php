@@ -529,77 +529,65 @@ class DevisController extends Controller
 
         $p = $lignes->first();
         $lignesPourMake = [];
-        $totalHT = 0;
+        $totalHTFinal = 0; // On va recalculer le total exact pour Tiime
 
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            // Libellé : type + épaisseur + noms des spécificités
-            $designation = trim($devis->typePierre ?? '');
+            // --- Construction du Libellé ---
+            $designationPrincipale = trim($devis->typePierre ?? '');
             if ($devis->epaisseur) {
-                $designation .= ($designation ? ', ' : '') . $devis->epaisseur . 'cm';
+                $designationPrincipale .= ($designationPrincipale ? ', ' : '') . $devis->epaisseur . 'cm';
             }
             if ($devis->specificites->count() > 0) {
                 foreach ($devis->specificites as $spec) {
-                    $designation .= ', ' . $spec->nom;
+                    $designationPrincipale .= ', ' . $spec->nom;
                 }
             }
-            // Dimensions en 2ème ligne
-            $designation .= "\n"
-                . number_format((float)$devis->longueurM, 2, '.', '')
-                . ' x '
-                . number_format((float)$devis->largeurM, 2, '.', '')
-                . ' x '
-                . $devis->epaisseur . 'cm'
+
+            // Détails dimensions (on garde le \n car Tiime l'accepte généralement dans la désignation)
+            $details = number_format((float)$devis->longueurM, 2, '.', '')
+                . ' x ' . number_format((float)$devis->largeurM, 2, '.', '')
+                . ' x ' . $devis->epaisseur . 'cm'
                 . ' — Qté : ' . $qte;
 
-            // Prix total de la ligne
-            $prixTotalLigne = round((float) $devis->prixHT, 2);
+            $designationComplete = $designationPrincipale . "\n" . $details;
 
-            // IMPORTANT: Calculer le prix unitaire et s'assurer qu'il a exactement 2 décimales
-            $prixUnitaire = round($prixTotalLigne / max($qte, 1), 2);
+            // --- Calcul financier strict ---
+            // On arrondit le prix unitaire AVANT de l'ajouter au total global
+            $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
+            $totalHTFinal += ($prixUnitaire * $qte);
 
-            // STRUCTURE POUR UN DEVIS (QUOTE)
-            // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
-                // RENTRE LES DEUX POUR ÊTRE SÛR QUE MAKE NE MANQUE RIEN
-                'invoice_quantity'                      => $qte,
-                'quote_quantity'                        => $qte,
+                'invoice_quantity'                      => (int)$qte,
+                'quote_quantity'                        => (int)$qte,
                 'invoice_quantity_unit_of_measure_code' => 'unit',
                 'quote_quantity_unit_of_measure_code'   => 'unit',
-
                 'invoiced_item_vat_category_code'       => 'S',
                 'quoted_item_vat_category_code'         => 'S',
 
-                'item_attributes' => [[
-                    'item_attribute_name'  => 'Catégorie',
-                    'item_attribute_value' => 'sale',
-                ]],
-
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 0.20,
-                    'quoted_item_vat_rate'            => 0.20,
+                    'invoiced_item_vat_rate'          => 20, // Toujours 20 pour éviter les erreurs de calcul décimal
+                    'quoted_item_vat_rate'            => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
 
                 'price_details' => [
-                    'item_net_price' => $prixUnitaire,
+                    'item_net_price' => (float)$prixUnitaire,
                 ],
 
                 'item_information' => [
-                    'item_name'       => $designation,
+                    'item_name'       => $designationComplete,
                     'item_attributes' => [[
                         'item_attribute_name'  => 'Catégorie',
                         'item_attribute_value' => 'sale',
                     ]],
                 ],
             ];
-
-            $totalHT += $prixTotalLigne;
         }
 
-        // Frais de livraison en dernière ligne
+        // --- Gestion de la livraison ---
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
@@ -607,20 +595,14 @@ class DevisController extends Controller
                 'quote_quantity'                        => 1,
                 'invoice_quantity_unit_of_measure_code' => 'unit',
                 'quote_quantity_unit_of_measure_code'   => 'unit',
-                'invoiced_item_vat_category_code'       => 'S',
-                'quoted_item_vat_category_code'         => 'S',
-                'item_attributes'                       => [[
-                    'item_attribute_name'  => 'Catégorie',
-                    'item_attribute_value' => 'sale',
-                ]],
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 0.20,
-                    'quoted_item_vat_rate'            => 0.20,
+                    'invoiced_item_vat_rate'          => 20,
+                    'quoted_item_vat_rate'            => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
                 'price_details' => [
-                    'item_net_price' => $livraison,
+                    'item_net_price' => (float)$livraison,
                 ],
                 'item_information' => [
                     'item_name'       => 'Frais de livraison',
@@ -630,34 +612,29 @@ class DevisController extends Controller
                     ]],
                 ],
             ];
-            $totalHT += $livraison;
+            $totalHTFinal += $livraison;
         }
 
-        // --- GESTION DES DATES ---
+        // Dates et Référence
         $dateEmission = $p->created_at;
         $dateValidite = $dateEmission->copy()->addDays(60)->format('Y-m-d');
+        $reference = $p->reference ?: "Devis " . $p->client;
 
-        \Log::info('sendToTiime payload', [
-            'client'        => $p->client,
-            'date_emission' => $dateEmission->format('Y-m-d'),
-            'date_validite' => $dateValidite,
-            'totalHT'       => round($totalHT, 2),
-        ]);
-
+        // Envoi à Make
         $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", [
             'client_nom'     => $p->client,
             'client_adresse' => $p->adresse ?: " ",
             'date_emission'  => $dateEmission->format('Y-m-d'),
             'date_validite'  => $dateValidite,
-            'total_ht'       => round($totalHT, 2),
+            'total_ht'       => (float)round($totalHTFinal, 2),
             'lignes'         => $lignesPourMake,
             'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
-            'reference'      => $p->reference ?? '',
+            'reference'      => $reference,
         ]);
 
         if ($response->failed()) {
-            \Log::error('sendToTiime HTTP error', ['status' => $response->status(), 'body' => $response->body()]);
-            return response()->json(['message' => 'Erreur envoi Make', 'erreurs' => 1]);
+            \Log::error('Tiime Error', ['status' => $response->status(), 'body' => $response->body()]);
+            return response()->json(['message' => 'Erreur Tiime', 'erreurs' => 1]);
         }
 
         return response()->json(['message' => 'Devis envoyé à Tiime ✓', 'erreurs' => 0]);
