@@ -554,9 +554,8 @@ class DevisController extends Controller
                 . ' — Qté : ' . $qte;
 
             // Prix total de la ligne = unitaire × qté + specs
-            $prixTotalSpecs = $devis->specificites->sum('prix');
-            $prixTotalLigne = (float) $devis->prixHT;
-
+            $prixTotalSpecs = round($devis->specificites->sum('prix'), 2);
+            $prixTotalLigne = round((float) $devis->prixHT, 2);
             // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
                 'quote_quantity'                      => $qte, // <-- "quote" au lieu de "invoice"
@@ -586,7 +585,7 @@ class DevisController extends Controller
         }
 
         // Frais de livraison en dernière ligne
-        $livraison = (float) $lignes->avg('livraison');
+        $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
                 'quote_quantity'                      => 1,
