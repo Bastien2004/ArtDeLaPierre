@@ -532,8 +532,10 @@ class DevisController extends Controller
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            $designation = trim($devis->typePierre ?? 'Pierre');
+            // --- Libellé propre (On évite de commencer par une virgule si typePierre est vide) ---
+            $designation = trim($devis->typePierre) ?: 'Pierre';
             if ($devis->epaisseur) $designation .= ', ' . $devis->epaisseur . 'cm';
+
             foreach ($devis->specificites as $spec) {
                 $designation .= ', ' . $spec->nom;
             }
@@ -541,6 +543,7 @@ class DevisController extends Controller
             $dims = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
             $itemName = substr($designation . " (" . $dims . ")", 0, 250);
 
+            // --- Calcul financier strict (Somme des arrondis) ---
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
             $totalHTCalculé += ($prixUnitaire * $qte);
 
@@ -550,7 +553,7 @@ class DevisController extends Controller
                 'invoice_quantity_unit_of_measure_code' => 'unit',
                 'quote_quantity_unit_of_measure_code'   => 'unit',
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate' => 20,
+                    'invoiced_item_vat_rate' => 20, // Toujours 20 (pas 0.20)
                     'quoted_item_vat_rate'   => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
@@ -565,14 +568,14 @@ class DevisController extends Controller
             ];
         }
 
-        // --- Frais de livraison (CORRIGÉ AVEC PARAMÈTRES MANQUANTS) ---
+        // --- Frais de livraison (Structure complète identique aux articles) ---
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
                 'invoice_quantity' => 1,
                 'quote_quantity'   => 1,
-                'invoice_quantity_unit_of_measure_code' => 'unit', // Était manquant
-                'quote_quantity_unit_of_measure_code'   => 'unit',   // Était manquant
+                'invoice_quantity_unit_of_measure_code' => 'unit',
+                'quote_quantity_unit_of_measure_code'   => 'unit',
                 'line_vat_information' => [
                     'invoiced_item_vat_rate' => 20,
                     'quoted_item_vat_rate'   => 20,
@@ -582,7 +585,7 @@ class DevisController extends Controller
                 'price_details' => ['item_net_price' => (float)$livraison],
                 'item_information' => [
                     'item_name' => 'Frais de livraison',
-                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']], // Était manquant
+                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']],
                 ],
             ];
             $totalHTCalculé += $livraison;
@@ -590,12 +593,12 @@ class DevisController extends Controller
 
         $payload = [
             'client_nom'     => $p->client,
-            'client_adresse' => trim($p->adresse) ?: null,
+            'client_adresse' => trim($p->adresse) ?: " ", // Tiime refuse parfois les adresses nulles
             'date_emission'  => $p->created_at->format('Y-m-d'),
             'date_validite'  => $p->created_at->copy()->addDays(60)->format('Y-m-d'),
-            'total_ht'       => (float)round($totalHTCalculé, 2),
+            'total_ht'       => (float)round($totalHTCalculé, 2), // Total exact pour l'équilibre du devis
             'lignes'         => $lignesPourMake,
-            'reference'      => substr($p->reference ?? 'Devis', 0, 100),
+            'reference'      => substr($request->reference ?? 'Devis', 0, 100),
             'note_bas'       => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
         ];
 
@@ -607,5 +610,4 @@ class DevisController extends Controller
 
         return response()->json(['message' => 'Erreur Tiime via Make', 'status' => $response->status()], 500);
     }
-
 }
