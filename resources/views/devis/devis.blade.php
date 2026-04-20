@@ -510,9 +510,11 @@
 
             if (unite === 'ml') {
                 const longEff = (nomSpec.includes('rejingot') && long < 1 && long > 0) ? 1 : long;
-                $(this).val((base * longEff * qte).toFixed(2));
+                const calcul = (base * longEff * qte);
+                $(this).val(!isNaN(calcul) ? calcul.toFixed(2) : "0.00");
             } else {
-                $(this).val((base * qte).toFixed(2));
+                const calcul = (base * qte);
+                $(this).val(!isNaN(calcul) ? calcul.toFixed(2) : "0.00");
             }
         });
 
