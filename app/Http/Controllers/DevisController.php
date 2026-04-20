@@ -577,7 +577,7 @@ class DevisController extends Controller
                 ]],
 
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 20, // Ou 0.20 selon ton ancienne version
+                    'invoiced_item_vat_rate'          => 0.20,
                     'quoted_item_vat_rate'            => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
@@ -614,7 +614,7 @@ class DevisController extends Controller
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 20,
+                    'invoiced_item_vat_rate'          => 0.20,
                     'quoted_item_vat_rate'            => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
@@ -646,7 +646,7 @@ class DevisController extends Controller
 
         $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", [
             'client_nom'     => $p->client,
-            'client_adresse' => $p->adresse,
+            'client_adresse' => $p->adresse ?: " ",
             'date_emission'  => $dateEmission->format('Y-m-d'),
             'date_validite'  => $dateValidite,
             'total_ht'       => round($totalHT, 2),
