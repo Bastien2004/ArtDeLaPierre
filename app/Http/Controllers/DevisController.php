@@ -65,7 +65,7 @@ class DevisController extends Controller
             'tarifsTravaux',
             'allTarifs',
             'emailsCarnet',
-            'typeClientPrefill',
+            'typeClientPrefill'
         ));
     }
 
@@ -560,21 +560,33 @@ class DevisController extends Controller
             $prixUnitaire = round($prixTotalLigne / max($qte, 1), 2);
 
             // STRUCTURE POUR UN DEVIS (QUOTE)
+            // STRUCTURE POUR UN DEVIS (QUOTE)
             $lignesPourMake[] = [
-                'quote_quantity'                      => $qte,
-                'quote_quantity_unit_of_measure_code' => 'unit',
-                'quoted_item_vat_category_code'       => 'S',
-                'item_attributes'                       => [[
+                // RENTRE LES DEUX POUR ÊTRE SÛR QUE MAKE NE MANQUE RIEN
+                'invoice_quantity'                      => $qte,
+                'quote_quantity'                        => $qte,
+                'invoice_quantity_unit_of_measure_code' => 'unit',
+                'quote_quantity_unit_of_measure_code'   => 'unit',
+
+                'invoiced_item_vat_category_code'       => 'S',
+                'quoted_item_vat_category_code'         => 'S',
+
+                'item_attributes' => [[
                     'item_attribute_name'  => 'Catégorie',
                     'item_attribute_value' => 'sale',
                 ]],
+
                 'line_vat_information' => [
-                    'quoted_item_vat_rate' => 20,
-                    'quoted_item_vat_category_code' => 'S',
+                    'invoiced_item_vat_rate'          => 20, // Ou 0.20 selon ton ancienne version
+                    'quoted_item_vat_rate'            => 20,
+                    'invoiced_item_vat_category_code' => 'S',
+                    'quoted_item_vat_category_code'   => 'S',
                 ],
+
                 'price_details' => [
                     'item_net_price' => $prixUnitaire,
                 ],
+
                 'item_information' => [
                     'item_name'       => $designation,
                     'item_attributes' => [[
@@ -591,16 +603,21 @@ class DevisController extends Controller
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
-                'quote_quantity'                      => 1,
-                'quote_quantity_unit_of_measure_code' => 'unit',
-                'quoted_item_vat_category_code'       => 'S',
+                'invoice_quantity'                      => 1,
+                'quote_quantity'                        => 1,
+                'invoice_quantity_unit_of_measure_code' => 'unit',
+                'quote_quantity_unit_of_measure_code'   => 'unit',
+                'invoiced_item_vat_category_code'       => 'S',
+                'quoted_item_vat_category_code'         => 'S',
                 'item_attributes'                       => [[
                     'item_attribute_name'  => 'Catégorie',
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'quoted_item_vat_rate' => 20,
-                    'quoted_item_vat_category_code' => 'S',
+                    'invoiced_item_vat_rate'          => 20,
+                    'quoted_item_vat_rate'            => 20,
+                    'invoiced_item_vat_category_code' => 'S',
+                    'quoted_item_vat_category_code'   => 'S',
                 ],
                 'price_details' => [
                     'item_net_price' => $livraison,
