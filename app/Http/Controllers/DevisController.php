@@ -524,32 +524,29 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        if ($lignes->isEmpty()) return response()->json(['message' => 'Vide', 'erreurs' => 1]);
+        if ($lignes->isEmpty()) return response()->json(['message' => 'Aucune donnée trouvée', 'erreurs' => 1]);
 
         $p = $lignes->first();
         $lignesPourMake = [];
-        $sommeHTCalculée = 0;
+        $totalHTCalculé = 0;
 
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            // Libellé propre sans sauts de ligne (remplacés par des pipes |)
-            $designation = trim($devis->typePierre ?? '');
-            if ($devis->epaisseur) $designation .= ($designation ? ', ' : '') . $devis->epaisseur . 'cm';
+            // --- Libellé propre sans sauts de ligne ---
+            $designation = trim($devis->typePierre ?? 'Pierre');
+            if ($devis->epaisseur) $designation .= ', ' . $devis->epaisseur . 'cm';
 
             foreach ($devis->specificites as $spec) {
                 $designation .= ', ' . $spec->nom;
             }
 
-            $details = number_format((float)$devis->longueurM, 2, '.', '')
-                . 'x' . number_format((float)$devis->largeurM, 2, '.', '')
-                . 'x' . $devis->epaisseur . 'cm';
+            $dims = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
+            $itemName = substr($designation . " (" . $dims . ")", 0, 250);
 
-            $item_name = $designation . " (" . $details . ") - Qté: " . $qte;
-
-            // Calcul unitaire
+            // --- Calcul financier strict ---
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
-            $sommeHTCalculée += ($prixUnitaire * $qte);
+            $totalHTCalculé += ($prixUnitaire * $qte);
 
             $lignesPourMake[] = [
                 'invoice_quantity' => $qte,
@@ -566,52 +563,49 @@ class DevisController extends Controller
                     'item_net_price' => (float)$prixUnitaire,
                 ],
                 'item_information' => [
-                    'item_name' => substr($item_name, 0, 250),
+                    'item_name' => $itemName,
                     'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']],
                 ],
             ];
         }
 
-        // Livraison
+        // --- Frais de livraison ---
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
                 'invoice_quantity' => 1,
                 'quote_quantity'   => 1,
-                'price_details'    => ['item_net_price' => (float)$livraison],
                 'line_vat_information' => [
                     'invoiced_item_vat_rate' => 20,
                     'quoted_item_vat_rate'   => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
+                'price_details' => ['item_net_price' => (float)$livraison],
                 'item_information' => ['item_name' => 'Frais de livraison'],
             ];
-            $sommeHTCalculée += $livraison;
+            $totalHTCalculé += $livraison;
         }
 
-        $dateEmission = $p->created_at;
-
+        // --- Envoi Final ---
         $payload = [
             'client_nom'     => $p->client,
-            'date_emission'  => $dateEmission->format('Y-m-d'),
-            'date_validite'  => $dateEmission->copy()->addDays(60)->format('Y-m-d'),
-            'total_ht'       => (float)round($sommeHTCalculée, 2),
+            'client_adresse' => trim($p->adresse) ?: null,
+            'date_emission'  => $p->created_at->format('Y-m-d'),
+            'date_validite'  => $p->created_at->copy()->addDays(60)->format('Y-m-d'),
+            'total_ht'       => (float)round($totalHTCalculé, 2),
             'lignes'         => $lignesPourMake,
-            'note_bas'       => "NOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL.",
             'reference'      => substr($p->reference ?? 'Devis', 0, 100),
+            'note_bas'       => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
         ];
-
-        // On n'ajoute l'adresse que si elle est vraiment remplie
-        $adr = trim($p->adresse);
-        if (!empty($adr)) {
-            $payload['client_adresse'] = $adr;
-        }
 
         $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", $payload);
 
-        return response()->json(['message' => 'Tentative terminée', 'status' => $response->status()]);
-    }
+        if ($response->successful()) {
+            return response()->json(['message' => 'Devis envoyé avec succès ✓', 'erreurs' => 0]);
+        }
 
+        return response()->json(['message' => 'Erreur Tiime via Make', 'status' => $response->status()], 500);
+    }
 
 }
