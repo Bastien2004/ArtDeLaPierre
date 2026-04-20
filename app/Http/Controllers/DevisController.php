@@ -513,7 +513,6 @@ class DevisController extends Controller
     }
 
 
-
     public function sendToTiime(Request $request)
     {
         $request->validate(['client' => 'required', 'date' => 'required']);
@@ -529,114 +528,90 @@ class DevisController extends Controller
 
         $p = $lignes->first();
         $lignesPourMake = [];
-        $totalHTFinal = 0; // On va recalculer le total exact pour Tiime
+        $sommeHTCalculée = 0;
 
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            // --- Construction du Libellé ---
-            $designationPrincipale = trim($devis->typePierre ?? '');
-            if ($devis->epaisseur) {
-                $designationPrincipale .= ($designationPrincipale ? ', ' : '') . $devis->epaisseur . 'cm';
-            }
-            if ($devis->specificites->count() > 0) {
-                foreach ($devis->specificites as $spec) {
-                    $designationPrincipale .= ', ' . $spec->nom;
-                }
+            // Libellé propre sans sauts de ligne (remplacés par des pipes |)
+            $designation = trim($devis->typePierre ?? '');
+            if ($devis->epaisseur) $designation .= ($designation ? ', ' : '') . $devis->epaisseur . 'cm';
+
+            foreach ($devis->specificites as $spec) {
+                $designation .= ', ' . $spec->nom;
             }
 
-            // Détails dimensions (on garde le \n car Tiime l'accepte généralement dans la désignation)
             $details = number_format((float)$devis->longueurM, 2, '.', '')
-                . ' x ' . number_format((float)$devis->largeurM, 2, '.', '')
-                . ' x ' . $devis->epaisseur . 'cm'
-                . ' — Qté : ' . $qte;
+                . 'x' . number_format((float)$devis->largeurM, 2, '.', '')
+                . 'x' . $devis->epaisseur . 'cm';
 
-            $designationComplete = $designationPrincipale . "\n" . $details;
+            $item_name = $designation . " (" . $details . ") - Qté: " . $qte;
 
-            // --- Calcul financier strict ---
-            // On arrondit le prix unitaire AVANT de l'ajouter au total global
+            // Calcul unitaire
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
-            $totalHTFinal += ($prixUnitaire * $qte);
+            $sommeHTCalculée += ($prixUnitaire * $qte);
 
             $lignesPourMake[] = [
-                'invoice_quantity'                      => (int)$qte,
-                'quote_quantity'                        => (int)$qte,
+                'invoice_quantity' => $qte,
+                'quote_quantity'   => $qte,
                 'invoice_quantity_unit_of_measure_code' => 'unit',
                 'quote_quantity_unit_of_measure_code'   => 'unit',
-                'invoiced_item_vat_category_code'       => 'S',
-                'quoted_item_vat_category_code'         => 'S',
-
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 20, // Toujours 20 pour éviter les erreurs de calcul décimal
-                    'quoted_item_vat_rate'            => 20,
+                    'invoiced_item_vat_rate' => 20,
+                    'quoted_item_vat_rate'   => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
-
                 'price_details' => [
                     'item_net_price' => (float)$prixUnitaire,
                 ],
-
                 'item_information' => [
-                    'item_name'       => $designationComplete,
-                    'item_attributes' => [[
-                        'item_attribute_name'  => 'Catégorie',
-                        'item_attribute_value' => 'sale',
-                    ]],
+                    'item_name' => substr($item_name, 0, 250),
+                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']],
                 ],
             ];
         }
 
-        // --- Gestion de la livraison ---
+        // Livraison
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
-                'invoice_quantity'                      => 1,
-                'quote_quantity'                        => 1,
-                'invoice_quantity_unit_of_measure_code' => 'unit',
-                'quote_quantity_unit_of_measure_code'   => 'unit',
+                'invoice_quantity' => 1,
+                'quote_quantity'   => 1,
+                'price_details'    => ['item_net_price' => (float)$livraison],
                 'line_vat_information' => [
-                    'invoiced_item_vat_rate'          => 20,
-                    'quoted_item_vat_rate'            => 20,
+                    'invoiced_item_vat_rate' => 20,
+                    'quoted_item_vat_rate'   => 20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
-                'price_details' => [
-                    'item_net_price' => (float)$livraison,
-                ],
-                'item_information' => [
-                    'item_name'       => 'Frais de livraison',
-                    'item_attributes' => [[
-                        'item_attribute_name'  => 'Catégorie',
-                        'item_attribute_value' => 'sale',
-                    ]],
-                ],
+                'item_information' => ['item_name' => 'Frais de livraison'],
             ];
-            $totalHTFinal += $livraison;
+            $sommeHTCalculée += $livraison;
         }
 
-        // Dates et Référence
         $dateEmission = $p->created_at;
-        $dateValidite = $dateEmission->copy()->addDays(60)->format('Y-m-d');
-        $reference = $p->reference ?: "Devis " . $p->client;
 
-        // Envoi à Make
-        $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", [
+        $payload = [
             'client_nom'     => $p->client,
-            'client_adresse' => $p->adresse ?: " ",
             'date_emission'  => $dateEmission->format('Y-m-d'),
-            'date_validite'  => $dateValidite,
-            'total_ht'       => (float)round($totalHTFinal, 2),
+            'date_validite'  => $dateEmission->copy()->addDays(60)->format('Y-m-d'),
+            'total_ht'       => (float)round($sommeHTCalculée, 2),
             'lignes'         => $lignesPourMake,
-            'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
-            'reference'      => $reference,
-        ]);
+            'note_bas'       => "NOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL.",
+            'reference'      => substr($p->reference ?? 'Devis', 0, 100),
+        ];
 
-        if ($response->failed()) {
-            \Log::error('Tiime Error', ['status' => $response->status(), 'body' => $response->body()]);
-            return response()->json(['message' => 'Erreur Tiime', 'erreurs' => 1]);
+        // On n'ajoute l'adresse que si elle est vraiment remplie
+        $adr = trim($p->adresse);
+        if (!empty($adr)) {
+            $payload['client_adresse'] = $adr;
         }
 
-        return response()->json(['message' => 'Devis envoyé à Tiime ✓', 'erreurs' => 0]);
+        $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", $payload);
+
+        return response()->json(['message' => 'Tentative terminée', 'status' => $response->status()]);
     }
+
+
 }
