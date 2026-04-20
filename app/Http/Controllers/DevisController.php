@@ -512,7 +512,6 @@ class DevisController extends Controller
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
 
-
     public function sendToTiime(Request $request)
     {
         $request->validate(['client' => 'required', 'date' => 'required']);
@@ -533,10 +532,8 @@ class DevisController extends Controller
         foreach ($lignes as $devis) {
             $qte = max((int) $devis->nombrePierre, 1);
 
-            // --- Libellé propre sans sauts de ligne ---
             $designation = trim($devis->typePierre ?? 'Pierre');
             if ($devis->epaisseur) $designation .= ', ' . $devis->epaisseur . 'cm';
-
             foreach ($devis->specificites as $spec) {
                 $designation .= ', ' . $spec->nom;
             }
@@ -544,7 +541,6 @@ class DevisController extends Controller
             $dims = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
             $itemName = substr($designation . " (" . $dims . ")", 0, 250);
 
-            // --- Calcul financier strict ---
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
             $totalHTCalculé += ($prixUnitaire * $qte);
 
@@ -569,12 +565,14 @@ class DevisController extends Controller
             ];
         }
 
-        // --- Frais de livraison ---
+        // --- Frais de livraison (CORRIGÉ AVEC PARAMÈTRES MANQUANTS) ---
         $livraison = round((float) $lignes->avg('livraison'), 2);
         if ($livraison > 0) {
             $lignesPourMake[] = [
                 'invoice_quantity' => 1,
                 'quote_quantity'   => 1,
+                'invoice_quantity_unit_of_measure_code' => 'unit', // Était manquant
+                'quote_quantity_unit_of_measure_code'   => 'unit',   // Était manquant
                 'line_vat_information' => [
                     'invoiced_item_vat_rate' => 20,
                     'quoted_item_vat_rate'   => 20,
@@ -582,12 +580,14 @@ class DevisController extends Controller
                     'quoted_item_vat_category_code'   => 'S',
                 ],
                 'price_details' => ['item_net_price' => (float)$livraison],
-                'item_information' => ['item_name' => 'Frais de livraison'],
+                'item_information' => [
+                    'item_name' => 'Frais de livraison',
+                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']], // Était manquant
+                ],
             ];
             $totalHTCalculé += $livraison;
         }
 
-        // --- Envoi Final ---
         $payload = [
             'client_nom'     => $p->client,
             'client_adresse' => trim($p->adresse) ?: null,
