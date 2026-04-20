@@ -555,6 +555,8 @@ class DevisController extends Controller
 
             // Prix total de la ligne
             $prixTotalLigne = round((float) $devis->prixHT, 2);
+
+            // IMPORTANT: Calculer le prix unitaire et s'assurer qu'il a exactement 2 décimales
             $prixUnitaire = round($prixTotalLigne / max($qte, 1), 2);
 
             // STRUCTURE POUR UN DEVIS (QUOTE)
@@ -618,32 +620,26 @@ class DevisController extends Controller
         $dateEmission = $p->created_at;
         $dateValidite = $dateEmission->copy()->addDays(60)->format('Y-m-d');
 
-        // PAYLOAD COMPLET CONFORME À LA STRUCTURE ATTENDUE
-        $payload = [[
-            'buyerId'     => 898202,  // ID du client dans Tiime
-            'companyId'   => 90521,   // ID de votre entreprise dans Tiime
-            'quoteNote'   => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
-            'quoteTitle'  => $request->reference ?? '',
-            'quote_line'  => $lignesPourMake,
-            'quoteIssueDate' => $dateEmission->format('Y-m-d'),
-            'validityPeriod' => $dateValidite,
-            'deliveryInformation' => [
-                'deliver_to_address' => [
-                    'deliver_to_address_line_1' => $p->adresse ?? ''
-                ]
-            ]
-        ]];
+        \Log::info('sendToTiime payload', [
+            'client'        => $p->client,
+            'date_emission' => $dateEmission->format('Y-m-d'),
+            'date_validite' => $dateValidite,
+            'totalHT'       => round($totalHT, 2),
+        ]);
 
-        \Log::info('sendToTiime payload', $payload);
-
-        $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", $payload);
+        $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", [
+            'client_nom'     => $p->client,
+            'client_adresse' => $p->adresse,
+            'date_emission'  => $dateEmission->format('Y-m-d'),
+            'date_validite'  => $dateValidite,
+            'total_ht'       => round($totalHT, 2),
+            'lignes'         => $lignesPourMake,
+            'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
+            'reference'      => $request->reference ?? '',
+        ]);
 
         if ($response->failed()) {
-            \Log::error('sendToTiime HTTP error', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'payload' => $payload
-            ]);
+            \Log::error('sendToTiime HTTP error', ['status' => $response->status(), 'body' => $response->body()]);
             return response()->json(['message' => 'Erreur envoi Make', 'erreurs' => 1]);
         }
 
