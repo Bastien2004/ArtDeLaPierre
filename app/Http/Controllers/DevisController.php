@@ -578,7 +578,7 @@ class DevisController extends Controller
 
                 'line_vat_information' => [
                     'invoiced_item_vat_rate'          => 0.20,
-                    'quoted_item_vat_rate'            => 20,
+                    'quoted_item_vat_rate'            => 0.20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
@@ -615,7 +615,7 @@ class DevisController extends Controller
                 ]],
                 'line_vat_information' => [
                     'invoiced_item_vat_rate'          => 0.20,
-                    'quoted_item_vat_rate'            => 20,
+                    'quoted_item_vat_rate'            => 0.20,
                     'invoiced_item_vat_category_code' => 'S',
                     'quoted_item_vat_category_code'   => 'S',
                 ],
