@@ -566,7 +566,7 @@ class DevisController extends Controller
                     'item_attribute_value' => 'sale',
                 ]],
                 'line_vat_information' => [
-                    'quoted_item_vat_rate'          => 0.20,
+                    'quoted_item_vat_rate' => 20.00,
                     'quoted_item_vat_category_code' => 'S',
                 ],
                 'price_details' => [
