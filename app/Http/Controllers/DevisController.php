@@ -635,7 +635,7 @@ class DevisController extends Controller
             'total_ht'       => round($totalHT, 2),
             'lignes'         => $lignesPourMake,
             'note_bas'       => "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€\nPas d'escompte en cas de paiement anticipé\nNOS MARCHANDISES RESTENT NOTRE PROPRIETE JUSQU'AU PAIEMENT TOTAL DE LA FACTURE.\nLes Pierres Bleue de Soignies peuvent comporter toutes les particularités d'aspect de la matière : noirures, limés, tâches blanches, coquillages et fossiles. Aucunes réclamations concernant ces particularités ne seront prises en considération.",
-            'reference'      => $request->reference ?? '',
+            'reference'      => $p->reference ?? '',
         ]);
 
         if ($response->failed()) {
