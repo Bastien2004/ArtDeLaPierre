@@ -444,7 +444,7 @@ class DevisController extends Controller
                 'date'                 => $lignes->first()->created_at,
                 'totalHT'              => $totalHT,
                 'id'                   => $lignes->first()->id,
-                'reference'            => null,
+                'reference'            => $lignes->first()->reference,
                 'poids'                => $poids,
                 'prixPose'             => $prixPose
             ])
