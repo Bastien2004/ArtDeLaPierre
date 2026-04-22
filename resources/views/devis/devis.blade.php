@@ -65,8 +65,8 @@
                             <a href="{{ route('devis.print', [
                                 'client' => $p->client,
                                 'date' => $p->created_at->format('Y-m-d-H-i-s'),
-                                'ref' => $p->reference  {{-- On ajoute la référence ici --}}
-                            ]) }}"
+                                'ref' => $p->reference
+                                ]) }}"
                                target="_blank"
                                onclick="printPdf(this.href); return false;"
                                class="btn-print">
@@ -117,6 +117,7 @@
                                 <i class="fa-solid fa-envelope"></i>
                             </button>
                             <span class="client-name" style="margin-left: 10px">{{ $p->client }}</span>
+                            <span class="group-date">{{ $p->reference }}</span>
                             <span class="group-date">{{ $p->created_at->format('d/m/Y') }}</span>
                             @if($fraisPort >= 0)
                                 <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
