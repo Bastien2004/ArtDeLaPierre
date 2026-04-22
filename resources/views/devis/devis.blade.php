@@ -117,7 +117,7 @@
                                 <i class="fa-solid fa-envelope"></i>
                             </button>
                             <span class="client-name" style="margin-left: 10px">{{ $p->client }}</span>
-                            <span class="group-date">{{"REF : " . $p->reference }}</span>
+                            <span class="group-date">{{ $p->reference }}</span>
                             <span class="group-date">{{ $p->created_at->format('d/m/Y') }}</span>
                             @if($fraisPort >= 0)
                                 <span style="margin-left: 15px; font-size: 0.85em; color: #d4af37; font-weight: bold; cursor: pointer;"
