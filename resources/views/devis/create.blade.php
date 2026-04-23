@@ -87,21 +87,22 @@
                 <input type="hidden" name="lignes[0][livraison]" class="input-livraison-ligne" value="0.00">
                 <button type="button" class="remove-line" onclick="removeLine(this)" title="Supprimer cette pierre">×</button>
 
+
+                <div class="form-group" style="grid-column: span 6; margin-top: 10px; display: flex; align-items: flex-end; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label>Désignation personnalisée</label>
+                        <input type="text" name="lignes[0][typePierre]" class="input-designation">
+                    </div>
+
+                    <div class="linteau-check-container">
+                        <input type="checkbox" name="lignes[0][is_linteau]" class="is-linteau" onchange="toggleLinteauUI(this)" id="linteau_0">
+                        <label for="linteau_0" style="margin-bottom: 0; cursor: pointer;">
+                            <strong>Linteau</strong>
+                        </label>
+                    </div>
+                </div>
                 <div class="form-grid" style="grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;">
                     <div class="form-group">
-                        <div class="form-group" style="grid-column: span 6; margin-top: 10px; display: flex; align-items: flex-end; gap: 20px;">
-                            <div style="flex: 1;">
-                                <label>Désignation personnalisée</label>
-                                <input type="text" name="lignes[0][typePierre]" class="input-designation">
-                            </div>
-
-                            <div class="linteau-check-container">
-                                <input type="checkbox" name="lignes[0][is_linteau]" class="is-linteau" onchange="toggleLinteauUI(this)" id="linteau_0">
-                                <label for="linteau_0" style="margin-bottom: 0; cursor: pointer;">
-                                    <strong>Linteau</strong>
-                                </label>
-                            </div>
-                        </div>
                         <div class="linteau-select-wrapper" style="display: none; flex: 1;">
                             <label>Type de Linteau</label>
                             <select name="lignes[0][type_linteau]" class="select-type-linteau" onchange="lookupPrice(this)">
