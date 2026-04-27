@@ -519,6 +519,10 @@ class DevisController extends Controller
 
     public function sendToTiime(Request $request)
     {
+        \Log::info('sendToTiime appelé pour: ' . $request->client);
+        \Log::info('Tiime email: ' . config('services.tiime.email'));
+        \Log::info('Tiime password: ' . (config('services.tiime.password') ? 'défini' : 'VIDE'));
+
         $request->validate(['client' => 'required', 'date' => 'required']);
 
         $dateMinute = \Carbon\Carbon::parse($request->date)->format('Y-m-d H:i');
@@ -528,11 +532,14 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
+        \Log::info('Lignes trouvées: ' . $lignes->count());
+
         if ($lignes->isEmpty()) return response()->json(['message' => 'Aucune donnée trouvée', 'erreurs' => 1]);
 
         $p = $lignes->first();
 
         // ── 1. Authentification ────────────────────────────────────────────────
+        \Log::info('Avant auth Tiime...');
         try {
             $authResponse = Http::timeout(15)->post('https://auth0.tiime.fr/oauth/token', [
                 'grant_type' => 'password',
@@ -544,23 +551,32 @@ class DevisController extends Controller
                 'realm'      => 'Chronos-prod-db',
             ]);
 
+            \Log::info('Auth status: ' . $authResponse->status());
+
             if (!$authResponse->successful()) {
+                \Log::error('Auth failed: ' . $authResponse->body());
                 return response()->json(['message' => 'Erreur auth Tiime: ' . $authResponse->body(), 'erreurs' => 1], 500);
             }
             $token = $authResponse->json()['access_token'];
+            \Log::info('Token obtenu OK');
 
         } catch (\Exception $e) {
+            \Log::error('Exception auth: ' . $e->getMessage());
             return response()->json(['message' => 'Exception auth: ' . $e->getMessage(), 'erreurs' => 1], 500);
         }
 
         // ── 2. Recherche du client dans Tiime ─────────────────────────────────
+        \Log::info('Recherche client: ' . $p->client);
         $buyerId = null;
         try {
             $clientResponse = Http::timeout(15)
                 ->withToken($token)
-                ->get('https://chronos-api.tiime-apps.com/v1/companies/507690/clients', [
+                ->get('https://chronos-api.tiime-apps.com/v1/companies/90521/clients', [
                     'search' => $p->client,
                 ]);
+
+            \Log::info('Client search status: ' . $clientResponse->status());
+            \Log::info('Client search body: ' . substr($clientResponse->body(), 0, 300));
 
             $clients = $clientResponse->json();
 
@@ -570,12 +586,16 @@ class DevisController extends Controller
                         strtolower(trim($client['name'])) === strtolower(trim($p->client)) &&
                         !$client['archived']) {
                         $buyerId = $client['id'];
+                        \Log::info('Client trouvé: ' . $buyerId);
                         break;
                     }
                 }
             }
 
+            if (!$buyerId) \Log::info('Client non trouvé, création...');
+
         } catch (\Exception $e) {
+            \Log::error('Exception client search: ' . $e->getMessage());
             return response()->json(['message' => 'Exception client: ' . $e->getMessage(), 'erreurs' => 1], 500);
         }
 
@@ -584,12 +604,15 @@ class DevisController extends Controller
             try {
                 $createClient = Http::timeout(15)
                     ->withToken($token)
-                    ->post('https://chronos-api.tiime-apps.com/v1/companies/507690/clients', [
+                    ->post('https://chronos-api.tiime-apps.com/v1/companies/90521/clients', [
                         'name'         => $p->client,
                         'country_code' => 'FR',
                         'professional' => ($p->typeClient === 'Entreprise'),
                         'address'      => $p->adresse ?? '',
                     ]);
+
+                \Log::info('Create client status: ' . $createClient->status());
+                \Log::info('Create client body: ' . $createClient->body());
 
                 if (!$createClient->successful()) {
                     return response()->json([
@@ -599,16 +622,18 @@ class DevisController extends Controller
                 }
 
                 $buyerId = $createClient->json()['id'];
-                \Log::info('Client créé dans Tiime: ' . $buyerId . ' - ' . $p->client);
+                \Log::info('Client créé: ' . $buyerId . ' - ' . $p->client);
 
             } catch (\Exception $e) {
+                \Log::error('Exception création client: ' . $e->getMessage());
                 return response()->json(['message' => 'Exception création client: ' . $e->getMessage(), 'erreurs' => 1], 500);
             }
         }
 
         \Log::info('BuyerId final: ' . $buyerId . ' pour client: ' . $p->client);
 
-// ── 4. Construction des lignes ────────────────────────────────────────
+        // ── 4. Construction des lignes ────────────────────────────────────────
+        \Log::info('Construction des lignes...');
         $lignesPourTiime = [];
         $sequence = 1;
 
@@ -621,7 +646,6 @@ class DevisController extends Controller
             $dims        = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
             $description = trim($designation) . ' (' . $dims . ')';
 
-            // Ajout des spécificités comme label sous la désignation
             if ($devis->specificites->count() > 0) {
                 $specsLabel = implode(' | ', $devis->specificites->map(function($spec) {
                     return $spec->nom . ' (+' . number_format($spec->prix, 2, ',', '') . '€)';
@@ -630,8 +654,11 @@ class DevisController extends Controller
             } else {
                 $description .= "\n  " . (int)$qte . ' pierre(s)';
             }
-            $description = substr($description, 0, 250);
+
+            $description  = substr($description, 0, 250);
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
+
+            \Log::info('Ligne: ' . $description . ' | qte=' . $qte . ' | prix=' . $prixUnitaire);
 
             $lignesPourTiime[] = [
                 'description'             => $description,
@@ -645,8 +672,8 @@ class DevisController extends Controller
             ];
         }
 
-        // Frais de livraison
         $livraison = round((float)$lignes->avg('livraison'), 2);
+        \Log::info('Livraison: ' . $livraison);
         if ($livraison > 0) {
             $lignesPourTiime[] = [
                 'description'             => 'Frais de livraison',
@@ -659,6 +686,8 @@ class DevisController extends Controller
                 'sequence'                => $sequence++,
             ];
         }
+
+        \Log::info('Nombre de lignes construites: ' . count($lignesPourTiime));
 
         // ── 5. Création du devis ──────────────────────────────────────────────
         $payload = [
@@ -675,12 +704,16 @@ class DevisController extends Controller
             'free_field_enabled' => true,
         ];
 
+        \Log::info('Payload devis: ' . json_encode($payload));
+
         try {
+            \Log::info('Envoi devis à Tiime...');
             $devisResponse = Http::timeout(30)
                 ->withToken($token)
-                ->post('https://chronos-api.tiime-apps.com/v1/companies/507690/quotations', $payload);
+                ->post('https://chronos-api.tiime-apps.com/v1/companies/90521/quotations', $payload);
 
-            \Log::info('Tiime devis: ' . $devisResponse->status() . ' - ' . $devisResponse->body());
+            \Log::info('Tiime devis status: ' . $devisResponse->status());
+            \Log::info('Tiime devis body: ' . $devisResponse->body());
 
             if (!$devisResponse->successful()) {
                 return response()->json([
@@ -691,15 +724,19 @@ class DevisController extends Controller
             }
 
             $devisId = $devisResponse->json()['id'];
+            \Log::info('Devis créé ID: ' . $devisId);
 
             // ── 6. Transformation en facture ─────────────────────────────────
+            \Log::info('Transformation en facture...');
             $factureResponse = Http::timeout(30)
                 ->withToken($token)
-                ->post("https://chronos-api.tiime-apps.com/v1/companies/507690/quotations/{$devisId}/invoice", []);
+                ->post("https://chronos-api.tiime-apps.com/v1/companies/90521/quotations/{$devisId}/invoice", []);
 
-            \Log::info('Tiime facture: ' . $factureResponse->status() . ' - ' . $factureResponse->body());
+            \Log::info('Tiime facture status: ' . $factureResponse->status());
+            \Log::info('Tiime facture body: ' . $factureResponse->body());
 
             if ($factureResponse->successful()) {
+                \Log::info('Facture créée avec succès !');
                 return response()->json([
                     'message' => 'Devis et facture créés avec succès ✓',
                     'erreurs' => 0
