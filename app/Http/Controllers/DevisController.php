@@ -512,6 +512,11 @@ class DevisController extends Controller
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
 
+
+
+
+
+
     public function sendToTiime(Request $request)
     {
         $request->validate(['client' => 'required', 'date' => 'required']);
@@ -526,88 +531,191 @@ class DevisController extends Controller
         if ($lignes->isEmpty()) return response()->json(['message' => 'Aucune donnée trouvée', 'erreurs' => 1]);
 
         $p = $lignes->first();
-        $lignesPourMake = [];
-        $totalHTCalculé = 0;
+
+        // ── 1. Authentification ────────────────────────────────────────────────
+        try {
+            $authResponse = Http::timeout(15)->post('https://auth0.tiime.fr/oauth/token', [
+                'grant_type' => 'password',
+                'username'   => config('services.tiime.email'),
+                'password'   => config('services.tiime.password'),
+                'audience'   => 'https://chronos/',
+                'scope'      => 'openid email',
+                'client_id'  => 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
+                'realm'      => 'Chronos-prod-db',
+            ]);
+
+            if (!$authResponse->successful()) {
+                return response()->json(['message' => 'Erreur auth Tiime: ' . $authResponse->body(), 'erreurs' => 1], 500);
+            }
+            $token = $authResponse->json()['access_token'];
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Exception auth: ' . $e->getMessage(), 'erreurs' => 1], 500);
+        }
+
+        // ── 2. Recherche du client dans Tiime ─────────────────────────────────
+        $buyerId = null;
+        try {
+            $clientResponse = Http::timeout(15)
+                ->withToken($token)
+                ->get('https://chronos-api.tiime-apps.com/v1/companies/507690/clients', [
+                    'search' => $p->client,
+                ]);
+
+            $clients = $clientResponse->json();
+
+            if (is_array($clients)) {
+                foreach ($clients as $client) {
+                    if (isset($client['name']) &&
+                        strtolower(trim($client['name'])) === strtolower(trim($p->client)) &&
+                        !$client['archived']) {
+                        $buyerId = $client['id'];
+                        break;
+                    }
+                }
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Exception client: ' . $e->getMessage(), 'erreurs' => 1], 500);
+        }
+
+        // ── 3. Création du client si inexistant ───────────────────────────────
+        if (!$buyerId) {
+            try {
+                $createClient = Http::timeout(15)
+                    ->withToken($token)
+                    ->post('https://chronos-api.tiime-apps.com/v1/companies/507690/clients', [
+                        'name'         => $p->client,
+                        'country_code' => 'FR',
+                        'professional' => ($p->typeClient === 'Entreprise'),
+                        'address'      => $p->adresse ?? '',
+                    ]);
+
+                if (!$createClient->successful()) {
+                    return response()->json([
+                        'message' => 'Impossible de créer le client: ' . $createClient->body(),
+                        'erreurs' => 1
+                    ], 500);
+                }
+
+                $buyerId = $createClient->json()['id'];
+                \Log::info('Client créé dans Tiime: ' . $buyerId . ' - ' . $p->client);
+
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Exception création client: ' . $e->getMessage(), 'erreurs' => 1], 500);
+            }
+        }
+
+        \Log::info('BuyerId final: ' . $buyerId . ' pour client: ' . $p->client);
+
+// ── 4. Construction des lignes ────────────────────────────────────────
+        $lignesPourTiime = [];
+        $sequence = 1;
 
         foreach ($lignes as $devis) {
-            $qte = max((int) $devis->nombrePierre, 1);
+            $qte = max((float)$devis->nombrePierre, 1);
 
-            // --- Libellé propre (On évite de commencer par une virgule si typePierre est vide) ---
             $designation = trim($devis->typePierre) ?: 'Pierre';
             if ($devis->epaisseur) $designation .= ', ' . $devis->epaisseur . 'cm';
 
-            foreach ($devis->specificites as $spec) {
-                $designation .= ', ' . $spec->nom;
+            $dims        = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
+            $description = trim($designation) . ' (' . $dims . ')';
+
+            // Ajout des spécificités comme label sous la désignation
+            if ($devis->specificites->count() > 0) {
+                $specsLabel = implode(' | ', $devis->specificites->map(function($spec) {
+                    return $spec->nom . ' (+' . number_format($spec->prix, 2, ',', '') . '€)';
+                })->toArray());
+                $description .= "\n  " . (int)$qte . ' pierre(s) - Options : ' . $specsLabel;
+            } else {
+                $description .= "\n  " . (int)$qte . ' pierre(s)';
             }
-
-            $dims = number_format((float)$devis->longueurM, 2, '.', '') . 'x' . number_format((float)$devis->largeurM, 2, '.', '') . 'm';
-            $itemName = substr($designation . " (" . $dims . ")", 0, 250);
-
-            // --- Calcul financier strict (Somme des arrondis) ---
+            $description = substr($description, 0, 250);
             $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
-            $totalHTCalculé += ($prixUnitaire * $qte);
 
-            $lignesPourMake[] = [
-                'invoice_quantity' => $qte,
-                'quote_quantity'   => $qte,
-                'invoice_quantity_unit_of_measure_code' => 'unit',
-                'quote_quantity_unit_of_measure_code'   => 'unit',
-                'line_vat_information' => [
-                    'invoiced_item_vat_rate' => 20, // Toujours 20 (pas 0.20)
-                    'quoted_item_vat_rate'   => 20,
-                    'invoiced_item_vat_category_code' => 'S',
-                    'quoted_item_vat_category_code'   => 'S',
-                ],
-                'price_details' => [
-                    'item_net_price' => (float)$prixUnitaire,
-                ],
-                'item_information' => [
-                    'item_name' => $itemName,
-                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']],
-                ],
+            $lignesPourTiime[] = [
+                'description'             => $description,
+                'quantity'                => $qte,
+                'unit_amount'             => $prixUnitaire,
+                'line_amount'             => round($prixUnitaire * $qte, 2),
+                'vat_type'                => ['code' => 'normal'],
+                'invoicing_category_type' => 'benefit',
+                'invoicing_unit'          => ['id' => 1],
+                'sequence'                => $sequence++,
             ];
         }
 
-        // --- Frais de livraison (Structure complète identique aux articles) ---
-        $livraison = round((float) $lignes->avg('livraison'), 2);
+        // Frais de livraison
+        $livraison = round((float)$lignes->avg('livraison'), 2);
         if ($livraison > 0) {
-            $lignesPourMake[] = [
-                'invoice_quantity' => 1,
-                'quote_quantity'   => 1,
-                'invoice_quantity_unit_of_measure_code' => 'unit',
-                'quote_quantity_unit_of_measure_code'   => 'unit',
-                'line_vat_information' => [
-                    'invoiced_item_vat_rate' => 20,
-                    'quoted_item_vat_rate'   => 20,
-                    'invoiced_item_vat_category_code' => 'S',
-                    'quoted_item_vat_category_code'   => 'S',
-                ],
-                'price_details' => ['item_net_price' => (float)$livraison],
-                'item_information' => [
-                    'item_name' => 'Frais de livraison',
-                    'item_attributes' => [['item_attribute_name' => 'Catégorie', 'item_attribute_value' => 'sale']],
-                ],
+            $lignesPourTiime[] = [
+                'description'             => 'Frais de livraison',
+                'quantity'                => 1,
+                'unit_amount'             => $livraison,
+                'line_amount'             => $livraison,
+                'vat_type'                => ['code' => 'normal'],
+                'invoicing_category_type' => 'benefit',
+                'invoicing_unit'          => ['id' => 1],
+                'sequence'                => $sequence++,
             ];
-            $totalHTCalculé += $livraison;
         }
 
+        // ── 5. Création du devis ──────────────────────────────────────────────
         $payload = [
-            'client_nom'     => $p->client,
-            'client_adresse' => trim($p->adresse) ?: " ", // Tiime refuse parfois les adresses nulles
-            'date_emission'  => $p->created_at->format('Y-m-d'),
-            'date_validite'  => $p->created_at->copy()->addDays(60)->format('Y-m-d'),
-            'total_ht'       => (float)round($totalHTCalculé, 2), // Total exact pour l'équilibre du devis
-            'lignes'         => $lignesPourMake,
-            'reference'      => substr($request->reference ?? 'Devis', 0, 100),
-            'note_bas'       => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
+            'client'             => ['id' => $buyerId],
+            'client_name'        => $p->client,
+            'client_address'     => $p->adresse ?? '',
+            'title'              => $p->reference ?? '',
+            'title_enabled'      => !empty($p->reference),
+            'emission_date'      => $p->created_at->format('Y-m-d'),
+            'validity_period'    => '60 jours',
+            'units_enabled'      => true,
+            'lines'              => $lignesPourTiime,
+            'free_field'         => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
+            'free_field_enabled' => true,
         ];
 
-        $response = Http::post("https://hook.eu1.make.com/3xlsuhjhh39cvgokh3034tqm4lr98vo5", $payload);
+        try {
+            $devisResponse = Http::timeout(30)
+                ->withToken($token)
+                ->post('https://chronos-api.tiime-apps.com/v1/companies/507690/quotations', $payload);
 
-        if ($response->successful()) {
-            return response()->json(['message' => 'Devis envoyé avec succès ✓', 'erreurs' => 0]);
+            \Log::info('Tiime devis: ' . $devisResponse->status() . ' - ' . $devisResponse->body());
+
+            if (!$devisResponse->successful()) {
+                return response()->json([
+                    'message' => 'Erreur création devis: ' . $devisResponse->body(),
+                    'status'  => $devisResponse->status(),
+                    'erreurs' => 1
+                ], 500);
+            }
+
+            $devisId = $devisResponse->json()['id'];
+
+            // ── 6. Transformation en facture ─────────────────────────────────
+            $factureResponse = Http::timeout(30)
+                ->withToken($token)
+                ->post("https://chronos-api.tiime-apps.com/v1/companies/507690/quotations/{$devisId}/invoice", []);
+
+            \Log::info('Tiime facture: ' . $factureResponse->status() . ' - ' . $factureResponse->body());
+
+            if ($factureResponse->successful()) {
+                return response()->json([
+                    'message' => 'Devis et facture créés avec succès ✓',
+                    'erreurs' => 0
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Devis créé mais erreur facture: ' . $factureResponse->body(),
+                'status'  => $factureResponse->status(),
+                'erreurs' => 1
+            ], 500);
+
+        } catch (\Exception $e) {
+            \Log::error('sendToTiime exception: ' . $e->getMessage());
+            return response()->json(['message' => 'Exception: ' . $e->getMessage(), 'erreurs' => 1], 500);
         }
-
-        return response()->json(['message' => 'Erreur Tiime via Make', 'status' => $response->status()], 500);
     }
+
 }
