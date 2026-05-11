@@ -554,18 +554,18 @@ class DevisController extends Controller
 
             $description = substr($description, 0, 250);
 
-            // Prix TOTAL (pas unitaire) pour éviter que Make multiplie et génère des décimales
+            $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
             $prixTotal = round((float)$devis->prixHT, 2);
-
-            if (round($prixUnitaire * $qte, 2) !== round((float)$devis->prixHT, 2)) {
-                $qte = 1;
-                $prixUnitaire = round((float)$devis->prixHT, 2);
+            if (floor($prixUnitaire) !== $prixUnitaire) {
+                $prixUnitaire = round($prixUnitaire);
             }
+
+            \Log::info('Ligne: ' . $description . ' | qte=' . $qte . ' | prix=' . $prixUnitaire);
 
             $lignesPourMake[] = [
                 'quantite'             => $qte,
                 'libelle'              => $description,
-                'item_net_price'       => $prixTotal,
+                'item_net_price'       => $prixUnitaire,
                 'taux_tva'             => 0.2,
                 'motif_exoneration'    => 'S',
                 'item_attribute_value' => 'sale',
@@ -629,5 +629,4 @@ class DevisController extends Controller
             return response()->json(['message' => 'Exception: ' . $e->getMessage(), 'erreurs' => 1], 500);
         }
     }
-
 }
