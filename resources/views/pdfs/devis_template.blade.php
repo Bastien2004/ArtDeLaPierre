@@ -86,8 +86,11 @@
                         @if(isset($l->specificites) && count($l->specificites) > 0)
                             <div style="margin-left: 10px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
                                 @foreach($l->specificites as $spec)
-                                    <div style="font-size: 10px; font-weight: normal; color: #555; font-style: italic;">
-                                        <span style="color: #999;">+</span> {{ $spec->nom }}
+                                    <div style="font-size: 10px; font-weight: normal; color: #555; font-style: italic; display: flex; justify-content: space-between;">
+                                        <span><span style="color: #999;">+</span> {{ $spec->nom }}</span>
+                                        <span style="margin-left: 15px; color: #777;">
+                                            {{ number_format($spec->prix, 2, ',', ' ') }} €
+                                        </span>
                                     </div>
                                 @endforeach
                             </div>
