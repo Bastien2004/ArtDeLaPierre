@@ -512,16 +512,9 @@ class DevisController extends Controller
             ->download("Calendrier_{$nomMois}_{$annee}.pdf");
     }
 
-
-
-
-
-
     public function sendToTiime(Request $request)
     {
         \Log::info('sendToTiime appelé pour: ' . $request->client);
-        \Log::info('Tiime email: ' . config('services.tiime.email'));
-        \Log::info('Tiime password: ' . (config('services.tiime.password') ? 'défini' : 'VIDE'));
 
         $request->validate(['client' => 'required', 'date' => 'required']);
 
@@ -538,107 +531,11 @@ class DevisController extends Controller
 
         $p = $lignes->first();
 
-        // ── 1. Authentification ────────────────────────────────────────────────
-        \Log::info('Avant auth Tiime...');
-        try {
-            $authResponse = Http::timeout(15)->post('https://auth0.tiime.fr/oauth/token', [
-                'grant_type' => 'password',
-                'username'   => config('services.tiime.email'),
-                'password'   => config('services.tiime.password'),
-                'audience'   => 'https://chronos/',
-                'scope'      => 'openid email',
-                'client_id'  => 'iEbsbe3o66gcTBfGRa012kj1Rb6vjAND',
-                'realm'      => 'Chronos-prod-db',
-            ]);
-
-            \Log::info('Auth status: ' . $authResponse->status());
-
-            if (!$authResponse->successful()) {
-                \Log::error('Auth failed: ' . $authResponse->body());
-                return response()->json(['message' => 'Erreur auth Tiime: ' . $authResponse->body(), 'erreurs' => 1], 500);
-            }
-            $token = $authResponse->json()['access_token'];
-            \Log::info('Token obtenu OK');
-
-        } catch (\Exception $e) {
-            \Log::error('Exception auth: ' . $e->getMessage());
-            return response()->json(['message' => 'Exception auth: ' . $e->getMessage(), 'erreurs' => 1], 500);
-        }
-
-        // ── 2. Recherche du client dans Tiime ─────────────────────────────────
-        \Log::info('Recherche client: ' . $p->client);
-        $buyerId = null;
-        try {
-            $clientResponse = Http::timeout(15)
-                ->withToken($token)
-                ->get('https://chronos-api.tiime-apps.com/v1/companies/90521/clients', [
-                    'search' => $p->client,
-                ]);
-
-            \Log::info('Client search status: ' . $clientResponse->status());
-            \Log::info('Client search body: ' . substr($clientResponse->body(), 0, 300));
-
-            $clients = $clientResponse->json();
-
-            if (is_array($clients)) {
-                foreach ($clients as $client) {
-                    if (isset($client['name']) &&
-                        strtolower(trim($client['name'])) === strtolower(trim($p->client)) &&
-                        !$client['archived']) {
-                        $buyerId = $client['id'];
-                        \Log::info('Client trouvé: ' . $buyerId);
-                        break;
-                    }
-                }
-            }
-
-            if (!$buyerId) \Log::info('Client non trouvé, création...');
-
-        } catch (\Exception $e) {
-            \Log::error('Exception client search: ' . $e->getMessage());
-            return response()->json(['message' => 'Exception client: ' . $e->getMessage(), 'erreurs' => 1], 500);
-        }
-
-        // ── 3. Création du client si inexistant ───────────────────────────────
-        if (!$buyerId) {
-            try {
-                $createClient = Http::timeout(15)
-                    ->withToken($token)
-                    ->post('https://chronos-api.tiime-apps.com/v1/companies/90521/clients', [
-                        'name'         => $p->client,
-                        'country_code' => 'FR',
-                        'professional' => ($p->typeClient === 'Entreprise'),
-                        'address'      => $p->adresse ?? '',
-                    ]);
-
-                \Log::info('Create client status: ' . $createClient->status());
-                \Log::info('Create client body: ' . $createClient->body());
-
-                if (!$createClient->successful()) {
-                    return response()->json([
-                        'message' => 'Impossible de créer le client: ' . $createClient->body(),
-                        'erreurs' => 1
-                    ], 500);
-                }
-
-                $buyerId = $createClient->json()['id'];
-                \Log::info('Client créé: ' . $buyerId . ' - ' . $p->client);
-
-            } catch (\Exception $e) {
-                \Log::error('Exception création client: ' . $e->getMessage());
-                return response()->json(['message' => 'Exception création client: ' . $e->getMessage(), 'erreurs' => 1], 500);
-            }
-        }
-
-        \Log::info('BuyerId final: ' . $buyerId . ' pour client: ' . $p->client);
-
-        // ── 4. Construction des lignes ────────────────────────────────────────
-        \Log::info('Construction des lignes...');
-        $lignesPourTiime = [];
-        $sequence = 1;
+        // ── Construction des lignes ───────────────────────────────────────────
+        $lignesPourMake = [];
 
         foreach ($lignes as $devis) {
-            $qte = max((float)$devis->nombrePierre, 1);
+            $qte = (int)max((float)$devis->nombrePierre, 1);
 
             $designation = trim($devis->typePierre) ?: 'Pierre';
             if ($devis->epaisseur) $designation .= ', ' . $devis->epaisseur . 'cm';
@@ -650,102 +547,77 @@ class DevisController extends Controller
                 $specsLabel = implode(' | ', $devis->specificites->map(function($spec) {
                     return $spec->nom . ' (+' . number_format($spec->prix, 2, ',', '') . '€)';
                 })->toArray());
-                $description .= "\n  " . (int)$qte . ' pierre(s) - Options : ' . $specsLabel;
+                $description .= "\n  " . $qte . ' pierre(s) - Options : ' . $specsLabel;
             } else {
-                $description .= "\n  " . (int)$qte . ' pierre(s)';
+                $description .= "\n  " . $qte . ' pierre(s)';
             }
 
-            $description  = substr($description, 0, 250);
-            $prixUnitaire = round((float)$devis->prixHT / $qte, 2);
+            $description = substr($description, 0, 250);
 
-            \Log::info('Ligne: ' . $description . ' | qte=' . $qte . ' | prix=' . $prixUnitaire);
+            // Prix TOTAL (pas unitaire) pour éviter que Make multiplie et génère des décimales
+            $prixTotal = round((float)$devis->prixHT, 2);
 
-            $lignesPourTiime[] = [
-                'description'             => $description,
-                'quantity'                => $qte,
-                'unit_amount'             => $prixUnitaire,
-                'line_amount'             => round($prixUnitaire * $qte, 2),
-                'vat_type'                => ['code' => 'normal'],
-                'invoicing_category_type' => 'benefit',
-                'invoicing_unit'          => ['id' => 1],
-                'sequence'                => $sequence++,
+            \Log::info('Ligne: ' . $description . ' | qte=1 | prix_total=' . $prixTotal);
+
+            $lignesPourMake[] = [
+                'quantite'             => 1,
+                'libelle'              => $description,
+                'item_net_price'       => $prixTotal,
+                'taux_tva'             => 0.2,
+                'motif_exoneration'    => 'S',
+                'item_attribute_value' => 'sale',
             ];
         }
 
+        // ── Frais de livraison ────────────────────────────────────────────────
         $livraison = round((float)$lignes->avg('livraison'), 2);
         \Log::info('Livraison: ' . $livraison);
         if ($livraison > 0) {
-            $lignesPourTiime[] = [
-                'description'             => 'Frais de livraison',
-                'quantity'                => 1,
-                'unit_amount'             => $livraison,
-                'line_amount'             => $livraison,
-                'vat_type'                => ['code' => 'normal'],
-                'invoicing_category_type' => 'benefit',
-                'invoicing_unit'          => ['id' => 1],
-                'sequence'                => $sequence++,
+            $lignesPourMake[] = [
+                'quantite'             => 1,
+                'libelle'              => 'Frais de livraison',
+                'item_net_price'       => $livraison,
+                'taux_tva'             => 0.2,
+                'motif_exoneration'    => 'S',
+                'item_attribute_value' => 'sale',
             ];
         }
 
-        \Log::info('Nombre de lignes construites: ' . count($lignesPourTiime));
+        // ── Adresse : valeurs par défaut si vides ─────────────────────────────
+        $clientAdresse = !empty($p->adresse)    ? $p->adresse    : 'Non renseignée';
+        $clientVille   = !empty($p->ville)      ? $p->ville      : 'Non renseignée';
+        $clientCp      = !empty($p->codePostal) ? $p->codePostal : '00000';
 
-        // ── 5. Création du devis ──────────────────────────────────────────────
+        // ── Envoi au webhook Make ─────────────────────────────────────────────
         $payload = [
-            'client'             => ['id' => $buyerId],
-            'client_name'        => $p->client,
-            'client_address'     => $p->adresse ?? '',
-            'title'              => $p->reference ?? '',
-            'title_enabled'      => !empty($p->reference),
-            'emission_date'      => $p->created_at->format('Y-m-d'),
-            'validity_period'    => '60 jours',
-            'units_enabled'      => true,
-            'lines'              => $lignesPourTiime,
-            'free_field'         => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
-            'free_field_enabled' => true,
+            'nom_client'     => $p->client,
+            'date_emission'  => $p->created_at->format('Y-m-d'),
+            'date_validite'  => (clone $p->created_at)->addDays(60)->format('Y-m-d'),
+            'reference'      => $p->reference ?? '',
+            'note_bas'       => "Pas d'escompte en cas de paiement anticipé. Réserve de propriété jusqu'au paiement complet.",
+            'client_adresse' => $clientAdresse,
+            'client_ville'   => $clientVille,
+            'client_cp'      => $clientCp,
+            'lignes'         => $lignesPourMake,
         ];
 
-        \Log::info('Payload devis: ' . json_encode($payload));
+        \Log::info('Payload Make: ' . json_encode($payload));
 
         try {
-            \Log::info('Envoi devis à Tiime...');
-            $devisResponse = Http::timeout(30)
-                ->withToken($token)
-                ->post('https://chronos-api.tiime-apps.com/v1/companies/90521/quotations', $payload);
+            $response = Http::timeout(30)->post(
+                'https://hook.eu1.make.com/8s6elwcna2gk7jv6427zdz7sfgof9dvj',
+                $payload
+            );
 
-            \Log::info('Tiime devis status: ' . $devisResponse->status());
-            \Log::info('Tiime devis body: ' . $devisResponse->body());
+            \Log::info('Make status: ' . $response->status());
+            \Log::info('Make body: ' . $response->body());
 
-            if (!$devisResponse->successful()) {
-                return response()->json([
-                    'message' => 'Erreur création devis: ' . $devisResponse->body(),
-                    'status'  => $devisResponse->status(),
-                    'erreurs' => 1
-                ], 500);
-            }
-
-            $devisId = $devisResponse->json()['id'];
-            \Log::info('Devis créé ID: ' . $devisId);
-
-            // ── 6. Transformation en facture ─────────────────────────────────
-            \Log::info('Transformation en facture...');
-            $factureResponse = Http::timeout(30)
-                ->withToken($token)
-                ->post("https://chronos-api.tiime-apps.com/v1/companies/90521/quotations/{$devisId}/invoice", []);
-
-            \Log::info('Tiime facture status: ' . $factureResponse->status());
-            \Log::info('Tiime facture body: ' . $factureResponse->body());
-
-            if ($factureResponse->successful()) {
-                \Log::info('Facture créée avec succès !');
-                return response()->json([
-                    'message' => 'Devis et facture créés avec succès ✓',
-                    'erreurs' => 0
-                ]);
+            if ($response->successful()) {
+                return response()->json(['message' => 'Devis envoyé à Make avec succès ✓', 'erreurs' => 0]);
             }
 
             return response()->json([
-                'message' => 'Devis créé mais erreur facture: ' . $factureResponse->body(),
-                'status'  => $factureResponse->status(),
+                'message' => 'Erreur envoi Make: ' . $response->body(),
                 'erreurs' => 1
             ], 500);
 
