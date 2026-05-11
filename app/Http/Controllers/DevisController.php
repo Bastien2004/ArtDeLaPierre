@@ -557,10 +557,13 @@ class DevisController extends Controller
             // Prix TOTAL (pas unitaire) pour éviter que Make multiplie et génère des décimales
             $prixTotal = round((float)$devis->prixHT, 2);
 
-            \Log::info('Ligne: ' . $description . ' | qte=1 | prix_total=' . $prixTotal);
+            if (round($prixUnitaire * $qte, 2) !== round((float)$devis->prixHT, 2)) {
+                $qte = 1;
+                $prixUnitaire = round((float)$devis->prixHT, 2);
+            }
 
             $lignesPourMake[] = [
-                'quantite'             => 1,
+                'quantite'             => $qte,
                 'libelle'              => $description,
                 'item_net_price'       => $prixTotal,
                 'taux_tva'             => 0.2,
