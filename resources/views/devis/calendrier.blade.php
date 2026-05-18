@@ -48,16 +48,6 @@
     </header>
 
     {{-- ═══════════════════════════════════════════
-         COMPTEUR LIVRAISONS DU MOIS
-    ═══════════════════════════════════════════ --}}
-    <div class="stats-bar">
-        <div class="stat-chip" id="stat-total">
-            <i class="fa fa-truck"></i>
-            <span id="stat-count">—</span> livraison(s) ce mois
-        </div>
-    </div>
-
-    {{-- ═══════════════════════════════════════════
          CALENDRIER
     ═══════════════════════════════════════════ --}}
     <main class="cal-main">
