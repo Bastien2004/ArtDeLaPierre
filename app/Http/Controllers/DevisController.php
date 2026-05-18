@@ -531,6 +531,20 @@ class DevisController extends Controller
 
         $p = $lignes->first();
 
+        // ── Validation des champs critiques avant envoi ──────────────
+        $champsManquants = [];
+
+        if (empty(trim($p->client)))     $champsManquants[] = "Nom du client";
+        if (empty(trim($p->adresse)))    $champsManquants[] = "Adresse";
+        if (empty(trim($p->reference)))  $champsManquants[] = "Référence du client";
+
+        if (!empty($champsManquants)) {
+            return response()->json([
+                'message' => 'Envoi annulé. Les informations suivantes sont manquantes : ' . implode(', ', $champsManquants) . '.',
+                'erreurs' => 1
+            ], 422);
+        }
+
         // ── Construction des lignes ───────────────────────────────────────────
         $lignesPourMake = [];
 
