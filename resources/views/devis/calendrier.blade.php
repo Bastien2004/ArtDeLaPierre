@@ -55,10 +55,6 @@
             <i class="fa fa-truck"></i>
             <span id="stat-count">—</span> livraison(s) ce mois
         </div>
-        <div class="stat-chip" id="stat-period-label">
-            <i class="fa fa-map-marker-alt"></i>
-            <span id="stat-destinations">—</span> destination(s) distincte(s)
-        </div>
     </div>
 
     {{-- ═══════════════════════════════════════════
