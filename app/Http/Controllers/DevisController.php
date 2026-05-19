@@ -537,6 +537,7 @@ class DevisController extends Controller
         if (empty(trim($p->client)))     $champsManquants[] = "Nom du client";
         if (empty(trim($p->adresse)))    $champsManquants[] = "Adresse";
         if (empty(trim($p->reference)))  $champsManquants[] = "Référence du client";
+        if (empty($p->created_at))       $champsManquants[] = "Date de création";
 
         if (!empty($champsManquants)) {
             return response()->json([
