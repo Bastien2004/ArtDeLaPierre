@@ -384,14 +384,13 @@ class DevisController extends Controller
 
     public function downloadAtelierPDF(Request $request, $client, $date)
     {
-        $dateSql = \Carbon\Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
+        $dateMinute = Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i');
 
         $lignes = Devis::where('client', $client)
-            ->where('created_at', $dateSql)
+            ->whereRaw("to_char(created_at, 'YYYY-MM-DD HH24:MI') = ?", [$dateMinute])
             ->with('specificites')
             ->orderBy('id', 'asc')
             ->get();
-
         // On récupère toutes les épaisseurs uniques présentes dans vos tarifs
         $epaiseursTarifs = \App\Models\Tarif::distinct()->pluck('epaisseur')->toArray();
 

@@ -71,7 +71,7 @@
                                onclick="printPdf(this.href); return false;"
                                class="btn-print">
                                 <i class="fa fa-print"></i>
-                                <span>Imprimer</span>
+                                <span>Imprimer</span>F
                             </a>
                             <div class="dl-dropdown-wrapper">
                                 <button type="button" class="btn-dl-main" data-client="{{ $p->client }}">
