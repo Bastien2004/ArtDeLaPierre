@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('specificites', function (Blueprint $table) {
-            // On définit 0 comme valeur par défaut
             $table->decimal('prix', 10, 2)->default(0)->change();
         });
     }

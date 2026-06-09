@@ -15,7 +15,6 @@
 
 <div class="container-fluid">
 
-    {{-- ── Barre du haut ────────────────────────────────────────────────── --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <a href="{{ route('dashboard') }}" class="btn-back-stone">
             <i class="fa fa-arrow-left"></i> Retour à l'accueil
@@ -45,82 +44,6 @@
         ksort($tarifs);
     @endphp
 
-    {{-- ── Barre de filtres ─────────────────────────────────────────────── --}}
-    {{--
-
-<div class="card shadow-sm border-0 filtres-bar p-3 mb-3">
-    <div class="d-flex flex-wrap gap-3 align-items-end">
-
-        <div style="flex:1; min-width:140px;">
-            <label class="form-label small text-muted mb-1">Matière</label>
-            <select id="filtreMatiere" class="form-select form-select-sm">
-                <option value="">Toutes</option>
-                @foreach($stocks->pluck('matiere')->unique()->sort() as $mat)
-                    <option value="{{ strtolower($mat) }}">{{ strtoupper($mat) }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label class="form-label small text-muted mb-1">Épaisseur (cm)</label>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="number" id="filtreEpaisMin" class="form-control form-control-sm" placeholder="Min" min="0">
-                <span class="text-muted">—</span>
-                <input type="number" id="filtreEpaisMax" class="form-control form-control-sm" placeholder="Max" min="0">
-            </div>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label class="form-label small text-muted mb-1">Longueur (m)</label>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="number" id="filtreLongMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
-                <span class="text-muted">—</span>
-                <input type="number" id="filtreLongMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
-            </div>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label class="form-label small text-muted mb-1">Largeur (m)</label>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="number" id="filtreLargMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
-                <span class="text-muted">—</span>
-                <input type="number" id="filtreLargMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
-            </div>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label class="form-label small text-muted mb-1">Surface (m²)</label>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="number" id="filtreSurfMin" class="form-control form-control-sm" placeholder="Min" step="0.01" min="0">
-                <span class="text-muted">—</span>
-                <input type="number" id="filtreSurfMax" class="form-control form-control-sm" placeholder="Max" step="0.01" min="0">
-            </div>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label class="form-label small text-muted mb-1">Valeur est. (€)</label>
-            <div class="d-flex gap-2 align-items-center">
-                <input type="number" id="filtreValMin" class="form-control form-control-sm" placeholder="Min" min="0">
-                <span class="text-muted">—</span>
-                <input type="number" id="filtreValMax" class="form-control form-control-sm" placeholder="Max" min="0">
-            </div>
-        </div>
-
-        <div class="d-flex gap-2 align-self-end">
-            <button id="btnFiltrer" class="btn btn-filtrer">
-                <i class="fa fa-filter me-1"></i>Filtrer
-            </button>
-            <button id="btnReset" class="btn btn-reset">
-                <i class="fa fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <div id="filtresActifs" class="mt-2 d-flex flex-wrap gap-2" style="display:none !important;"></div>
-</div>
---}}
-
-    {{-- ── Inventaire des Pierres Bleues ────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4">
         <h2 class="mb-4">
             <i class="fa-solid fa-layer-group me-2" style="color: var(--stone-gold);"></i>Inventaire des Pierres Bleues
@@ -186,7 +109,6 @@
         </table>
     </div>
 
-    {{-- ── Inventaire des Blocs ──────────────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4 mt-4">
         <h2 class="mb-4">
             <i class="fa-solid fa-cube me-2" style="color: var(--stone-gold);"></i>Inventaire des Blocs
@@ -253,7 +175,6 @@
         </table>
     </div>
 
-    {{-- ── Inventaire des Cassons ────────────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4 mt-4">
         <h2 class="mb-4">
             <i class="fa-solid fa-puzzle-piece me-2" style="color: var(--stone-gold);"></i>Inventaire des Cassons
@@ -308,7 +229,6 @@
         </table>
     </div>
 
-    {{-- ── Inventaire des Autres Pierres ────────────────────────────────── --}}
     <div class="card shadow-sm border-0 p-4 mt-4">
         <h2 class="mb-4">
             <i class="fa-solid fa-boxes-stacked me-2" style="color: var(--stone-gold);"></i>Autres Pierres

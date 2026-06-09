@@ -28,7 +28,6 @@
 @endphp
 
 <div class="container {{ $zoomClass }}">
-    {{-- EN-TÊTE --}}
     <div class="header-atelier">
         <div class="header-left">
             <span class="label" style="font-size:35px;">NOM :</span> <span class="val" style="font-size:35px;">{{ $client }}</span><br>
@@ -40,7 +39,6 @@
         </div>
     </div>
 
-    {{-- LISTE DE DÉBIT --}}
     <div class="content-body">
         @foreach($lignes as $l)
             @php $dynamicEpClass = 'ep-' . intval($l->epaisseur); @endphp
@@ -51,7 +49,6 @@
                     <span class="dims">
                         {{ formatDim($l->longueurM) }} x {{ formatDim($l->largeurM) }}
                     </span>
-                    {{-- Badge d'épaisseur dynamique selon tes tables CSS --}}
                     <span class="epaisseur {{ $dynamicEpClass }}">
                         {{ $l->epaisseur }} cm
                     </span>
@@ -72,7 +69,6 @@
         @endforeach
     </div>
 
-    {{-- SIGNATURES EN BAS DE PAGE --}}
     <div class="footer-sign">
         <div class="sign-box">Nombre de Pièces : {{ $lignes->sum('nombrePierre') }}</div>
         <div class="sign-box">Signature :</div>

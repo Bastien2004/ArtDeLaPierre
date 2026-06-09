@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Création du compte par défaut
         User::updateOrCreate(
             ['email' => 'frederic.oden.tailleur.pierre@gmail.com'],
             [

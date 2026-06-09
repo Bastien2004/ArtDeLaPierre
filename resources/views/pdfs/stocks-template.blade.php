@@ -37,7 +37,6 @@
     ksort($tarifs);
 @endphp
 
-{{-- ── Section Pierres (Standard) ────────────────────────────────────────── --}}
 @foreach($stocksGroupes as $epaisseur => $items)
     @php
         $surfaceEpaisseur = $items->sum(fn($i) => $i->longueur * $i->largeur * $i->quantite);
@@ -94,7 +93,6 @@
     </div>
 @endforeach
 
-{{-- ── Section Autres Pierres (Hors Standard) ────────────────────────────── --}}
 @if(isset($autres) && $autres->count())
     @php $totalValeurAutres = 0; @endphp
     <div class="epaisseur-section">
@@ -134,7 +132,6 @@
     @php $totalValeurGlobale += $totalValeurAutres; @endphp
 @endif
 
-{{-- ── Section Blocs ─────────────────────────────────────────────────────── --}}
 @if(isset($blocs) && $blocs->count())
     @php $totalVolumeBlocs = 0; $totalValeurBlocs = 0; @endphp
     <div class="epaisseur-section">
@@ -173,7 +170,6 @@
     @php $totalValeurGlobale += $totalValeurBlocs; @endphp
 @endif
 
-{{-- ── Section Cassons ───────────────────────────────────────────────────── --}}
 @if(isset($cassons) && $cassons->count())
     @php $totalValeurCassons = 0; @endphp
     <div class="epaisseur-section">
@@ -210,7 +206,6 @@
     @php $totalValeurGlobale += $totalValeurCassons; @endphp
 @endif
 
-{{-- ── Section Prix Manuels (Services/Forfaits) ───────────────────────────── --}}
 @if(isset($prixManuels) && $prixManuels->count())
     @php $totalValeurPrixM = 0; @endphp
     <div class="epaisseur-section">
@@ -240,7 +235,6 @@
     @php $totalValeurGlobale += $totalValeurPrixM; @endphp
 @endif
 
-{{-- ── Totaux globaux ────────────────────────────────────────────────────── --}}
 <div class="grand-total-box">
     <table style="color: white; margin: 0; width: 100%;">
         <tr>

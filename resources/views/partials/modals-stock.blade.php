@@ -2,7 +2,6 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
-            {{-- Sélecteur de type --}}
             <div class="modal-header pb-0 border-0 flex-column align-items-start">
                 <div class="d-flex justify-content-between w-100 mb-3">
                     <h5 class="modal-title">
@@ -12,7 +11,6 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                {{-- Toggle types --}}
                 <div class="btn-group w-100 mb-1" role="group" id="typeToggle">
                     <input type="radio" class="btn-check" name="entreeType" id="typePierre" value="pierre" checked autocomplete="off">
                     <label class="btn btn-outline-secondary" for="typePierre"><i class="fa-solid fa-layer-group"></i> Pierre</label>
@@ -31,10 +29,8 @@
                 </div>
             </div>
 
-            {{-- Formulaires --}}
             <div class="modal-body p-0">
 
-                {{-- 1. Pierre --}}
                 <form id="formStock" action="{{ route('stocks.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
@@ -57,7 +53,6 @@
                     </div>
                 </form>
 
-                {{-- 2. Bloc --}}
                 <form id="formBloc" action="{{ route('stocks.blocs.store') }}" method="POST" style="display:none;">
                     @csrf
                     <input type="hidden" name="_method" id="formBlocMethod" value="POST">
@@ -78,7 +73,6 @@
                     </div>
                 </form>
 
-                {{-- 3. Casson --}}
                 <form id="formCasson" action="{{ route('stocks.cassons.store') }}" method="POST" style="display:none;">
                     @csrf
                     <input type="hidden" name="_method" id="formCassonMethod" value="POST">
@@ -98,7 +92,6 @@
                     </div>
                 </form>
 
-                {{-- 4. Autre --}}
                 <form id="formAutre" action="{{ route('stocks.autres.store') }}" method="POST" style="display:none;">
                     @csrf
                     <input type="hidden" name="_method" id="formAutreMethod" value="POST">
@@ -119,7 +112,6 @@
                     </div>
                 </form>
 
-                {{-- 5. Prix Manuel --}}
                 <form id="formPrix" action="{{ route('stocks.prix.store') }}" method="POST" style="display:none;">
                     @csrf
                     <input type="hidden" name="_method" id="formPrixMethod" value="POST">
@@ -145,7 +137,6 @@
     </div>
 </div>
 
-{{-- Modals de suppression (Dynamiques) --}}
 @foreach(['' => 'la pierre', 'Bloc' => 'le bloc', 'Casson' => 'le casson', 'Autre' => 'cette pierre', 'Prix' => 'ce prix'] as $key => $label)
     <div class="modal fade" id="modalDelete{{ $key }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -195,21 +186,19 @@
             });
         }
 
-        // Toggle au clic sur les radios
         Object.keys(radios).forEach(key => {
             if(radios[key]) {
                 radios[key].addEventListener('change', () => switchType(key));
             }
         });
 
-        // --- BOUTON AJOUTER (RESET) ---
         const btnAjouter = document.getElementById('btnAjouter');
         if(btnAjouter) {
             btnAjouter.addEventListener('click', function () {
                 Object.values(forms).forEach(f => f && f.reset());
                 document.getElementById('modalTitle').textContent = 'Nouvelle Entrée';
 
-                // Reset des Actions
+
                 forms.pierre.action = "{{ route('stocks.store') }}";
                 forms.bloc.action   = "{{ route('stocks.blocs.store') }}";
                 forms.casson.action = "{{ route('stocks.cassons.store') }}";

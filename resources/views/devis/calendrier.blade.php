@@ -47,9 +47,6 @@
         </div>
     </header>
 
-    {{-- ═══════════════════════════════════════════
-         CALENDRIER
-    ═══════════════════════════════════════════ --}}
     <main class="cal-main">
         {{-- Vue MOIS --}}
         <div id="view-month" class="cal-view active">
@@ -69,9 +66,7 @@
 
 </div>
 
-{{-- ═══════════════════════════════════════════
-     MODAL DÉTAIL LIVRAISON
-═══════════════════════════════════════════ --}}
+
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal-card" id="modal-card">
         <button class="modal-close" id="modal-close"><i class="fa fa-times"></i></button>

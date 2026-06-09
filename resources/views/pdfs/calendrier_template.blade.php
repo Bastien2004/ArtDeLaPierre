@@ -117,7 +117,6 @@
     </thead>
     <tbody>
     @foreach(array_chunk($jours, 7) as $semaine)
-        {{-- On cache la 6ème semaine si elle ne contient que des jours du mois suivant --}}
         @if($loop->index < 5 || $semaine[0]->month == $mois)
             <tr>
                 @foreach($semaine as $jour)

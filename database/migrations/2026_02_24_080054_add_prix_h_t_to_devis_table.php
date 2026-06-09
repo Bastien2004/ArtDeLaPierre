@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('devis', function (Blueprint $table) {
-            // decimal(10,2) signifie : 10 chiffres au total, dont 2 après la virgule
             $table->decimal('prixHT', 10, 2)->nullable()->after('oreilles');
         });
     }
@@ -23,7 +22,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('devis', function (Blueprint $table) {
-            // En cas de rollback, on supprime la colonne pour revenir à l'état d'avant
             $table->dropColumn('prixHT');
         });
     }

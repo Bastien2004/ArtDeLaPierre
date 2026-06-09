@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('devis', function (Blueprint $table) {
-            // On ajoute ->nullable() pour autoriser le vide
             $table->string('typePierre')->nullable()->change();
         });
     }

@@ -31,7 +31,6 @@
             <div class="mail-card">
                 <div class="mail-card-top-bar"></div>
 
-                {{-- En-tête --}}
                 <div class="mail-card-header">
                     <div class="mail-card-header-left">
                         <div class="mail-header-icon">📧</div>
@@ -42,13 +41,11 @@
                             </div>
                         </div>
                     </div>
-                    {{-- BOUTON AJOUTER --}}
                     <button onclick="openModal('add')" class="btn-add-mail">
                         <i class="fas fa-plus"></i> Nouveau contact
                     </button>
                 </div>
 
-                {{-- Corps --}}
                 <div class="mail-card-body">
                     @if($emails->isEmpty())
                         <div class="empty-state">
@@ -82,12 +79,10 @@
                                     </td>
                                     <td style="text-align: center;">
                                         <div class="flex justify-center gap-2">
-                                            {{-- BOUTON MODIFIER --}}
                                             <button onclick="openModal('edit', {{ $email->id }}, '{{ addslashes($email->adresse) }}')" class="btn-edit-mail" title="Modifier">
                                                 <i class="fas fa-pen-to-square"></i>
                                             </button>
 
-                                            {{-- BOUTON SUPPRIMER --}}
                                             <form action="{{ route('emails.destroy', $email->id) }}" method="POST"
                                                   onsubmit="return confirm('Supprimer {{ addslashes($email->adresse) }} ?')">
                                                 @csrf

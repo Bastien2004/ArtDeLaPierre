@@ -29,7 +29,6 @@
 <body>
 <div class="page">
 
-    {{-- HEADER FIXE --}}
     <div class="sender-info">
         <img src="data:image/png;base64,{{ base64_encode(@file_get_contents(public_path('images/logo.jpg'))) }}" class="logo">
         <br><strong>SASU L'ART DE LA PIERRE</strong><br>
@@ -56,7 +55,6 @@
         <span style="float: right;">Période de validité : 60 jours</span>
     </div>
 
-    {{-- CONTENU DYNAMIQUE : table-container contient tout ce qui suit le header --}}
     <div class="table-container">
 
         <table>
@@ -172,10 +170,8 @@
                 en considération. Pour la tolérance d'épaisseur 1 à 2 mm(dalles, seuils, appuis...)</i>
         </div>
 
-        {{-- SIGNATURE dans le flux, juste après les mentions --}}
         <div class="signature-box">Signature (précédée de la mention "bon pour accord")</div>
 
-        {{-- FOOTER dans le flux, à l'intérieur du table-container --}}
         <div class="footer">
             SASU au capital de 1 000 euros - Siret : 833 976 210 00017 - RCS : VALENCIENNES<br>
             TVA Intracommunautaire : FR 76 833 976 210<br>

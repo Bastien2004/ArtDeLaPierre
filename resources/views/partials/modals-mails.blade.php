@@ -1,4 +1,3 @@
-{{-- ═══ MODAL CARNET EMAILS ═══ --}}
 <div id="modal-emails-overlay" style="
     display: none; position: fixed; inset: 0;
     background: rgba(14,20,28,0.6); backdrop-filter: blur(6px);
@@ -10,7 +9,6 @@
         box-shadow: 0 25px 60px rgba(0,0,0,0.2);
         border-top: 5px solid var(--stone-dark); overflow: hidden;">
 
-        {{-- Header --}}
         <div style="padding: 24px 28px 16px; border-bottom: 1px solid #f0ece6; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; color: var(--stone-accent); text-transform: uppercase; margin-bottom: 4px;">Art de la Pierre</div>
@@ -26,7 +24,6 @@
             </button>
         </div>
 
-        {{-- Barre de recherche --}}
         <div style="padding: 16px 28px; border-bottom: 1px solid #f0ece6;">
             <div style="position: relative;">
                 <i class="fa fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #95a5a6; font-size: 0.85rem;"></i>
@@ -60,7 +57,6 @@
             @endforelse
         </div>
 
-        {{-- Footer --}}
         <div style="padding: 14px 28px; border-top: 1px solid #f0ece6; text-align: center;">
             <span style="font-size: 0.75rem; color: #95a5a6;">Cliquez sur une adresse pour la sélectionner</span>
         </div>

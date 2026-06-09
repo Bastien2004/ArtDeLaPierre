@@ -22,7 +22,6 @@ class TarifSeeder extends Seeder
         foreach (['Entreprise', 'Particulier'] as $type) {
             foreach ($finitions as $nom => $prix) {
                 foreach ([2, 3, 4, 5] as $index => $ep) {
-                    // Correction ici : 173 au lieu de $173
                     $prixFinal = ($type == 'Particulier' && $nom == 'Adoucie P40')
                         ? [173, 229, 280, 288][$index]
                         : $prix[$index];

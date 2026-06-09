@@ -18,8 +18,6 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get()
             ->groupBy(function($item) {
-                // L'astuce est ici : si typeClient est vide, on dit que c'est 'Entreprise'
-                // pour que le groupage ne plante pas.
                 $type = $item->typeClient ?? 'Entreprise';
                 return $item->client . $type . $item->created_at->format('Y-m-d H:i');
             });
@@ -36,26 +34,20 @@ class DevisController extends Controller
 
         $referencePrefill = $request->query('reference_prefill');
 
-        // Récupération des tarifs pour les boutons d'ajout rapide
         $tarifsTravaux = \App\Models\TravailTarif::all();
         $allTarifs = \App\Models\Tarif::all();
 
         $livraisonPrefill = $request->query('livraison_prefill', '0.00');
-        // Si ça ne marche pas avec Email, essayez :
         $emailsCarnet = \App\Models\Email::orderBy('adresse')->get();
         $typeRaw = $request->query('type_client_prefill');
         if ($typeRaw) {
-            // Si c'est dans l'URL, on l'utilise
             $typeClientPrefill = ucfirst(strtolower($typeRaw));
         } elseif (strtolower($clientPrefill) == 'particulier') {
-            // Sinon, si le nom du client est "particulier", on force Particulier
             $typeClientPrefill = 'Particulier';
         } else {
-            // Par défaut
             $typeClientPrefill = 'Entreprise';
         }
 
-        // AJOUT de tarifsTravaux dans le compact
         return view('devis.create', compact(
             'clientPrefill',
             'adressePrefill',
@@ -81,7 +73,6 @@ class DevisController extends Controller
             $quantite = (int) $ligneData['nombrePierre'];
             $matiereUnitaire = (float)$ligneData['longueurM'] * (float)$ligneData['largeurM'];
 
-            // Calcul du prix de base
             $prixTotalPierres = ($matiereUnitaire * (float)$ligneData['prixM2']) * $quantite;
 
             $totalOptionsLigne = 0;
@@ -100,7 +91,6 @@ class DevisController extends Controller
             $typeLinteau = $isLinteau ? ($ligneData['type_linteau'] ?? 'lisse_adoucie') : null;
             $finition = !$isLinteau ? ($ligneData['finition'] ?? '') : null;
 
-            // Sauvegarde en Base de Données
             $devis = new Devis([
                 'client'       => $request->client,
                 'reference'    => $request->reference,
@@ -177,7 +167,6 @@ class DevisController extends Controller
 
 
                     ]);
-                    // On additionne le prix tel quel (car le JS l'a déjà multiplié par la quantité)
                     $totalOptionsCumulees += (float) ($specData['prix'] ?? 0);
                 }
             }
@@ -187,16 +176,13 @@ class DevisController extends Controller
         $matiereParPierre = (float) $request->longueurM * (float) $request->largeurM;
         $prixManuelUnitaire = (float) $request->prix_manuel_unitaire;
 
-        // GESTION DU LINTEAU
         $isLinteau = $request->has('is_linteau') && $request->is_linteau === 'on';
         $typeLinteau = $isLinteau ? ($request->type_linteau ?? 'lisse_adoucie') : null;
         $finition = !$isLinteau ? ($request->finition ?? '') : null;
 
         if ($prixManuelUnitaire > 0) {
-            // Prix saisi manuellement : on prend directement unitaire × quantité
             $prixTotalPierres = $prixManuelUnitaire * $quantite;
         } else {
-            // Calcul automatique habituel
             $prixTotalPierres = ($matiereParPierre * (float) $request->prixM2) * $quantite;
         }
         $prixHTFinal = $prixTotalPierres + $totalOptionsCumulees;
@@ -230,7 +216,6 @@ class DevisController extends Controller
             'new_reference' => 'nullable',
         ]);
 
-        // On écrase avec la valeur saisie, même si c'est vide (null)
         \App\Models\Devis::where('client', $request->old_client)
             ->where('created_at', $request->old_date)
             ->update([
@@ -246,7 +231,6 @@ class DevisController extends Controller
 
     public function updateLivraison(Request $request)
     {
-        // On met à jour TOUTES les lignes avec le même montant
         Devis::where('client', $request->client)
             ->whereDate('created_at', $request->date)
             ->update([
@@ -268,10 +252,8 @@ class DevisController extends Controller
     private function extrairePays($adresseBrute)
     {
         try {
-            // Utilisation de l'API OpenStreetMap (Nominatim)
-            // Elle est excellente pour détecter les pays dans n'importe quel texte
             $response = Http::withHeaders([
-                'User-Agent' => 'ArtDeLaPierreApp' // Requis par leur politique d'utilisation
+                'User-Agent' => 'ArtDeLaPierreApp'
             ])->get("https://nominatim.openstreetmap.org/search", [
                 'q' => $adresseBrute,
                 'format' => 'json',
@@ -281,11 +263,9 @@ class DevisController extends Controller
 
             if ($response->successful() && !empty($response->json())) {
                 $data = $response->json()[0];
-                // On récupère le nom du pays
                 return $data['address']['country'] ?? 'FRANCE';
             }
         } catch (\Exception $e) {
-            // En cas d'erreur réseau
         }
 
         return '';
@@ -295,8 +275,6 @@ class DevisController extends Controller
     public function downloadPDF(Request $request,$client, $date)
     {
         $reference = $request->query('ref');
-        // On reformate la date reçue de l'URL pour la requête SQL
-        // L'URL aura un format 2026-02-26-13-30-00
         $dateSql = Carbon::createFromFormat('Y-m-d-H-i-s', $date)->format('Y-m-d H:i:s');
 
         $lignes = Devis::where('client', $client)
@@ -321,7 +299,6 @@ class DevisController extends Controller
 
         $poids = $lignes->sum('poids');
 
-        // On charge la vue qu'on va créer après
         $pdf = PDF::loadView('pdfs.devis_template', [
             'lignes' => $lignes,
             'client' => $client,
@@ -336,7 +313,6 @@ class DevisController extends Controller
             'poids' => $poids,
         ]);
 
-        // Configuration millimétrée
         return $pdf
             ->setOption('page-size', 'A4')
             ->setOption('margin-top', '0mm')
@@ -396,7 +372,6 @@ class DevisController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        // On récupère toutes les épaisseurs uniques présentes dans vos tarifs
         $epaiseursTarifs = \App\Models\Tarif::distinct()->pluck('epaisseur')->toArray();
 
         $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('pdfs.atelier_template', [
@@ -537,7 +512,6 @@ class DevisController extends Controller
 
         $p = $lignes->first();
 
-        // ── Validation des champs critiques avant envoi ──────────────
         $champsManquants = [];
 
         if (empty(trim($p->client)))     $champsManquants[] = "Nom du client";
@@ -552,7 +526,6 @@ class DevisController extends Controller
             ], 422);
         }
 
-        // ── Construction des lignes ───────────────────────────────────────────
         $lignesPourMake = [];
 
         foreach ($lignes as $devis) {
@@ -593,7 +566,6 @@ class DevisController extends Controller
             ];
         }
 
-        // ── Frais de livraison ────────────────────────────────────────────────
         $livraison = round((float)$lignes->avg('livraison'), 2);
         \Log::info('Livraison: ' . $livraison);
         if ($livraison > 0) {
@@ -607,12 +579,10 @@ class DevisController extends Controller
             ];
         }
 
-        // ── Adresse : valeurs par défaut si vides ─────────────────────────────
         $clientAdresse = !empty($p->adresse)    ? $p->adresse    : 'Non renseignée';
         $clientVille   = !empty($p->ville)      ? $p->ville      : 'Non renseignée';
         $clientCp      = !empty($p->codePostal) ? $p->codePostal : '00000';
 
-        // ── Envoi au webhook Make ─────────────────────────────────────────────
         $payload = [
             'nom_client'     => $p->client,
             'date_emission'  => $p->created_at->format('Y-m-d'),

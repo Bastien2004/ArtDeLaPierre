@@ -14,7 +14,6 @@ class Stocks extends Model
         'epaisseur'
     ];
 
-    // Petit plus : Un attribut calculé pour la surface
     public function getSurfaceAttribute()
     {
         return $this->longueur * $this->largeur * $this->quantite;

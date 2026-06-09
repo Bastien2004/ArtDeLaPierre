@@ -16,7 +16,6 @@ return new class extends Migration
             $table->decimal('rejingotML', 8, 2)->nullable()->change();
         });
 
-        // PostgreSQL nécessite un USING explicite pour convertir en boolean
         DB::statement('ALTER TABLE devis ALTER COLUMN oreilles TYPE boolean USING (oreilles::int::boolean)');
         DB::statement('ALTER TABLE devis ALTER COLUMN oreilles DROP NOT NULL');
     }

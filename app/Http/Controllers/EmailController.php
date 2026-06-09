@@ -30,7 +30,6 @@ class EmailController extends Controller
         return redirect()->route('emails.index')->with('success', 'Email supprimé.');
     }
 
-    // Appelé en AJAX pour l'autocomplete
     public function search(Request $request)
     {
         $q = $request->query('q', '');
@@ -42,7 +41,6 @@ class EmailController extends Controller
         return response()->json($emails);
     }
 
-    // Enregistre un email s'il n'existe pas déjà
     public function store(Request $request)
     {
         $request->validate(['adresse' => 'required|email']);

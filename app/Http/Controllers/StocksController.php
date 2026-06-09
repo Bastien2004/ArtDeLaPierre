@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 class StocksController extends Controller
 {
-    // Afficher la liste
     public function index()
     {
         $stocks = Stocks::orderBy('epaisseur', 'asc')->orderBy('matiere', 'asc')->get();
@@ -22,7 +21,6 @@ class StocksController extends Controller
         return view('stocks.stocks', compact('stocks', 'blocs','cassons', 'autres', 'prixManuels'));
     }
 
-    // Ajouter ou Modifier (Le formulaire gère les deux via les routes)
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -55,7 +53,6 @@ class StocksController extends Controller
         return redirect()->back()->with('success', 'Stock mis à jour !');
     }
 
-    // Supprimer
     public function destroy($id)
     {
         $stock = Stocks::findOrFail($id);

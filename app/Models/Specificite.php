@@ -9,7 +9,6 @@ class Specificite extends Model
 {
     use HasFactory;
 
-    // Autoriser l'assignation de masse (indispensable pour le ->create() du contrôleur)
     protected $fillable = [
         'devis_id',
         'nom',
@@ -19,8 +18,6 @@ class Specificite extends Model
         'unite',
     ];
 
-    // Définir la relation inverse
-    // Chaque spécificité appartient à une seule ligne de devis
     public function devis()
     {
         return $this->belongsTo(Devis::class);
