@@ -45,14 +45,25 @@
             <div class="debit-row">
                 <div class="col-qty">{{ $l->nombrePierre }}p</div>
                 <div class="col-main">
-                    <span class="type-pierre">{{ strtoupper($l->typePierre) }}</span>
+                    <span class="type-pierre">
+                        {{ strtoupper($l->typePierre) }}
+                        @if($l->is_linteau)
+                            <span class="badge-linteau">
+                                LINTEAU
+                                @if($l->type_linteau === 'cisele_boucharde')
+                                    - CISELÉ + BOUCHARDÉ
+                                @else
+                                    - ADOUCI
+                                @endif
+                            </span>
+                        @endif
+                    </span>
                     <span class="dims">
                         {{ formatDim($l->longueurM) }} x {{ formatDim($l->largeurM) }}
                     </span>
                     <span class="epaisseur {{ $dynamicEpClass }}">
                         {{ $l->epaisseur }} cm
                     </span>
-
                     @if($l->specificites->count() > 0)
                         <div class="specs">
                             @foreach($l->specificites as $spec)
