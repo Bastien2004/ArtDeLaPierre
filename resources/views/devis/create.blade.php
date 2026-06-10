@@ -380,7 +380,7 @@
             <div class="ligne-spec">
                 <div class="form-grid-specs">
                     <input type="text" name="lignes[${pIdx}][specs][${sIdx}][nom]">
-                    <input type="number" step="0.001" name="lignes[${pIdx}][specs][${sIdx}][prix]">€
+                    <input type="number" step="0.001" name="lignes[${pIdx}][specs][${sIdx}][prix]" required>€
                     <button type="button" class="remove-spec" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
             </div>`;
